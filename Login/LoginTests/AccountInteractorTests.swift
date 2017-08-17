@@ -59,24 +59,39 @@ class AccountInteractorTests: XCTestCase {
   func testShowErrorWhenValidateWithNoInput() {
     interactor.validateAccount("")
     
-    XCTAssertTrue(output.errorIsShowed)
+    assertOutputReceived(error: .inputIsEmpty)
   }
   
   func testShowPasswordInputWhenAccountIsValid() {
-    service.validAccounts = ["1", "a"]
+    service.validAccounts = ["xf01", "cy02"]
     
-    interactor.validateAccount("1")
+    interactor.validateAccount("xf01")
     
     XCTAssertTrue(output.passwordInputIsShowed)
+    XCTAssertEqual(output.errors.count, 0)
+  }
+  
+  func testShowErrorWhenAccountIsInvalid() {
+    service.validAccounts = ["xf01", "cy02"]
+    
+    interactor.validateAccount("zxs03")
+    
+    XCTAssertFalse(output.passwordInputIsShowed)
+    assertOutputReceived(error: .accountIsNotRecognized)
+  }
+  
+  private func assertOutputReceived(error: AccountError) {
+    XCTAssertEqual(output.errors.count, 1)
+    XCTAssertEqual(output.errors.first, error)
   }
 }
 
 class AccountInteractorOutputSpy: AccountInteractorOutput {
-  var errorIsShowed = false
+  var errors = [AccountError]()
   var passwordInputIsShowed = false
   
-  func showError() {
-    errorIsShowed = true
+  func showError(_ error: AccountError) {
+    errors.append(error)
   }
   
   func showPasswordInput() {
