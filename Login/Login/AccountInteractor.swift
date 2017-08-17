@@ -4,12 +4,13 @@ protocol AccountInteractorOutput: class {
 }
 
 protocol AccountInteractorService {
-  func validateAccount(_ id: String, completionHandler: (Bool)->Void)
+  func validateAccount(_ id: String, completionHandler: (Bool?, AccountError?) -> Void)
 }
 
 enum AccountError {
   case inputIsEmpty
   case accountIsNotRecognized
+  case serviceIsNotAvailable
 }
 
 class AccountInteractor {
@@ -23,6 +24,15 @@ class AccountInteractor {
     else {
       service.validateAccount(id, completionHandler: didValidateAccount)
     }
+  }
+  
+  func didValidateAccount(isValid: Bool?, error: AccountError?) {
+    if let error = error {
+      output?.showError(error)
+      return
+    }
+    
+    didValidateAccount(isValid: isValid!)
   }
   
   func didValidateAccount(isValid: Bool) {

@@ -80,6 +80,16 @@ class AccountInteractorTests: XCTestCase {
     assertOutputReceived(error: .accountIsNotRecognized)
   }
   
+  func testShowErrorWhenServiceIsNotAvailable() {
+    service.isAvailable = false
+    service.validAccounts = ["xf01", "cy02"]
+    
+    interactor.validateAccount("xf01")
+    
+    XCTAssertFalse(output.passwordInputIsShowed)
+    assertOutputReceived(error: .serviceIsNotAvailable)
+  }
+  
   private func assertOutputReceived(error: AccountError) {
     XCTAssertEqual(output.errors.count, 1)
     XCTAssertEqual(output.errors.first, error)
@@ -100,10 +110,16 @@ class AccountInteractorOutputSpy: AccountInteractorOutput {
 }
 
 class AccountInteractorServiceSpy: AccountInteractorService {
+  var isAvailable = true
   var validAccounts: [String]!
   
-  func validateAccount(_ id: String, completionHandler: (Bool) -> Void) {
-    let isValid = validAccounts.contains(id)
-    completionHandler(isValid)
+  func validateAccount(_ id: String, completionHandler: (Bool?, AccountError?) -> Void) {
+    if isAvailable {
+      let isValid = validAccounts.contains(id)
+      completionHandler(isValid, nil)
+    }
+    else {
+      completionHandler(nil, .serviceIsNotAvailable)
+    }
   }
 }
