@@ -43,13 +43,13 @@ import XCTest
 class AccountInteractorTests: XCTestCase {
   var interactor: AccountInteractor!
   var output: AccountInteractorOutputSpy!
-  var service: AccountInteractorServiceSpy!
+  var service: AccountValidationServiceSpy!
   
   override func setUp() {
     super.setUp()
     
     output = AccountInteractorOutputSpy()
-    service = AccountInteractorServiceSpy()
+    service = AccountValidationServiceSpy()
     
     interactor = AccountInteractor()
     interactor.output = output
@@ -109,7 +109,7 @@ class AccountInteractorOutputSpy: AccountInteractorOutput {
   }
 }
 
-class AccountInteractorServiceSpy: AccountInteractorService {
+class AccountValidationServiceSpy: AccountValidationService {
   var isAvailable = true
   var validAccounts: [String]!
   

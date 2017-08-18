@@ -3,7 +3,7 @@ protocol AccountInteractorOutput: class {
   func showPasswordInput()
 }
 
-protocol AccountInteractorService {
+protocol AccountValidationService {
   func validateAccount(_ id: String, completionHandler: (Bool?, AccountError?) -> Void)
 }
 
@@ -15,7 +15,7 @@ enum AccountError {
 
 class AccountInteractor {
   weak var output: AccountInteractorOutput?
-  var service: AccountInteractorService!
+  var service: AccountValidationService!
   
   func validateAccount(_ id: String) {
     if id == "" {
