@@ -8,10 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		C36641E51F45AF4500C88266 /* Login.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C36641DB1F45AF4500C88266 /* Login.framework */; };
-		C36641EA1F45AF4500C88266 /* LoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36641E91F45AF4500C88266 /* LoginTests.swift */; };
 		C36641EC1F45AF4500C88266 /* Login.h in Headers */ = {isa = PBXBuildFile; fileRef = C36641DE1F45AF4500C88266 /* Login.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C36641F61F45AFB200C88266 /* AccountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36641F51F45AFB200C88266 /* AccountInteractor.swift */; };
 		C36641F81F45AFBE00C88266 /* AccountInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36641F71F45AFBE00C88266 /* AccountInteractorTests.swift */; };
+		C3E2EB4D1F47020400A35133 /* AccountPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E2EB4C1F47020400A35133 /* AccountPresenterTests.swift */; };
+		C3E2EB4F1F470B1500A35133 /* AccountPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E2EB4E1F470B1500A35133 /* AccountPresenter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,10 +30,11 @@
 		C36641DE1F45AF4500C88266 /* Login.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Login.h; sourceTree = "<group>"; };
 		C36641DF1F45AF4500C88266 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C36641E41F45AF4500C88266 /* LoginTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LoginTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C36641E91F45AF4500C88266 /* LoginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTests.swift; sourceTree = "<group>"; };
 		C36641EB1F45AF4500C88266 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C36641F51F45AFB200C88266 /* AccountInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInteractor.swift; sourceTree = "<group>"; };
 		C36641F71F45AFBE00C88266 /* AccountInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInteractorTests.swift; sourceTree = "<group>"; };
+		C3E2EB4C1F47020400A35133 /* AccountPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPresenterTests.swift; sourceTree = "<group>"; };
+		C3E2EB4E1F470B1500A35133 /* AccountPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPresenter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +80,7 @@
 				C36641DE1F45AF4500C88266 /* Login.h */,
 				C36641DF1F45AF4500C88266 /* Info.plist */,
 				C36641F51F45AFB200C88266 /* AccountInteractor.swift */,
+				C3E2EB4E1F470B1500A35133 /* AccountPresenter.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -85,9 +88,9 @@
 		C36641E81F45AF4500C88266 /* LoginTests */ = {
 			isa = PBXGroup;
 			children = (
-				C36641E91F45AF4500C88266 /* LoginTests.swift */,
 				C36641EB1F45AF4500C88266 /* Info.plist */,
 				C36641F71F45AFBE00C88266 /* AccountInteractorTests.swift */,
+				C3E2EB4C1F47020400A35133 /* AccountPresenterTests.swift */,
 			);
 			path = LoginTests;
 			sourceTree = "<group>";
@@ -201,6 +204,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C3E2EB4F1F470B1500A35133 /* AccountPresenter.swift in Sources */,
 				C36641F61F45AFB200C88266 /* AccountInteractor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -209,8 +213,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C3E2EB4D1F47020400A35133 /* AccountPresenterTests.swift in Sources */,
 				C36641F81F45AFBE00C88266 /* AccountInteractorTests.swift in Sources */,
-				C36641EA1F45AF4500C88266 /* LoginTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,6 +428,7 @@
 				C36641F11F45AF4500C88266 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C36641F21F45AF4500C88266 /* Build configuration list for PBXNativeTarget "LoginTests" */ = {
 			isa = XCConfigurationList;
@@ -432,6 +437,7 @@
 				C36641F41F45AF4500C88266 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
