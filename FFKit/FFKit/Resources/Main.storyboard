@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="ywl-Wl-54A">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13174"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Test View Controller-->
+        <scene sceneID="yxd-Xh-XoL">
+            <objects>
+                <viewController id="ywl-Wl-54A" customClass="TestViewController" customModule="FFKit" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="VvE-vg-BMh"/>
+                        <viewControllerLayoutGuide type="bottom" id="sjJ-dF-47H"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Ufa-7i-bnH">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="54W-zn-73w">
+                                <rect key="frame" x="164" y="252" width="46" height="30"/>
+                                <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="performAction1:" destination="ywl-Wl-54A" eventType="touchUpInside" id="5ij-7E-LaM"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aKY-e9-7J2">
+                                <rect key="frame" x="164" y="385" width="46" height="30"/>
+                                <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="performAction2:" destination="ywl-Wl-54A" eventType="touchUpInside" id="5pb-b9-jfd"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="0.36379599569999999" green="0.66091537479999996" blue="0.79876571890000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="54W-zn-73w" firstAttribute="centerY" secondItem="Ufa-7i-bnH" secondAttribute="centerY" multiplier="0.8" id="4qk-Jf-X5G"/>
+                            <constraint firstItem="aKY-e9-7J2" firstAttribute="centerX" secondItem="Ufa-7i-bnH" secondAttribute="centerX" id="av8-VW-W8t"/>
+                            <constraint firstItem="54W-zn-73w" firstAttribute="centerX" secondItem="Ufa-7i-bnH" secondAttribute="centerX" id="cSB-7p-8H8"/>
+                            <constraint firstItem="aKY-e9-7J2" firstAttribute="centerY" secondItem="Ufa-7i-bnH" secondAttribute="centerY" multiplier="1.2" id="fjm-K5-Vzm"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="bgp-4N-ON4" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="25" y="-233"/>
+        </scene>
+    </scenes>
+</document>
