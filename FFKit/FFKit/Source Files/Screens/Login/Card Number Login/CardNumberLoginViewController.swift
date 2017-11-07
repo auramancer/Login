@@ -18,16 +18,33 @@ class UserNameLoginViewController: UIViewController {
     setUpViews()
     
     configurator = UserNameLoginViewConfigurator(for: self)
-    refresh()
+    updateDetails()
   }
   
   private func setUpViews() {
-    userNameField.delegate = self
-    passwordField.delegate = self
+    observeDetailInputField(userNameField)
+    observeDetailInputField(passwordField)
   }
   
-  private func refresh() {
-    interactor?.refresh()
+  private func observeDetailInputField(_ field: UITextField) {
+    field.addTarget(self, action: #selector(updateDetails), for: .editingChanged)
+  }
+  
+  @objc private func updateDetails() {
+    let details = UserNameLoginDetails(userName: userName, password: password)
+    interactor?.updateDetail(details)
+  }
+  
+  private var userName: String {
+    return userNameField.text ?? ""
+  }
+  
+  private var password: String {
+    return passwordField.text ?? ""
+  }
+  
+  @IBAction func didPressLogInButton(_ sender: Any) {
+    interactor?.logIn()
   }
   
   override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -35,52 +52,30 @@ class UserNameLoginViewController: UIViewController {
     
     fieldsStackView.axis = size.width >= 480 ? .horizontal : .vertical
   }
-  
-  @IBAction func didPressLogInButton(_ sender: Any) {
-    interactor?.logIn()
-  }
-}
-
-extension UserNameLoginViewController: UITextFieldDelegate {
-  func textField(_ textField: UITextField,
-                 shouldChangeCharactersIn range: NSRange,
-                 replacementString string: String) -> Bool {
-    if let oldText = textField.text as NSString? {
-      let newText = oldText.replacingCharacters(in: range, with: string)
-      attempToChangeText(of: textField, to: newText)
-    }
-    
-    return false
-  }
-  
-  func attempToChangeText(of textField: UITextField, to newText: String) {
-    if textField === userNameField {
-      interactor?.attempToChangeUserName(to: newText)
-    }
-    else if textField === passwordField {
-      interactor?.attempToChangePassword(to: newText)
-    }
-  }
 }
 
 extension UserNameLoginViewController: UserNameLoginPresenterOutput {
-  func showUserName(_ userName: String) {
-    userNameField.text = userName
-  }
-  
-  func showPassword(_ password: String) {
-    passwordField.text = password
-  }
-  
-  func showLogInIsEnabled(_ isEnabled: Bool) {
+  func setLogInEnabled(to isEnabled: Bool) {
     logInButton.isEnabled = isEnabled
   }
   
-  func showActivityMessage(_: String) {
+  func showActivityMessage(_: String?) {
     
   }
   
-  func showErrorMessage(_: String) {
+  func hideActivityMessage() {
+    
+  }
+  
+  func showErrorMessage(_: String?) {
+    
+  }
+  
+  func hideErrorMessage() {
+    
+  }
+  
+  func close() {
     
   }
 }
@@ -107,7 +102,7 @@ class UserNameLoginViewConfigurator {
 class UserNameLoginService: UserNameLoginServiceInput {
   weak var output: UserNameLoginServiceOutput?
   
-  func logIn(withUserName: String, password: String) {
-    
+  func logIn(withDetails: UserNameLoginDetails) {
+    print("Logging in")
   }
 }
