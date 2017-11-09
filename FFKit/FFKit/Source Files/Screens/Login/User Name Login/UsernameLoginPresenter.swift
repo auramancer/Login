@@ -1,4 +1,4 @@
-protocol UserNameLoginPresenterOutput: class {
+protocol UsernameLoginPresenterOutput: class {
   func setLogInEnabled(to: Bool)
   func showActivityMessage(_: String?)
   func hideActivityMessage()
@@ -7,17 +7,17 @@ protocol UserNameLoginPresenterOutput: class {
   func close()
 }
 
-class UserNameLoginPresenter {
-  weak var output: UserNameLoginPresenterOutput?
+class UsernameLoginPresenter {
+  weak var output: UsernameLoginPresenterOutput?
 }
 
-extension UserNameLoginPresenter: UserNameLoginInteractorOutput {
-  func updateState(_ state: UserNameLoginState) {
+extension UsernameLoginPresenter: LoginInteractorOutput {
+  func updateState(_ state: LoginState) {
     output?.setLogInEnabled(to: state == .ready)
     updateActivity(for: state)
   }
   
-  private func updateActivity(for state: UserNameLoginState) {
+  private func updateActivity(for state: LoginState) {
     if state == .inProgress {
       output?.hideErrorMessage()
       output?.showActivityMessage(activityMessage)
@@ -31,7 +31,7 @@ extension UserNameLoginPresenter: UserNameLoginInteractorOutput {
     return nil // No text
   }
   
-  func updateResult(_ result: UserNameLoginResult) {
+  func updateResult(_ result: LoginResult) {
     switch result {
     case let .failed(errors):
       let message = errorMessage(for: errors)
@@ -41,7 +41,7 @@ extension UserNameLoginPresenter: UserNameLoginInteractorOutput {
     }
   }
   
-  private func errorMessage(for errors: [UserNameLoginError]) -> String {
+  private func errorMessage(for errors: [LoginError]) -> String {
     return "" // TBD
   }
 }

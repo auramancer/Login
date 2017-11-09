@@ -1,20 +1,20 @@
 import XCTest
 @testable import FFKit
 
-class UserNameLoginPresenterTests: XCTestCase {
-  private var presenter: UserNameLoginPresenter!
-  private var output: UserNameLoginPresenterOutputSpy!
+class UsernameLoginPresenterTests: XCTestCase {
+  private var presenter: UsernameLoginPresenter!
+  private var output: UsernameLoginPresenterOutputSpy!
   
-  private let userName = "name"
+  private let username = "name"
   private let password = "1234"
-  private let error = UserNameLoginError.unrecognized
+  private let error = UsernameLoginError.unrecognized
   
   override func setUp() {
     super.setUp()
     
-    output = UserNameLoginPresenterOutputSpy()
+    output = UsernameLoginPresenterOutputSpy()
     
-    presenter = UserNameLoginPresenter()
+    presenter = UsernameLoginPresenter()
     presenter.output = output
   }
   
@@ -60,7 +60,7 @@ class UserNameLoginPresenterTests: XCTestCase {
   }
 }
 
-private class UserNameLoginPresenterOutputSpy: UserNameLoginPresenterOutput {
+private class UsernameLoginPresenterOutputSpy: UsernameLoginPresenterOutput {
   var logInEnabledSpy: Bool?
   var activityMessageSpy: String?
   var didShowActivityMessage = false
