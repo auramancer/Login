@@ -3,16 +3,25 @@ struct UsernameLoginDetails {
   let password: String
 }
 
-protocol UsernameLoginServiceInput: class {
-  func logIn(withUsernameDetails: UsernameLoginDetails)
-}
-
-extension LoginDestination {
+extension LoginHelp {
   static let forgottenUsername = "forgottenUsername"
   static let forgottenPassword = "forgottenPassword"
 }
 
-class UsernameLoginInteractor: AbstractLoginInteractor {
+protocol UsernameLoginInteractorInput: LoginInteractorInput {
+}
+
+protocol UsernameLoginInteractorOutput: LoginInteractorOutput {
+}
+
+protocol UsernameLoginServiceInput: class {
+  func logIn(withUsernameDetails: UsernameLoginDetails)
+}
+
+protocol UsernameLoginServiceOutput: LoginServiceOutput {
+}
+
+class UsernameLoginInteractor: AbstractLoginInteractor, UsernameLoginInteractorInput {
   var service: UsernameLoginServiceInput?
   
   override func invokeService() {
@@ -22,10 +31,13 @@ class UsernameLoginInteractor: AbstractLoginInteractor {
   }
   
   override func helpWithId() {
-    output?.navigate(to: .forgottenUsername)
+    loginInteractorOutput?.showHelp(.forgottenUsername)
   }
   
   override func helpWithSecret() {
-    output?.navigate(to: .forgottenPassword)
+    loginInteractorOutput?.showHelp(.forgottenPassword)
   }
+}
+
+extension UsernameLoginInteractor: UsernameLoginServiceOutput {
 }

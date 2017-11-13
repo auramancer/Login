@@ -15,38 +15,36 @@
 		C33DD9CE1FB4611000C24898 /* LoginMacOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DD9CD1FB4611000C24898 /* LoginMacOSTests.swift */; };
 		C33DD9D41FB4611C00C24898 /* Console.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37466DA1FB36EA4003C66B4 /* Console.swift */; };
 		C33DD9D51FB4611C00C24898 /* UsernameLoginConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E97081FB2052F007AF061 /* UsernameLoginConsole.swift */; };
-		C33DD9D61FB4611C00C24898 /* MembershipCardNumberLoginConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B701FB33C16007AF061 /* MembershipCardNumberLoginConsole.swift */; };
+		C33DD9D61FB4611C00C24898 /* CardNumberLoginConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B701FB33C16007AF061 /* CardNumberLoginConsole.swift */; };
 		C33DD9D71FB4611C00C24898 /* DualModeLoginConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B751FB34EBC007AF061 /* DualModeLoginConsole.swift */; };
 		C33DD9D81FB4611C00C24898 /* LoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E970B1FB2054B007AF061 /* LoginInteractor.swift */; };
 		C33DD9D91FB4611C00C24898 /* LoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E970A1FB2054A007AF061 /* LoginPresenter.swift */; };
-		C33DD9DA1FB4611C00C24898 /* LoginRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37466D81FB367F0003C66B4 /* LoginRouter.swift */; };
 		C33DD9DB1FB4611C00C24898 /* UsernameLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6C1FB325F5007AF061 /* UsernameLoginInteractor.swift */; };
-		C33DD9DC1FB4611C00C24898 /* MembershipCardNumberLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6E1FB32828007AF061 /* MembershipCardNumberLoginInteractor.swift */; };
 		C33DD9DD1FB4611C00C24898 /* DualModeLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6A1FB32564007AF061 /* DualModeLoginInteractor.swift */; };
 		C33DD9F11FB461B800C24898 /* DualModeLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B731FB34C4A007AF061 /* DualModeLoginPresenter.swift */; };
 		C33DD9FB1FB461D900C24898 /* LoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E970B1FB2054B007AF061 /* LoginInteractor.swift */; };
 		C33DD9FC1FB461D900C24898 /* LoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E970A1FB2054A007AF061 /* LoginPresenter.swift */; };
-		C33DD9FD1FB461D900C24898 /* LoginRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37466D81FB367F0003C66B4 /* LoginRouter.swift */; };
 		C33DD9FE1FB461D900C24898 /* UsernameLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6C1FB325F5007AF061 /* UsernameLoginInteractor.swift */; };
-		C33DD9FF1FB461D900C24898 /* MembershipCardNumberLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6E1FB32828007AF061 /* MembershipCardNumberLoginInteractor.swift */; };
 		C33DDA001FB461D900C24898 /* DualModeLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6A1FB32564007AF061 /* DualModeLoginInteractor.swift */; };
 		C33DDA011FB461D900C24898 /* DualModeLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B731FB34C4A007AF061 /* DualModeLoginPresenter.swift */; };
 		C33DDA041FB461E900C24898 /* LoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E970B1FB2054B007AF061 /* LoginInteractor.swift */; };
 		C33DDA051FB461E900C24898 /* LoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E970A1FB2054A007AF061 /* LoginPresenter.swift */; };
-		C33DDA061FB461E900C24898 /* LoginRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37466D81FB367F0003C66B4 /* LoginRouter.swift */; };
 		C33DDA071FB461E900C24898 /* UsernameLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6C1FB325F5007AF061 /* UsernameLoginInteractor.swift */; };
-		C33DDA081FB461E900C24898 /* MembershipCardNumberLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6E1FB32828007AF061 /* MembershipCardNumberLoginInteractor.swift */; };
 		C33DDA091FB461E900C24898 /* DualModeLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6A1FB32564007AF061 /* DualModeLoginInteractor.swift */; };
 		C33DDA0A1FB461E900C24898 /* DualModeLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B731FB34C4A007AF061 /* DualModeLoginPresenter.swift */; };
 		C33DDA171FB46CB400C24898 /* LoginInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B681FB322BD007AF061 /* LoginInteractorTests.swift */; };
 		C33DDA181FB46CB400C24898 /* LoginPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DD96F1FB37B8F00C24898 /* LoginPresenterTests.swift */; };
 		C33DDA191FB46CB400C24898 /* UsernameLoginInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DDA0D1FB466A000C24898 /* UsernameLoginInteractorTests.swift */; };
-		C33DDA1A1FB46CB400C24898 /* MembershipCardNumberLoginInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DDA111FB46AA600C24898 /* MembershipCardNumberLoginInteractorTests.swift */; };
+		C33DDA1A1FB46CB400C24898 /* CardNumberLoginInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DDA111FB46AA600C24898 /* CardNumberLoginInteractorTests.swift */; };
 		C33DDA1C1FB46D1000C24898 /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C33DDA1B1FB46D1000C24898 /* Login.storyboard */; };
 		C33DDA1F1FB46D4900C24898 /* DualModeLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DDA1D1FB46D4900C24898 /* DualModeLoginViewController.swift */; };
 		C33DDA201FB46D4900C24898 /* UsernameLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DDA1E1FB46D4900C24898 /* UsernameLoginViewController.swift */; };
 		C33DDA221FB4708300C24898 /* ServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DDA211FB4708300C24898 /* ServiceStub.swift */; };
 		C33DDA231FB470AD00C24898 /* ServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DDA211FB4708300C24898 /* ServiceStub.swift */; };
+		D29BB4101FB5BAED00DCEF0A /* VerificationCodeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D29BB40F1FB5BAED00DCEF0A /* VerificationCodeInteractor.swift */; };
+		D29BB4121FB5FDFD00DCEF0A /* CardNumberLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D29BB4111FB5FDFD00DCEF0A /* CardNumberLoginInteractor.swift */; };
+		D29BB4131FB5FDFD00DCEF0A /* CardNumberLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D29BB4111FB5FDFD00DCEF0A /* CardNumberLoginInteractor.swift */; };
+		D29BB4141FB5FDFD00DCEF0A /* CardNumberLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D29BB4111FB5FDFD00DCEF0A /* CardNumberLoginInteractor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,12 +85,11 @@
 		C33DD9CD1FB4611000C24898 /* LoginMacOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginMacOSTests.swift; sourceTree = "<group>"; };
 		C33DD9CF1FB4611000C24898 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C33DDA0D1FB466A000C24898 /* UsernameLoginInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameLoginInteractorTests.swift; sourceTree = "<group>"; };
-		C33DDA111FB46AA600C24898 /* MembershipCardNumberLoginInteractorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MembershipCardNumberLoginInteractorTests.swift; sourceTree = "<group>"; };
+		C33DDA111FB46AA600C24898 /* CardNumberLoginInteractorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardNumberLoginInteractorTests.swift; sourceTree = "<group>"; };
 		C33DDA1B1FB46D1000C24898 /* Login.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Login.storyboard; path = "../../FFKit/FFKit/Source Files/Screens/Login/Login.storyboard"; sourceTree = "<group>"; };
 		C33DDA1D1FB46D4900C24898 /* DualModeLoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DualModeLoginViewController.swift; path = "../../FFKit/FFKit/Source Files/Screens/Login/DualModeLoginViewController.swift"; sourceTree = "<group>"; };
 		C33DDA1E1FB46D4900C24898 /* UsernameLoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UsernameLoginViewController.swift; path = "../../FFKit/FFKit/Source Files/Screens/Login/User Name Login/UsernameLoginViewController.swift"; sourceTree = "<group>"; };
 		C33DDA211FB4708300C24898 /* ServiceStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceStub.swift; sourceTree = "<group>"; };
-		C37466D81FB367F0003C66B4 /* LoginRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRouter.swift; sourceTree = "<group>"; };
 		C37466DA1FB36EA4003C66B4 /* Console.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Console.swift; sourceTree = "<group>"; };
 		C38E97081FB2052F007AF061 /* UsernameLoginConsole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameLoginConsole.swift; sourceTree = "<group>"; };
 		C38E970A1FB2054A007AF061 /* LoginPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPresenter.swift; sourceTree = "<group>"; };
@@ -100,10 +97,11 @@
 		C38E9B681FB322BD007AF061 /* LoginInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginInteractorTests.swift; sourceTree = "<group>"; };
 		C38E9B6A1FB32564007AF061 /* DualModeLoginInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualModeLoginInteractor.swift; sourceTree = "<group>"; };
 		C38E9B6C1FB325F5007AF061 /* UsernameLoginInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameLoginInteractor.swift; sourceTree = "<group>"; };
-		C38E9B6E1FB32828007AF061 /* MembershipCardNumberLoginInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipCardNumberLoginInteractor.swift; sourceTree = "<group>"; };
-		C38E9B701FB33C16007AF061 /* MembershipCardNumberLoginConsole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipCardNumberLoginConsole.swift; sourceTree = "<group>"; };
+		C38E9B701FB33C16007AF061 /* CardNumberLoginConsole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardNumberLoginConsole.swift; sourceTree = "<group>"; };
 		C38E9B731FB34C4A007AF061 /* DualModeLoginPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualModeLoginPresenter.swift; sourceTree = "<group>"; };
 		C38E9B751FB34EBC007AF061 /* DualModeLoginConsole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualModeLoginConsole.swift; sourceTree = "<group>"; };
+		D29BB40F1FB5BAED00DCEF0A /* VerificationCodeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationCodeInteractor.swift; sourceTree = "<group>"; };
+		D29BB4111FB5FDFD00DCEF0A /* CardNumberLoginInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardNumberLoginInteractor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -167,7 +165,7 @@
 				C33DD9C21FB460FB00C24898 /* main.swift */,
 				C37466DA1FB36EA4003C66B4 /* Console.swift */,
 				C38E97081FB2052F007AF061 /* UsernameLoginConsole.swift */,
-				C38E9B701FB33C16007AF061 /* MembershipCardNumberLoginConsole.swift */,
+				C38E9B701FB33C16007AF061 /* CardNumberLoginConsole.swift */,
 				C38E9B751FB34EBC007AF061 /* DualModeLoginConsole.swift */,
 			);
 			path = LoginMacOS;
@@ -187,12 +185,12 @@
 			children = (
 				C38E970B1FB2054B007AF061 /* LoginInteractor.swift */,
 				C38E970A1FB2054A007AF061 /* LoginPresenter.swift */,
-				C37466D81FB367F0003C66B4 /* LoginRouter.swift */,
 				C38E9B6C1FB325F5007AF061 /* UsernameLoginInteractor.swift */,
-				C38E9B6E1FB32828007AF061 /* MembershipCardNumberLoginInteractor.swift */,
+				D29BB4111FB5FDFD00DCEF0A /* CardNumberLoginInteractor.swift */,
 				C38E9B6A1FB32564007AF061 /* DualModeLoginInteractor.swift */,
 				C38E9B731FB34C4A007AF061 /* DualModeLoginPresenter.swift */,
 				C33DDA211FB4708300C24898 /* ServiceStub.swift */,
+				D29BB40F1FB5BAED00DCEF0A /* VerificationCodeInteractor.swift */,
 			);
 			path = "Source Code";
 			sourceTree = "<group>";
@@ -203,7 +201,7 @@
 				C38E9B681FB322BD007AF061 /* LoginInteractorTests.swift */,
 				C33DD96F1FB37B8F00C24898 /* LoginPresenterTests.swift */,
 				C33DDA0D1FB466A000C24898 /* UsernameLoginInteractorTests.swift */,
-				C33DDA111FB46AA600C24898 /* MembershipCardNumberLoginInteractorTests.swift */,
+				C33DDA111FB46AA600C24898 /* CardNumberLoginInteractorTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -395,13 +393,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				C33DDA201FB46D4900C24898 /* UsernameLoginViewController.swift in Sources */,
-				C33DDA081FB461E900C24898 /* MembershipCardNumberLoginInteractor.swift in Sources */,
 				C33DDA051FB461E900C24898 /* LoginPresenter.swift in Sources */,
 				C33DDA221FB4708300C24898 /* ServiceStub.swift in Sources */,
 				C33DDA0A1FB461E900C24898 /* DualModeLoginPresenter.swift in Sources */,
+				D29BB4121FB5FDFD00DCEF0A /* CardNumberLoginInteractor.swift in Sources */,
 				C33DDA071FB461E900C24898 /* UsernameLoginInteractor.swift in Sources */,
+				D29BB4101FB5BAED00DCEF0A /* VerificationCodeInteractor.swift in Sources */,
 				C33DD99F1FB460E000C24898 /* AppDelegate.swift in Sources */,
-				C33DDA061FB461E900C24898 /* LoginRouter.swift in Sources */,
 				C33DDA041FB461E900C24898 /* LoginInteractor.swift in Sources */,
 				C33DDA091FB461E900C24898 /* DualModeLoginInteractor.swift in Sources */,
 				C33DDA1F1FB46D4900C24898 /* DualModeLoginViewController.swift in Sources */,
@@ -420,19 +418,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C33DD9DC1FB4611C00C24898 /* MembershipCardNumberLoginInteractor.swift in Sources */,
 				C33DD9D91FB4611C00C24898 /* LoginPresenter.swift in Sources */,
 				C33DD9D71FB4611C00C24898 /* DualModeLoginConsole.swift in Sources */,
 				C33DD9F11FB461B800C24898 /* DualModeLoginPresenter.swift in Sources */,
 				C33DD9DD1FB4611C00C24898 /* DualModeLoginInteractor.swift in Sources */,
 				C33DD9D81FB4611C00C24898 /* LoginInteractor.swift in Sources */,
+				D29BB4131FB5FDFD00DCEF0A /* CardNumberLoginInteractor.swift in Sources */,
 				C33DDA231FB470AD00C24898 /* ServiceStub.swift in Sources */,
 				C33DD9D51FB4611C00C24898 /* UsernameLoginConsole.swift in Sources */,
-				C33DD9DA1FB4611C00C24898 /* LoginRouter.swift in Sources */,
 				C33DD9DB1FB4611C00C24898 /* UsernameLoginInteractor.swift in Sources */,
 				C33DD9D41FB4611C00C24898 /* Console.swift in Sources */,
 				C33DD9C31FB460FB00C24898 /* main.swift in Sources */,
-				C33DD9D61FB4611C00C24898 /* MembershipCardNumberLoginConsole.swift in Sources */,
+				C33DD9D61FB4611C00C24898 /* CardNumberLoginConsole.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -444,14 +441,13 @@
 				C33DD9FE1FB461D900C24898 /* UsernameLoginInteractor.swift in Sources */,
 				C33DD9FB1FB461D900C24898 /* LoginInteractor.swift in Sources */,
 				C33DDA011FB461D900C24898 /* DualModeLoginPresenter.swift in Sources */,
+				D29BB4141FB5FDFD00DCEF0A /* CardNumberLoginInteractor.swift in Sources */,
 				C33DDA181FB46CB400C24898 /* LoginPresenterTests.swift in Sources */,
 				C33DDA171FB46CB400C24898 /* LoginInteractorTests.swift in Sources */,
 				C33DDA001FB461D900C24898 /* DualModeLoginInteractor.swift in Sources */,
-				C33DDA1A1FB46CB400C24898 /* MembershipCardNumberLoginInteractorTests.swift in Sources */,
-				C33DD9FD1FB461D900C24898 /* LoginRouter.swift in Sources */,
+				C33DDA1A1FB46CB400C24898 /* CardNumberLoginInteractorTests.swift in Sources */,
 				C33DDA191FB46CB400C24898 /* UsernameLoginInteractorTests.swift in Sources */,
 				C33DD9CE1FB4611000C24898 /* LoginMacOSTests.swift in Sources */,
-				C33DD9FF1FB461D900C24898 /* MembershipCardNumberLoginInteractor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

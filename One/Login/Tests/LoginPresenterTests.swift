@@ -52,10 +52,10 @@ class LoginPresenterTests: XCTestCase {
     XCTAssertEqual(output.errorMessageSpy, error)
   }
   
-  func testNavigate() {
-    let destination = "home"
+  func testShowHelp() {
+    let help = "forgottenUsername"
     
-    presenter.navigate(to: destination)
+    presenter.showHelp(help)
     
     XCTAssertEqual(output.destinationSpy, destination)
   }

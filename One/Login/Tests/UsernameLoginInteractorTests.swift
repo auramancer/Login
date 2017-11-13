@@ -1,9 +1,9 @@
 import XCTest
 
-class MembershipCardNumberLoginInteractorTests: XCTestCase {
-  private var interactor: MembershipCardNumberLoginInteractor!
+class UsernameLoginInteractorTests: XCTestCase {
+  private var interactor: UsernameLoginInteractor!
   private var output: LoginInteractorOutputSpy!
-  private var service: MembershipCardNumberLoginServiceInputSpy!
+  private var service: UsernameLoginServiceInputSpy!
   
   private let validId = "name"
   private let validSecret = "1234"
@@ -13,31 +13,31 @@ class MembershipCardNumberLoginInteractorTests: XCTestCase {
     super.setUp()
     
     output = LoginInteractorOutputSpy()
-    service = MembershipCardNumberLoginServiceInputSpy()
+    service = UsernameLoginServiceInputSpy()
     
-    interactor = MembershipCardNumberLoginInteractor()
+    interactor = UsernameLoginInteractor()
     interactor.output = output
     interactor.service = service
   }
   
-  func testValidateMembershipCardNumber() {
-    assert(cardNumber: "", isValid: false)
-    assert(cardNumber: "a", isValid: true)
-    assert(cardNumber: "1", isValid: true)
+  func testValidateUsername() {
+    assert(username: "", isValid: false)
+    assert(username: "a", isValid: true)
+    assert(username: "1", isValid: true)
   }
   
-  private func assert(cardNumber: String, isValid: Bool, file: StaticString = #file, line: UInt = #line) {
-    XCTAssertEqual(interactor.validateId(cardNumber), isValid, "", file: file, line: line)
+  private func assert(username: String, isValid: Bool, file: StaticString = #file, line: UInt = #line) {
+    XCTAssertEqual(interactor.validateId(username), isValid, "", file: file, line: line)
   }
   
-  func testValidatePIN() {
-    assert(pin: "", isValid: false)
-    assert(pin: "a", isValid: true)
-    assert(pin: "1", isValid: true)
+  func testValidatePassword() {
+    assert(password: "", isValid: false)
+    assert(password: "a", isValid: true)
+    assert(password: "1", isValid: true)
   }
   
-  private func assert(pin: String, isValid: Bool, file: StaticString = #file, line: UInt = #line) {
-    XCTAssertEqual(interactor.validateSecret(pin), isValid, "", file: file, line: line)
+  private func assert(password: String, isValid: Bool, file: StaticString = #file, line: UInt = #line) {
+    XCTAssertEqual(interactor.validateSecret(password), isValid, "", file: file, line: line)
   }
   
   func testInvokeService() {
@@ -46,27 +46,27 @@ class MembershipCardNumberLoginInteractorTests: XCTestCase {
     
     interactor.invokeService()
     
-    XCTAssertEqual(service.detailsSpy?.membershipCardNumber, validId)
-    XCTAssertEqual(service.detailsSpy?.pin, validSecret)
+    XCTAssertEqual(service.detailsSpy?.username, validId)
+    XCTAssertEqual(service.detailsSpy?.password, validSecret)
   }
   
-  func testHelpWithMembershipCardNumber() {
+  func testHelpWithUsername() {
     interactor.helpWithId()
     
-    XCTAssertEqual(output.destinationSpy, LoginDestination.forgottenMembershipCardNumber)
+    XCTAssertEqual(output.destinationSpy, LoginDestination.forgottenUsername)
   }
   
-  func testHelpWithPIN() {
+  func testHelpWithPassword() {
     interactor.helpWithSecret()
     
-    XCTAssertEqual(output.destinationSpy, LoginDestination.forgottenPIN)
+    XCTAssertEqual(output.destinationSpy, LoginDestination.forgottenPassword)
   }
 }
 
-class MembershipCardNumberLoginServiceInputSpy: MembershipCardNumberLoginServiceInput {
-  var detailsSpy: MembershipCardNumberLoginDetails?
+class UsernameLoginServiceInputSpy: UsernameLoginServiceInput {
+  var detailsSpy: UsernameLoginDetails?
   
-  func logIn(withMembershipCardNumberDetails details: MembershipCardNumberLoginDetails) {
+  func logIn(withUsernameDetails details: UsernameLoginDetails) {
     detailsSpy = details
   }
 }

@@ -128,7 +128,7 @@ extension UsernameLoginConsole {
       presenter = LoginPresenter()
       
       userInterface.interactor = interactor
-      interactor.output = presenter
+      interactor.loginInteractorOutput = presenter
       interactor.service = service
       service.output = interactor
       presenter.output = userInterface

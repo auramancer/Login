@@ -1,10 +1,11 @@
 typealias LoginError = String
 
-typealias LoginDestination = String
+typealias LoginHelp = String
 
 protocol LoginInteractorInput: class {
   func updateId(_: String)
   func updateSecret(_: String)
+  func updateShouldRememberDetails(_: Bool)
   
   func logIn()
   
@@ -20,7 +21,7 @@ protocol LoginInteractorOutput: class {
   func loginDidEnd()
   func loginDidFail(dueTo: [LoginError])
   
-  func navigate(to: LoginDestination)
+  func showHelp(_: LoginHelp)
 }
 
 protocol LoginServiceOutput: class {
@@ -28,11 +29,12 @@ protocol LoginServiceOutput: class {
   func didFailToLogIn(dueTo: [LoginError])
 }
 
-class AbstractLoginInteractor: LoginInteractorInput {
-  weak var output: LoginInteractorOutput?
+class AbstractLoginInteractor: LoginInteractorInput, LoginServiceOutput {
+  weak var loginInteractorOutput: LoginInteractorOutput?
   
   var id: String?
   var secret: String?
+  var shouldRememberDetails = false
   
   func updateId(_ id: String) {
     guard self.id != id else { return }
@@ -50,10 +52,10 @@ class AbstractLoginInteractor: LoginInteractorInput {
   
   private func enableOrDisableLogin() {
     if detailsAreValid {
-      output?.loginWasEnabled()
+      loginInteractorOutput?.loginWasEnabled()
     }
     else {
-      output?.loginWasDisabled()
+      loginInteractorOutput?.loginWasDisabled()
     }
   }
   
@@ -69,10 +71,14 @@ class AbstractLoginInteractor: LoginInteractorInput {
     return secret != ""
   }
   
+  func updateShouldRememberDetails(_ shouldRemember: Bool) {
+    shouldRememberDetails = shouldRemember
+  }
+  
   func logIn() {
     invokeService()
     
-    output?.loginDidBegin()
+    loginInteractorOutput?.loginDidBegin()
   }
   
   func invokeService() {
@@ -86,14 +92,20 @@ class AbstractLoginInteractor: LoginInteractorInput {
   func helpWithSecret() {
     // abstract
   }
-}
-
-extension AbstractLoginInteractor: LoginServiceOutput {
+  
   func didLogIn() {
-    output?.loginDidEnd()
+    if shouldRememberDetails {
+      rememberDetails()
+    }
+    
+    loginInteractorOutput?.loginDidEnd()
+  }
+  
+  func rememberDetails() {
+    // abstract
   }
   
   func didFailToLogIn(dueTo errors: [LoginError]) {
-    output?.loginDidFail(dueTo: errors)
+    loginInteractorOutput?.loginDidFail(dueTo: errors)
   }
 }

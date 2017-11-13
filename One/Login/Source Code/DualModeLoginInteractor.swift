@@ -3,21 +3,21 @@ import Foundation
 enum LoginMode {
   case undetermined
   case username
-  case membershipCardNumber
+  case cardNumber
 }
 
-protocol DualModeLoginInteractorOutput: LoginInteractorOutput {
+protocol DualModeLoginInteractorOutput: UsernameLoginInteractorOutput, CardNumberLoginInteractorOutput {
   func loginModeDidChange(to: LoginMode)
 }
 
-protocol DualModeLoginServiceInput: UsernameLoginServiceInput, MembershipCardNumberLoginServiceInput {
+protocol DualModeLoginServiceInput: UsernameLoginServiceInput, CardNumberLoginServiceInput {
 }
 
 class DualModeLoginInteractor: LoginInteractorInput {
   weak var output: DualModeLoginInteractorOutput? {
     didSet {
-      usernameInteractor.output = output
-      cardNumberInteractor.output = output
+      usernameInteractor.loginInteractorOutput = output
+      cardNumberInteractor.loginInteractorOutput = output
     }
   }
   
@@ -31,13 +31,13 @@ class DualModeLoginInteractor: LoginInteractorInput {
   var mode = LoginMode.undetermined
   
   private var usernameInteractor = UsernameLoginInteractor()
-  private var cardNumberInteractor = MembershipCardNumberLoginInteractor()
+  private var cardNumberInteractor = CardNumberLoginInteractor()
   
   private var subInteractor: AbstractLoginInteractor {
     switch mode {
     case .undetermined, .username:
       return usernameInteractor
-    case .membershipCardNumber:
+    case .cardNumber:
       return cardNumberInteractor
     }
   }
@@ -53,7 +53,7 @@ class DualModeLoginInteractor: LoginInteractorInput {
   
   private func mode(for id: String) -> LoginMode {
     if isMembershipCardNumber(id) {
-      return .membershipCardNumber
+      return .cardNumber
     }
     else if isPartialMembershipCardNumber(id) {
       return .undetermined
@@ -81,10 +81,14 @@ class DualModeLoginInteractor: LoginInteractorInput {
   private func switchMode(to mode: LoginMode) {
     if self.mode != mode {
       self.mode = mode
-      subInteractor.output = output
+      subInteractor.loginInteractorOutput = output
       
       output?.loginModeDidChange(to: mode)
     }
+  }
+  
+  func updateShouldRememberDetails(_ shouldRemember: Bool) {
+    subInteractor.updateShouldRememberDetails(shouldRemember)
   }
   
   func helpWithId() {

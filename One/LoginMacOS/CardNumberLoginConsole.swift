@@ -1,6 +1,6 @@
 import Foundation
 
-class MembershipCardNumberLoginConsole: Console {
+class CardNumberLoginConsole: Console {
   var configurator: Configurator?
   
   var interactor: LoginInteractorInput?
@@ -70,7 +70,7 @@ class MembershipCardNumberLoginConsole: Console {
   }
 }
 
-extension MembershipCardNumberLoginConsole: LoginPresenterOutput {
+extension CardNumberLoginConsole: LoginPresenterOutput {
   func loginWasEnabled() {
     if !isEnteringCardNumber {
       confirmLogin()
@@ -119,16 +119,16 @@ extension MembershipCardNumberLoginConsole: LoginPresenterOutput {
 extension MembershipCardNumberLoginConsole {
   class Configurator {
     var presenter: LoginPresenter
-    var interactor: MembershipCardNumberLoginInteractor
-    var service: MembershipCardNumberLoginServiceStub
+    var interactor: CardNumberLoginInteractor
+    var service: CardNumberLoginServiceStub
     
     init(for userInterface: MembershipCardNumberLoginConsole) {
-      interactor = MembershipCardNumberLoginInteractor()
-      service = MembershipCardNumberLoginServiceStub()
+      interactor = CardNumberLoginInteractor()
+      service = CardNumberLoginServiceStub()
       presenter = LoginPresenter()
       
       userInterface.interactor = interactor
-      interactor.output = presenter
+      interactor.loginInteractorOutput = presenter
       interactor.service = service
       service.output = interactor
       presenter.output = userInterface

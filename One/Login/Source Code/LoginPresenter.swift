@@ -1,3 +1,5 @@
+typealias LoginDestination = String
+
 protocol LoginPresenterOutput: class {
   func loginWasEnabled()
   func loginWasDisabled()
@@ -49,7 +51,7 @@ class LoginPresenter: LoginInteractorOutput {
     return errors.first ?? "Something went wrong."
   }
   
-  func navigate(to destination: LoginDestination) {
+  func showHelp(_ destination: LoginHelp) {
     output?.navigate(to: destination)
   }
 }

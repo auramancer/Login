@@ -1,7 +1,7 @@
 import Foundation
 
 //let console = UsernameLoginConsole()
-//let console = MembershipCardNumberLoginConsole()
+//let console = CardNumberLoginConsole()
 let console = DualModeLoginConsole()
 
 console.start()

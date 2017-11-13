@@ -17,18 +17,6 @@ class LoginInteractorTests: XCTestCase {
     interactor.output = output
   }
   
-  func testInitializeOutput() {
-    assertWasDisabled(is: true)
-  }
-  
-  private func assertWasEnabled(is expected: Bool) {
-    XCTAssertEqual(output.loginWasEnabledSpy, expected)
-  }
-  
-  private func assertWasDisabled(is expected: Bool) {
-    XCTAssertEqual(output.loginWasDisabledSpy, expected)
-  }
-  
   func testUpdateId() {
     output.loginWasDisabledSpy = false
     
@@ -145,6 +133,14 @@ class LoginInteractorTests: XCTestCase {
     interactor.didFailToLogIn(dueTo: [error])
     
     XCTAssertEqual(output.loginDidFailErrorsSpy ?? [], [error])
+  }
+  
+  private func assertWasEnabled(is expected: Bool) {
+    XCTAssertEqual(output.loginWasEnabledSpy, expected)
+  }
+  
+  private func assertWasDisabled(is expected: Bool) {
+    XCTAssertEqual(output.loginWasDisabledSpy, expected)
   }
   
   private func logIn() {

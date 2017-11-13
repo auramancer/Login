@@ -63,12 +63,15 @@ class DualModeLoginPresenter: DualModeLoginInteractorOutput {
       return .undetermined
     case .username:
       return .username
-    case .membershipCardNumber:
+    case .cardNumber:
       return .membershipCardNumber
     }
   }
   
-  func navigate(to destination: LoginDestination) {
-    subPresenter.navigate(to: destination)
+  func showHelp(_ help: LoginHelp) {
+    subPresenter.showHelp(help)
+  }
+  
+  func inquireAuthenticationCode() {
   }
 }

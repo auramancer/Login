@@ -17,10 +17,10 @@ class UsernameLoginServiceStub: UsernameLoginServiceInput {
   }
 }
 
-class MembershipCardNumberLoginServiceStub: MembershipCardNumberLoginServiceInput {
+class CardNumberLoginServiceStub: CardNumberLoginServiceInput {
   weak var output: LoginServiceOutput?
   
-  func logIn(withMembershipCardNumberDetails details: MembershipCardNumberLoginDetails) {
+  func logIn(withCardNumberDetails details: CardNumberLoginDetails) {
     print("* Card number login service invoked. *")
     
     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -43,13 +43,13 @@ class DualModeLoginServiceStub: DualModeLoginServiceInput {
   }
   
   private var usernameService = UsernameLoginServiceStub()
-  private var cardNumberService = MembershipCardNumberLoginServiceStub()
+  private var cardNumberService = CardNumberLoginServiceStub()
   
   func logIn(withUsernameDetails details: UsernameLoginDetails) {
     usernameService.logIn(withUsernameDetails: details)
   }
   
-  func logIn(withMembershipCardNumberDetails details: MembershipCardNumberLoginDetails) {
-    cardNumberService.logIn(withMembershipCardNumberDetails: details)
+  func logIn(withCardNumberDetails details: CardNumberLoginDetails) {
+    cardNumberService.logIn(withCardNumberDetails: details)
   }
 }
