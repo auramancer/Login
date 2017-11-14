@@ -63,12 +63,21 @@ class DualModeLoginInteractor {
   var cardNumberInteractor = CardNumberLoginInteractor()
   
   private var mode = LoginMode.undetermined
+  
+  init() {
+    connectToSubInteractor()
+  }
 }
 
 extension DualModeLoginInteractor: DualModeLoginInteractorInput {
   func reset() {
+    mode = LoginMode.undetermined
+    connectToSubInteractor()
+    
     usernameInteractor.reset()
     cardNumberInteractor.reset()
+    
+    output?.loginModeDidChange(to: mode)
   }
   
   func changeID(to id: String) {

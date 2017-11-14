@@ -6,9 +6,11 @@ class DualModeLoginInteractorTests: XCTestCase {
   private var service: DualModeLoginServiceSpy!
   private var storage: DualModeLoginStorageSpy!
   
+  private let ambiguousID = "12345"
   private let validUsername = "name"
   private let validCardNumber = "12345678"
   private let validPassword = "1234"
+  private let validPIN = "1234"
   private let error = "Cannot log in."
   
   override func setUp() {
@@ -24,192 +26,177 @@ class DualModeLoginInteractorTests: XCTestCase {
     interactor.storage = storage
   }
   
-  func testC() {
+  func testReset() {
     interactor.reset()
     
-  
+    XCTAssertEqual(output.canLoginSpy, false)
+    XCTAssertEqual(output.modeSpy, LoginMode.undetermined)
   }
   
-//  func testResetWithNoRememberedUsername() {
-//    interactor.reset()
-//    
-//    XCTAssertEqual(output.usernameSpy, "")
-//    XCTAssertEqual(output.passwordSpy, "")
-//    XCTAssertEqual(output.canLoginSpy, false)
-//  }
-//  
-//  func testResetWithRememberedUsername() {
-//    storage.username = validUsername
-//    
-//    interactor.reset()
-//    
-//    XCTAssertEqual(output.usernameSpy, validUsername)
-//    XCTAssertEqual(output.passwordSpy, "")
-//    XCTAssertEqual(output.canLoginSpy, false)
-//  }
-//  
-//  func testChangeUsername() {
-//    interactor.changeUsername(to: validUsername)
-//    
-//    XCTAssertEqual(output.usernameSpy, validUsername)
-//    XCTAssertEqual(output.passwordSpy, nil)
-//    XCTAssertEqual(output.canLoginSpy, false)
-//  }
-//  
-//  func testChangeUsernameToSameValue() {
-//    interactor.changeUsername(to: validUsername)
-//    output.usernameSpy = nil
-//    output.canLoginSpy = nil
-//    
-//    interactor.changeUsername(to: validUsername)
-//    
-//    XCTAssertEqual(output.usernameSpy, nil)
-//    XCTAssertEqual(output.passwordSpy, nil)
-//    XCTAssertEqual(output.canLoginSpy, nil)
-//  }
-//  
-//  func testClearUsername() {
-//    interactor.changeUsername(to: validUsername)
-//    output.usernameSpy = nil
-//    output.canLoginSpy = nil
-//    
-//    interactor.changeUsername(to: "")
-//    
-//    XCTAssertEqual(output.usernameSpy, "")
-//    XCTAssertEqual(output.passwordSpy, nil)
-//    XCTAssertEqual(output.canLoginSpy, false)
-//  }
-//  
-//  func testChangePassword() {
-//    interactor.changePassword(to: validPassword)
-//    
-//    XCTAssertEqual(output.usernameSpy, nil)
-//    XCTAssertEqual(output.passwordSpy, validPassword)
-//    XCTAssertEqual(output.canLoginSpy, false)
-//  }
-//  
-//  func testChangePasswordToSameValue() {
-//    interactor.changePassword(to: validPassword)
-//    output.passwordSpy = nil
-//    output.canLoginSpy = nil
-//    
-//    interactor.changePassword(to: validPassword)
-//    
-//    XCTAssertEqual(output.usernameSpy, nil)
-//    XCTAssertEqual(output.passwordSpy, nil)
-//    XCTAssertEqual(output.canLoginSpy, nil)
-//  }
-//  
-//  func testClearPassword() {
-//    interactor.changePassword(to: validPassword)
-//    output.passwordSpy = nil
-//    output.canLoginSpy = nil
-//    
-//    interactor.changePassword(to: "")
-//    
-//    XCTAssertEqual(output.usernameSpy, nil)
-//    XCTAssertEqual(output.passwordSpy, "")
-//    XCTAssertEqual(output.canLoginSpy, false)
-//  }
-//  
-//  func testChangePasswordWhenUsernameIsValid() {
-//    interactor.changeUsername(to: validUsername)
-//    
-//    interactor.changePassword(to: validPassword)
-//    
-//    XCTAssertEqual(output.usernameSpy, validUsername)
-//    XCTAssertEqual(output.passwordSpy, validPassword)
-//    XCTAssertEqual(output.canLoginSpy, true)
-//  }
-//  
-//  func testChangeUsernameWhenPasswordIsValid() {
-//    interactor.changePassword(to: validPassword)
-//    
-//    interactor.changeUsername(to: validUsername)
-//    
-//    XCTAssertEqual(output.usernameSpy, validUsername)
-//    XCTAssertEqual(output.passwordSpy, validPassword)
-//    XCTAssertEqual(output.canLoginSpy, true)
-//  }
-//  
-//  func testClearUsernameWhenBothAreValid() {
-//    interactor.changeUsername(to: validUsername)
-//    interactor.changePassword(to: validPassword)
-//    
-//    interactor.changeUsername(to: "")
-//    
-//    XCTAssertEqual(output.usernameSpy, "")
-//    XCTAssertEqual(output.passwordSpy, validPassword)
-//    XCTAssertEqual(output.canLoginSpy, false)
-//  }
-//  
-//  func testClearPasswordWhenBothAreValid() {
-//    interactor.changeUsername(to: validUsername)
-//    interactor.changePassword(to: validPassword)
-//    
-//    interactor.changePassword(to: "")
-//    
-//    XCTAssertEqual(output.usernameSpy, validUsername)
-//    XCTAssertEqual(output.passwordSpy, "")
-//    XCTAssertEqual(output.canLoginSpy, false)
-//  }
-//  
-//  func testLogInWithNoDetails() {
-//    interactor.logIn(shouldRememberUsername: false)
-//    
-//    XCTAssertEqual(output.canLoginSpy, nil)
-//    XCTAssertEqual(output.loginDidBeginSpy, false)
-//    XCTAssertNil(service.detailsSpy)
-//  }
-//  
-//  func testLogin() {
-//    interactor.changeUsername(to: validUsername)
-//    interactor.changePassword(to: validPassword)
-//    
-//    interactor.logIn(shouldRememberUsername: false)
-//    
-//    XCTAssertEqual(output.canLoginSpy, false)
-//    XCTAssertEqual(output.loginDidBeginSpy, true)
-//  }
-//  
-//  func testHandleLoginSuccessAndRemember() {
-//    interactor.changeUsername(to: validUsername)
-//    interactor.changePassword(to: validPassword)
-//    interactor.logIn(shouldRememberUsername: true)
-//    
-//    interactor.loginDidSucceed()
-//    
-//    XCTAssertEqual(output.canLoginSpy, false)
-//    XCTAssertEqual(output.loginDidEndSpy, true)
-//    XCTAssertNil(output.errorsSpy)
-//    XCTAssertEqual(storage.username, validUsername)
-//  }
-//  
-//  func testHandleLoginSuccessAndNotRemember() {
-//    interactor.changeUsername(to: validUsername)
-//    interactor.changePassword(to: validPassword)
-//    interactor.logIn(shouldRememberUsername: false)
-//    
-//    interactor.loginDidSucceed()
-//    
-//    XCTAssertEqual(storage.username, nil)
-//  }
-//  
-//  func testHandleLoginFailure() {
-//    interactor.changeUsername(to: validUsername)
-//    interactor.changePassword(to: validPassword)
-//    interactor.logIn(shouldRememberUsername: true)
-//    
-//    interactor.loginDidFail(dueTo: [error])
-//    
-//    XCTAssertEqual(output.canLoginSpy, true)
-//    XCTAssertEqual(output.loginDidEndSpy, false)
-//    XCTAssertEqual(output.errorsSpy!, [error])
-//    XCTAssertEqual(storage.username, nil)
-//  }
-//
+  func testResetInUsernameMode() {
+    interactor.changeID(to: validUsername)
+    
+    interactor.reset()
+    
+    XCTAssertEqual(output.canLoginSpy, false)
+    XCTAssertEqual(output.modeSpy, LoginMode.undetermined)
+  }
   
-  func testHelpWithID() {
+  func testResetInCardNumberMode() {
+    interactor.changeID(to: validCardNumber)
+    
+    interactor.reset()
+    
+    XCTAssertEqual(output.canLoginSpy, false)
+    XCTAssertEqual(output.modeSpy, LoginMode.undetermined)
+  }
+  
+  func testChangeIDRemainAmbiguous() {
+    interactor.changeID(to: ambiguousID)
+    
+    XCTAssertEqual(output.canLoginSpy, false)
+    XCTAssertEqual(output.modeSpy, nil)
+  }
+  
+  func testChangeIDFromAmbiguousToUsername() {
+    interactor.changeID(to: validUsername)
+    
+    XCTAssertEqual(output.canLoginSpy, false)
+    XCTAssertEqual(output.modeSpy, LoginMode.username)
+  }
+  
+  func testChangeIDFromAmbiguousCardNumber() {
+    interactor.changeID(to: validCardNumber)
+    
+    XCTAssertEqual(output.canLoginSpy, false)
+    XCTAssertEqual(output.modeSpy, LoginMode.cardNumber)
+  }
+  
+  func testChangeIDFromUsernameToAmbiguous() {
+    interactor.changeID(to: validUsername)
+    
+    interactor.changeID(to: ambiguousID)
+    
+    XCTAssertEqual(output.modeSpy, LoginMode.undetermined)
+  }
+  
+  func testChangeIDFromUsernameToCardNumber() {
+    interactor.changeID(to: validUsername)
+    
+    interactor.changeID(to: validCardNumber)
+    
+    XCTAssertEqual(output.modeSpy, LoginMode.cardNumber)
+  }
+  
+  func testChangeIDFromCardNumberToAmbiguous() {
+    interactor.changeID(to: validCardNumber)
+    
+    interactor.changeID(to: ambiguousID)
+    
+    XCTAssertEqual(output.modeSpy, LoginMode.undetermined)
+  }
+  
+  func testChangeIDFromCardNumberToUsername() {
+    interactor.changeID(to: validCardNumber)
+    
+    interactor.changeID(to: validUsername)
+    
+    XCTAssertEqual(output.modeSpy, LoginMode.username)
+  }
+  
+  func testLoginWithUsername() {
+    interactor.changeID(to: validUsername)
+    interactor.changeSecret(to: validPassword)
+    
+    interactor.logIn(shouldRememberID: true)
+    
+    let detailsSpy = service.usernameDetailsSpy
+    XCTAssertEqual(detailsSpy?.username, validUsername)
+    XCTAssertEqual(detailsSpy?.password, validPassword)
+    XCTAssertNil(service.cardNumberDetailsSpy)
+  }
+  
+  func testLoginWithCardNumber() {
+    interactor.changeID(to: validCardNumber)
+    interactor.changeSecret(to: validPIN)
+    
+    interactor.logIn(shouldRememberID: true)
+    
+    let detailsSpy = service.cardNumberDetailsSpy
+    XCTAssertEqual(detailsSpy?.cardNumber, validCardNumber)
+    XCTAssertEqual(detailsSpy?.pin, validPIN)
+    XCTAssertNil(service.usernameDetailsSpy)
+  }
+  
+  func testHandleLoginSuccessInUsernameMode() {
+    interactor.changeID(to: validUsername)
+    interactor.changeSecret(to: validPassword)
+    interactor.logIn(shouldRememberID: true)
+    
+    interactor.loginDidSucceed()
+    
+    XCTAssertEqual(output.canLoginSpy, false)
+    XCTAssertEqual(output.loginDidEndSpy, true)
+    XCTAssertNil(output.errorsSpy)
+    XCTAssertEqual(storage.usernameSpy, validUsername)
+    XCTAssertEqual(storage.cardNumberSpy, nil)
+  }
+  
+  func testHandleLoginSuccessInCardNumberMode() {
+    interactor.changeID(to: validCardNumber)
+    interactor.changeSecret(to: validPIN)
+    interactor.logIn(shouldRememberID: true)
+    
+    interactor.loginDidSucceed()
+    
+    XCTAssertEqual(output.canLoginSpy, false)
+    XCTAssertEqual(output.loginDidEndSpy, true)
+    XCTAssertNil(output.errorsSpy)
+    XCTAssertEqual(storage.cardNumberSpy, validCardNumber)
+    XCTAssertEqual(storage.usernameSpy, nil)
+  }
+  
+  func testHandleLoginFailureInUsernameMode() {
+    interactor.changeID(to: validUsername)
+    interactor.changeSecret(to: validPassword)
+    interactor.logIn(shouldRememberID: true)
+    
+    interactor.loginDidFail(dueTo: [error])
+    
+    XCTAssertEqual(output.canLoginSpy, true)
+    XCTAssertEqual(output.loginDidEndSpy, false)
+    XCTAssertEqual(output.errorsSpy!, [error])
+    XCTAssertEqual(storage.usernameSpy, nil)
+  }
+  
+  func testHandleLoginFailureInCardNumberMode() {
+    interactor.changeID(to: validCardNumber)
+    interactor.changeSecret(to: validPIN)
+    interactor.logIn(shouldRememberID: true)
+    
+    interactor.loginDidFail(dueTo: [error])
+    
+    XCTAssertEqual(output.canLoginSpy, true)
+    XCTAssertEqual(output.loginDidEndSpy, false)
+    XCTAssertEqual(output.errorsSpy!, [error])
+    XCTAssertEqual(storage.cardNumberSpy, nil)
+  }
+  
+  func testHandleExpiredToken() {
+    interactor.changeID(to: validCardNumber)
+    interactor.changeSecret(to: validPIN)
+    interactor.logIn(shouldRememberID: true)
+    
+    interactor.loginDidFailDueToExpiredToken()
+    
+    XCTAssertEqual(output.canLoginSpy, false)
+    XCTAssertEqual(output.loginDidEndSpy, false)
+    XCTAssertNil(output.errorsSpy)
+//    XCTAssertEqual(output.detailsSpy, true)
+    XCTAssertEqual(storage.cardNumberSpy, nil)
+  }
+  
+  func testHelpWithIDInUsernameMode() {
     interactor.changeID(to: validUsername)
     
     interactor.helpWithID()
@@ -217,7 +204,23 @@ class DualModeLoginInteractorTests: XCTestCase {
     XCTAssertEqual(output.helpSpy, LoginHelp.username)
   }
   
-  func testHelpWithPassword() {
+  func testHelpWithIDInCardNumberMode() {
+    interactor.changeID(to: validCardNumber)
+    
+    interactor.helpWithID()
+    
+    XCTAssertEqual(output.helpSpy, LoginHelp.cardNumber)
+  }
+  
+  func testHelpWithSecretInUsernameMode() {
+    interactor.changeID(to: validUsername)
+    
+    interactor.helpWithSecret()
+    
+    XCTAssertEqual(output.helpSpy, LoginHelp.password)
+  }
+  
+  func testHelpWithSecretInCardNumberMode() {
     interactor.changeID(to: validCardNumber)
     
     interactor.helpWithSecret()
