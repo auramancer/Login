@@ -27,11 +27,24 @@ protocol DualModeLoginPresenterOutput: LoginPresenterOutput {
 class DualModeLoginPresenter: DualModeLoginInteractorOutput {
   weak var output: DualModeLoginPresenterOutput? {
     didSet {
-      subPresenter.output = output
+      usernamePresenter.output = output
+      cardNumberPresenter.output = output
     }
   }
   
-  private var subPresenter = LoginPresenter()
+  var mode = LoginMode.undetermined
+  
+  private var usernamePresenter = UsernameLoginPresenter()
+  private var cardNumberPresenter = CardNumberLoginPresenter()
+  
+  private var subPresenter: AbstractLoginPresenter {
+    switch mode {
+    case .undetermined, .username:
+      return usernamePresenter
+    case .cardNumber:
+      return cardNumberPresenter
+    }
+  }
   
   func loginWasEnabled() {
     subPresenter.loginWasEnabled()
@@ -54,10 +67,12 @@ class DualModeLoginPresenter: DualModeLoginInteractorOutput {
   }
   
   func loginModeDidChange(to mode: LoginMode) {
-    output?.updateWording(wording(for: mode))
+    self.mode = mode
+    
+    output?.updateWording(wording)
   }
   
-  private func wording(for mode: LoginMode) -> DualModeLoginWording {
+  private var wording: DualModeLoginWording {
     switch mode {
     case .undetermined:
       return .undetermined
@@ -73,5 +88,6 @@ class DualModeLoginPresenter: DualModeLoginInteractorOutput {
   }
   
   func inquireAuthenticationCode() {
+    cardNumberPresenter.inquireAuthenticationCode()
   }
 }

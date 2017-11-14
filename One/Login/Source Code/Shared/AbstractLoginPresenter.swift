@@ -12,7 +12,7 @@ protocol LoginPresenterOutput: class {
   func leave()
 }
 
-class LoginPresenter: LoginInteractorOutput {
+class AbstractLoginPresenter: LoginInteractorOutput {
   weak var output: LoginPresenterOutput?
   
   func loginWasEnabled() {

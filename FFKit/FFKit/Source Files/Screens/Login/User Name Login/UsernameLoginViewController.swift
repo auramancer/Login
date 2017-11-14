@@ -67,7 +67,7 @@ extension UsernameLoginViewController: LoginPresenterOutput {
     
   }
   
-  func showErrorMessage(_: String?) {
+  func showErrorMessage(_: String) {
     
   }
   

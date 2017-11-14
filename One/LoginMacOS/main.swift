@@ -1,9 +1,9 @@
 import Foundation
 
-//let console = UsernameLoginConsole()
-//let console = CardNumberLoginConsole()
-let console = DualModeLoginConsole()
+//let controller = UsernameLoginController()
+let controller = CardNumberLoginController()
+//let controller = DualModeLoginController()
 
-console.start()
+controller.start()
 
 RunLoop.main.run()

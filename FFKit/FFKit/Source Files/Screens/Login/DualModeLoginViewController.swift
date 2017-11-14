@@ -93,7 +93,7 @@ extension DualModeLoginViewController: DualModeLoginPresenterOutput {
       break
     case .forgottenPassword:
       break
-    case .forgottenMembershipCardNumber:
+    case .forgottenCardNumber:
       break
     case .forgottenPIN:
       break

@@ -63,11 +63,18 @@ class DualModeLoginConsole: Console {
   
   private func confirmLogin() {
     if confirmed("Login") {
-      interactor?.logIn()
+      askIfRemember()
+      interactor?.logIn(shouldRememberDetails: shouldRemember)
     }
     else {
       enterDetails()
     }
+  }
+  
+  var shouldRemember = false
+  
+  private func askIfRemember() {
+    shouldRemember = confirmed("Remember me")
   }
 }
 
@@ -111,7 +118,7 @@ extension DualModeLoginConsole: DualModeLoginPresenterOutput {
     case .forgottenPassword:
       show("Maybe it's 123?")
       enterSecret()
-    case .forgottenMembershipCardNumber:
+    case .forgottenCardNumber:
       show("Maybe it's 12345678")
       enterId()
     case .forgottenPIN:
