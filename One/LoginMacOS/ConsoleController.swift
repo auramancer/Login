@@ -34,29 +34,26 @@ class ConsoleController {
   
   var timer: Timer?
   
-  func showActivityMessage(_ message: String?) {
-    if let message = message {
-      print(message)
-    }
-    
+  func showProgress() {
+    timer?.invalidate()
     timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
       print(".", terminator:"")
     }
   }
   
-  func hideActivityMessage() {
+  func hideProgress() {
     timer?.invalidate()
     
     print("")
   }
   
-  func showErrorMessage(_ message: String) {
+  func changeErrorMessage(to message: String) {
     output("❗️\(message)")
     
     waitForCommand()
   }
   
-  func hideErrorMessage() {
+  func clearErrorMessage() {
   }
   
   func leave() {

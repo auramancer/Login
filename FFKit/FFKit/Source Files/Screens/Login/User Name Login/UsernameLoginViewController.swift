@@ -1,6 +1,6 @@
 import UIKit
 
-class UsernameLoginViewController: UIViewController {
+class DigitalLoginViewController: UIViewController {
   var configurator: Configurator?
   
   var interactor: LoginInteractorInput?
@@ -36,7 +36,7 @@ class UsernameLoginViewController: UIViewController {
   }
   
   @objc private func updatePassword() {
-    interactor?.updateSecret(passwordField.text ?? "")
+    interactor?.updateCredential(passwordField.text ?? "")
   }
   
   @IBAction func didPressLogInButton(_ sender: Any) {
@@ -50,7 +50,7 @@ class UsernameLoginViewController: UIViewController {
   }
 }
 
-extension UsernameLoginViewController: LoginPresenterOutput {
+extension DigitalLoginViewController: LoginPresenterOutput {
   func loginWasEnabled() {
     
   }
@@ -84,15 +84,15 @@ extension UsernameLoginViewController: LoginPresenterOutput {
   }
 }
 
-extension UsernameLoginViewController {
+extension DigitalLoginViewController {
   class Configurator {
     var presenter: LoginPresenter
-    var interactor: UsernameLoginInteractor
-    var service: UsernameLoginServiceStub
+    var interactor: DigitalLoginInteractor
+    var service: DigitalLoginServiceStub
     
-    init(for userInterface: UsernameLoginViewController) {
-      interactor = UsernameLoginInteractor()
-      service = UsernameLoginServiceStub()
+    init(for userInterface: DigitalLoginViewController) {
+      interactor = DigitalLoginInteractor()
+      service = DigitalLoginServiceStub()
       presenter = LoginPresenter()
       
       userInterface.interactor = interactor

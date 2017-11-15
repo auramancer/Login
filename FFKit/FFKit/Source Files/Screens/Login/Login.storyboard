@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="hOQ-LX-wkg">
-    <device id="retina4_7" orientation="landscape">
-        <adaptation id="fullscreen"/>
-    </device>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -30,29 +27,29 @@
             <objects>
                 <viewController id="eak-S0-ZSX" customClass="DualModeLoginViewController" customModule="LoginIOS" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="VuC-Hv-GfK">
-                        <rect key="frame" x="0.0" y="0.0" width="667" height="375"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="52c-lr-cbr">
-                                <rect key="frame" x="20" y="52" width="627" height="231"/>
+                                <rect key="frame" x="20" y="84" width="560" height="231"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="tiS-zd-VQf">
-                                        <rect key="frame" x="0.0" y="0.0" width="627" height="100.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="560" height="100.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username/Membership Number" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IOL-xW-eUV">
-                                                <rect key="frame" x="0.0" y="0.0" width="627" height="20.5"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="560" height="20.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Mfx-Zs-umy">
-                                                <rect key="frame" x="0.0" y="30.5" width="627" height="30"/>
+                                                <rect key="frame" x="0.0" y="30.5" width="560" height="30"/>
                                                 <nil key="textColor"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" enablesReturnKeyAutomatically="YES" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no" textContentType="username"/>
                                             </textField>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VFa-mP-b56">
-                                                <rect key="frame" x="0.0" y="70.5" width="627" height="30"/>
+                                                <rect key="frame" x="0.0" y="70.5" width="560" height="30"/>
                                                 <state key="normal">
                                                     <attributedString key="attributedTitle">
                                                         <fragment content="Forgotten Username">
@@ -70,22 +67,22 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="YhX-aZ-AAR">
-                                        <rect key="frame" x="0.0" y="130.5" width="627" height="100.5"/>
+                                        <rect key="frame" x="0.0" y="130.5" width="560" height="100.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Password/PIN" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F8Q-Sj-RxK">
-                                                <rect key="frame" x="0.0" y="0.0" width="627" height="20.5"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="560" height="20.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="C0V-vC-nH7">
-                                                <rect key="frame" x="0.0" y="30.5" width="627" height="30"/>
+                                                <rect key="frame" x="0.0" y="30.5" width="560" height="30"/>
                                                 <nil key="textColor"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" enablesReturnKeyAutomatically="YES" secureTextEntry="YES" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no" textContentType="password"/>
                                             </textField>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WC1-LF-wUe">
-                                                <rect key="frame" x="0.0" y="70.5" width="627" height="30"/>
+                                                <rect key="frame" x="0.0" y="70.5" width="560" height="30"/>
                                                 <state key="normal">
                                                     <attributedString key="attributedTitle">
                                                         <fragment content="Forgotten Password">
@@ -97,7 +94,7 @@
                                                     </attributedString>
                                                 </state>
                                                 <connections>
-                                                    <action selector="didPressForgottenSecretButton:" destination="eak-S0-ZSX" eventType="touchUpInside" id="p9i-Ia-Lax"/>
+                                                    <action selector="didPressForgottenCredentialButton:" destination="eak-S0-ZSX" eventType="touchUpInside" id="p9i-Ia-Lax"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -108,7 +105,7 @@
                                 </constraints>
                             </stackView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rus-vF-meg">
-                                <rect key="frame" x="312.5" y="313" width="42" height="30"/>
+                                <rect key="frame" x="279" y="345" width="42" height="30"/>
                                 <state key="normal" title="Log In"/>
                                 <connections>
                                     <action selector="didPressLogInButton:" destination="eak-S0-ZSX" eventType="touchUpInside" id="bd5-pN-8A7"/>
@@ -128,14 +125,14 @@
                     </view>
                     <navigationItem key="navigationItem" id="imv-QT-3jx"/>
                     <connections>
+                        <outlet property="credentialField" destination="C0V-vC-nH7" id="xIs-Js-RP8"/>
+                        <outlet property="credentialTitleLabel" destination="F8Q-Sj-RxK" id="RCo-wf-Vjj"/>
                         <outlet property="fieldsStackView" destination="52c-lr-cbr" id="kYc-3T-OXV"/>
+                        <outlet property="forgottenCredentialButton" destination="WC1-LF-wUe" id="CT3-Vt-z3g"/>
                         <outlet property="forgottenIdButton" destination="VFa-mP-b56" id="L9P-mT-gfM"/>
-                        <outlet property="forgottenSecretButton" destination="WC1-LF-wUe" id="CT3-Vt-z3g"/>
                         <outlet property="idField" destination="Mfx-Zs-umy" id="5ND-dq-GF0"/>
                         <outlet property="idTitleLabel" destination="IOL-xW-eUV" id="vO6-Ij-emr"/>
                         <outlet property="logInButton" destination="rus-vF-meg" id="cly-AO-cWL"/>
-                        <outlet property="secretField" destination="C0V-vC-nH7" id="xIs-Js-RP8"/>
-                        <outlet property="secretTitleLabel" destination="F8Q-Sj-RxK" id="RCo-wf-Vjj"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="BXb-dM-TnX" userLabel="First Responder" sceneMemberID="firstResponder"/>

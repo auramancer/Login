@@ -1,13 +1,13 @@
 import Foundation
 
-class UsernameLoginServiceStub: UsernameLoginServiceInput {
-  weak var output: UsernameLoginServiceOutput?
+class DigitalLoginServiceStub: DigitalLoginServiceInput {
+  weak var output: DigitalLoginServiceOutput?
   
-  func logIn(withUsernameDetails details: UsernameLoginDetails) {
+  func logIn(withUsernameRequest request: DigitalLoginRequest) {
     print("* Username login service invoked. *")
     
     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-      if details.password == "1234" {
+      if request.password == "1234" {
         self.output?.loginDidSucceed()
       }
       else {
@@ -17,16 +17,16 @@ class UsernameLoginServiceStub: UsernameLoginServiceInput {
   }
 }
 
-class CardNumberLoginServiceStub: CardNumberLoginServiceInput {
-  weak var output: CardNumberLoginServiceOutput?
+class RetailLoginServiceStub: RetailLoginServiceInput {
+  weak var output: RetailLoginServiceOutput?
 
-  func logIn(withCardNumberDetails details: CardNumberLoginDetails) {
+  func logIn(withCardNumberRequest request: RetailLoginRequest) {
     print("* Card number login service invoked. *")
 
     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-      if details.pin == "4321" {
-        if details.authenticationToken == nil {
-          self.output?.loginDidFailDueToExpiredToken()
+      if request.pin == "4321" {
+        if request.authenticationToken == nil {
+          self.output?.loginDidFailDueToInvalidToken()
         }
         else {
           self.output?.loginDidSucceed()
@@ -39,14 +39,14 @@ class CardNumberLoginServiceStub: CardNumberLoginServiceInput {
   }
 }
 
-class LoginVerificationServiceStub: CardNumberLoginServiceInput {
+class LoginVerificationServiceStub: RetailLoginServiceInput {
   weak var output: LoginVerificationServiceOutput?
   
-  func logIn(withCardNumberDetails details: CardNumberLoginDetails) {
+  func logIn(withCardNumberRequest request: RetailLoginRequest) {
     print("* Card number login service invoked. *")
     
     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-      if details.verificationCode == "123456" {
+      if request.verificationCode == "123456" {
         self.output?.loginDidSucceed(withToken: "1QAZ2WSX")
       }
       else {
@@ -64,15 +64,15 @@ class LoginVerificationServiceStub: CardNumberLoginServiceInput {
 //    }
 //  }
 //
-//  private var usernameService = UsernameLoginServiceStub()
-//  private var cardNumberService = CardNumberLoginServiceStub()
+//  private var usernameService = DigitalLoginServiceStub()
+//  private var cardNumberService = RetailLoginServiceStub()
 //
-//  func logIn(withUsernameDetails details: UsernameLoginDetails) {
-//    usernameService.logIn(withUsernameDetails: details)
+//  func logIn(withUsernameRequest request: DigitalLoginRequest) {
+//    usernameService.logIn(withUsernameRequest: request)
 //  }
 //
-//  func logIn(withCardNumberDetails details: CardNumberLoginDetails) {
-//    cardNumberService.logIn(withCardNumberDetails: details)
+//  func logIn(withCardNumberRequest request: RetailLoginRequest) {
+//    cardNumberService.logIn(withCardNumberRequest: request)
 //  }
 //}
 

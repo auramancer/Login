@@ -9,9 +9,9 @@ class DualModeLoginViewController: UIViewController {
   @IBOutlet weak var idField: UITextField!
   @IBOutlet var forgottenIdButton: UIButton!
   
-  @IBOutlet weak var secretTitleLabel: UILabel!
-  @IBOutlet weak var secretField: UITextField!
-  @IBOutlet var forgottenSecretButton: UIButton!
+  @IBOutlet weak var credentialTitleLabel: UILabel!
+  @IBOutlet weak var credentialField: UITextField!
+  @IBOutlet var forgottenCredentialButton: UIButton!
   
   @IBOutlet weak var fieldsStackView: UIStackView!
   
@@ -28,20 +28,20 @@ class DualModeLoginViewController: UIViewController {
   
   private func setUpViews() {
     idField.addTarget(self, action: #selector(updateId), for: .editingChanged)
-    secretField.addTarget(self, action: #selector(updateSecret), for: .editingChanged)
+    credentialField.addTarget(self, action: #selector(updateCredential), for: .editingChanged)
   }
   
   private func update() {
     updateId()
-    updateSecret()
+    updateCredential()
   }
   
   @objc private func updateId() {
     interactor?.updateId(idField.text ?? "")
   }
   
-  @objc private func updateSecret() {
-    interactor?.updateSecret(secretField.text ?? "")
+  @objc private func updateCredential() {
+    interactor?.updateCredential(credentialField.text ?? "")
   }
   
   @IBAction func didPressLogInButton(_ sender: Any) {
@@ -52,8 +52,8 @@ class DualModeLoginViewController: UIViewController {
     interactor?.helpWithId()
   }
   
-  @IBAction func didPressForgottenSecretButton(_ sender: Any) {
-    interactor?.helpWithSecret()
+  @IBAction func didPressForgottenCredentialButton(_ sender: Any) {
+    interactor?.helpWithCredential()
   }
   
   override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -105,12 +105,12 @@ extension DualModeLoginViewController: DualModeLoginPresenterOutput {
   func updateWording(_ wording: DualModeLoginWording) {
     updateLabelsAnimated(with: wording)
     changeAttributedTitle(of: forgottenIdButton, to: wording.forgottenId)
-    changeAttributedTitle(of: forgottenSecretButton, to: wording.forgottenSecret)
+    changeAttributedTitle(of: forgottenCredentialButton, to: wording.forgottenCredential)
   }
   
   private func updateLabelsAnimated(with wording: DualModeLoginWording) {
     updateLabel(idTitleLabel, withText: wording.id)
-    updateLabel(secretTitleLabel, withText: wording.secret)
+    updateLabel(credentialTitleLabel, withText: wording.credential)
   }
   
   private func updateLabel(_ label: UILabel,
@@ -133,7 +133,7 @@ extension DualModeLoginViewController: DualModeLoginPresenterOutput {
   
   private func updateLabels(with wording: DualModeLoginWording) {
     idTitleLabel.text = wording.id
-    secretTitleLabel.text = wording.secret
+    credentialTitleLabel.text = wording.credential
   }
   
   private func changeAttributedTitle(of button: UIButton, to newTitle: String) {

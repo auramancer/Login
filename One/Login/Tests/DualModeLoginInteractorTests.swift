@@ -6,7 +6,7 @@ class DualModeLoginInteractorTests: XCTestCase {
   private var service: DualModeLoginServiceSpy!
   private var storage: DualModeLoginStorageSpy!
   
-  private let ambiguousID = "12345"
+  private let ambiguousIdentifier = "12345"
   private let validUsername = "name"
   private let validCardNumber = "12345678"
   private let validPassword = "1234"
@@ -26,226 +26,263 @@ class DualModeLoginInteractorTests: XCTestCase {
     interactor.storage = storage
   }
   
-  func testReset() {
-    interactor.reset()
+  func testInitialize() {
+    interactor.initialize()
     
-    XCTAssertEqual(output.canLoginSpy, false)
-    XCTAssertEqual(output.modeSpy, LoginMode.undetermined)
+    assertOutputReceived(identifier: "",
+                         credential: "",
+                         canLogin: false,
+                         mode: .undetermined)
   }
   
-  func testResetInUsernameMode() {
-    interactor.changeID(to: validUsername)
-    
-    interactor.reset()
-    
-    XCTAssertEqual(output.canLoginSpy, false)
-    XCTAssertEqual(output.modeSpy, LoginMode.undetermined)
+  func testSwitchMode() {
+    assertOutputReceived(mode: nil, whenChangeIdentifier: ambiguousIdentifier, to: ambiguousIdentifier)
+    assertOutputReceived(mode: .digital, whenChangeIdentifier: ambiguousIdentifier, to: validUsername)
+    assertOutputReceived(mode: .retail, whenChangeIdentifier: ambiguousIdentifier, to: validCardNumber)
+    assertOutputReceived(mode: .undetermined, whenChangeIdentifier: validUsername, to: ambiguousIdentifier)
+    assertOutputReceived(mode: nil, whenChangeIdentifier: validUsername, to: validUsername)
+    assertOutputReceived(mode: .retail, whenChangeIdentifier: validUsername, to: validCardNumber)
+    assertOutputReceived(mode: .undetermined, whenChangeIdentifier: validCardNumber, to: ambiguousIdentifier)
+    assertOutputReceived(mode: .digital, whenChangeIdentifier: validCardNumber, to: validUsername)
+    assertOutputReceived(mode: nil, whenChangeIdentifier: validCardNumber, to: validCardNumber)
   }
   
-  func testResetInCardNumberMode() {
-    interactor.changeID(to: validCardNumber)
+  func testChangeIdentifier() {
+    interactor.changeIdentifier(to: validUsername)
     
-    interactor.reset()
-    
-    XCTAssertEqual(output.canLoginSpy, false)
-    XCTAssertEqual(output.modeSpy, LoginMode.undetermined)
+    assertOutputReceived(identifier: validUsername,
+                         credential: nil,
+                         canLogin: false,
+                         mode: .digital)
   }
   
-  func testChangeIDRemainAmbiguous() {
-    interactor.changeID(to: ambiguousID)
+  func testChangeCredential() {
+    interactor.changeCredential(to: validPassword)
     
-    XCTAssertEqual(output.canLoginSpy, false)
-    XCTAssertEqual(output.modeSpy, nil)
-  }
-  
-  func testChangeIDFromAmbiguousToUsername() {
-    interactor.changeID(to: validUsername)
-    
-    XCTAssertEqual(output.canLoginSpy, false)
-    XCTAssertEqual(output.modeSpy, LoginMode.username)
-  }
-  
-  func testChangeIDFromAmbiguousCardNumber() {
-    interactor.changeID(to: validCardNumber)
-    
-    XCTAssertEqual(output.canLoginSpy, false)
-    XCTAssertEqual(output.modeSpy, LoginMode.cardNumber)
-  }
-  
-  func testChangeIDFromUsernameToAmbiguous() {
-    interactor.changeID(to: validUsername)
-    
-    interactor.changeID(to: ambiguousID)
-    
-    XCTAssertEqual(output.modeSpy, LoginMode.undetermined)
-  }
-  
-  func testChangeIDFromUsernameToCardNumber() {
-    interactor.changeID(to: validUsername)
-    
-    interactor.changeID(to: validCardNumber)
-    
-    XCTAssertEqual(output.modeSpy, LoginMode.cardNumber)
-  }
-  
-  func testChangeIDFromCardNumberToAmbiguous() {
-    interactor.changeID(to: validCardNumber)
-    
-    interactor.changeID(to: ambiguousID)
-    
-    XCTAssertEqual(output.modeSpy, LoginMode.undetermined)
-  }
-  
-  func testChangeIDFromCardNumberToUsername() {
-    interactor.changeID(to: validCardNumber)
-    
-    interactor.changeID(to: validUsername)
-    
-    XCTAssertEqual(output.modeSpy, LoginMode.username)
+    assertOutputReceived(identifier: nil,
+                         credential: validPassword,
+                         canLogin: false,
+                         mode: nil)
   }
   
   func testLoginWithUsername() {
-    interactor.changeID(to: validUsername)
-    interactor.changeSecret(to: validPassword)
+    login(withIdentifier: validUsername, credential: validPassword, shouldRemember: true)
     
-    interactor.logIn(shouldRememberID: true)
-    
-    let detailsSpy = service.usernameDetailsSpy
-    XCTAssertEqual(detailsSpy?.username, validUsername)
-    XCTAssertEqual(detailsSpy?.password, validPassword)
-    XCTAssertNil(service.cardNumberDetailsSpy)
+    assertOutputReceived(canLogin: false,
+                         loginDidBegin: true,
+                         loginDidEnd: false,
+                         loginErrors: nil)
+    assertServiceReceived(digitalRequest: DigitalLoginRequest(username: validUsername, password: validPassword),
+                          retailRequest: nil)
   }
   
   func testLoginWithCardNumber() {
-    interactor.changeID(to: validCardNumber)
-    interactor.changeSecret(to: validPIN)
+    login(withIdentifier: validCardNumber, credential: validPIN, shouldRemember: true)
     
-    interactor.logIn(shouldRememberID: true)
-    
-    let detailsSpy = service.cardNumberDetailsSpy
-    XCTAssertEqual(detailsSpy?.cardNumber, validCardNumber)
-    XCTAssertEqual(detailsSpy?.pin, validPIN)
-    XCTAssertNil(service.usernameDetailsSpy)
+    assertOutputReceived(canLogin: false,
+                         loginDidBegin: true,
+                         loginDidEnd: false,
+                         loginErrors: nil)
+    assertServiceReceived(digitalRequest: nil,
+                          retailRequest: RetailLoginRequest(cardNumber: validCardNumber, pin: validPIN))
   }
   
-  func testHandleLoginSuccessInUsernameMode() {
-    interactor.changeID(to: validUsername)
-    interactor.changeSecret(to: validPassword)
-    interactor.logIn(shouldRememberID: true)
+  func testHandleLoginSuccessInDigitalMode() {
+    login(withIdentifier: validUsername, credential: validPassword, shouldRemember: true)
+    output.reset()
     
     interactor.loginDidSucceed()
     
-    XCTAssertEqual(output.canLoginSpy, false)
-    XCTAssertEqual(output.loginDidEndSpy, true)
-    XCTAssertNil(output.errorsSpy)
-    XCTAssertEqual(storage.usernameSpy, validUsername)
-    XCTAssertEqual(storage.cardNumberSpy, nil)
+    assertOutputReceived(canLogin: nil,
+                         loginDidBegin: false,
+                         loginDidEnd: true,
+                         loginErrors: nil)
+    assertStorageSaved(username: validUsername, cardNumber: nil)
   }
   
-  func testHandleLoginSuccessInCardNumberMode() {
-    interactor.changeID(to: validCardNumber)
-    interactor.changeSecret(to: validPIN)
-    interactor.logIn(shouldRememberID: true)
+  func testHandleLoginSuccessInRetailMode() {
+    login(withIdentifier: validCardNumber, credential: validPIN, shouldRemember: true)
+    output.reset()
     
     interactor.loginDidSucceed()
     
-    XCTAssertEqual(output.canLoginSpy, false)
-    XCTAssertEqual(output.loginDidEndSpy, true)
-    XCTAssertNil(output.errorsSpy)
-    XCTAssertEqual(storage.cardNumberSpy, validCardNumber)
-    XCTAssertEqual(storage.usernameSpy, nil)
+    assertOutputReceived(canLogin: nil,
+                         loginDidBegin: false,
+                         loginDidEnd: true,
+                         loginErrors: nil)
+    assertStorageSaved(username: nil, cardNumber: validCardNumber)
   }
   
-  func testHandleLoginFailureInUsernameMode() {
-    interactor.changeID(to: validUsername)
-    interactor.changeSecret(to: validPassword)
-    interactor.logIn(shouldRememberID: true)
+  func testHandleLoginFailureInDigitalMode() {
+    login(withIdentifier: validUsername, credential: validPassword, shouldRemember: true)
+    output.reset()
     
     interactor.loginDidFail(dueTo: [error])
     
-    XCTAssertEqual(output.canLoginSpy, true)
-    XCTAssertEqual(output.loginDidEndSpy, false)
-    XCTAssertEqual(output.errorsSpy!, [error])
-    XCTAssertEqual(storage.usernameSpy, nil)
+    assertOutputReceived(canLogin: true,
+                         loginDidBegin: false,
+                         loginDidEnd: false,
+                         loginErrors: [error])
+    assertStorageSaved(username: nil, cardNumber: nil)
   }
   
-  func testHandleLoginFailureInCardNumberMode() {
-    interactor.changeID(to: validCardNumber)
-    interactor.changeSecret(to: validPIN)
-    interactor.logIn(shouldRememberID: true)
+  func testHandleLoginFailureInRetailMode() {
+    login(withIdentifier: validCardNumber, credential: validPIN, shouldRemember: true)
+    output.reset()
     
     interactor.loginDidFail(dueTo: [error])
     
-    XCTAssertEqual(output.canLoginSpy, true)
-    XCTAssertEqual(output.loginDidEndSpy, false)
-    XCTAssertEqual(output.errorsSpy!, [error])
-    XCTAssertEqual(storage.cardNumberSpy, nil)
+    assertOutputReceived(canLogin: true,
+                         loginDidBegin: false,
+                         loginDidEnd: false,
+                         loginErrors: [error])
+    assertStorageSaved(username: nil, cardNumber: nil)
   }
   
-  func testHandleExpiredToken() {
-    interactor.changeID(to: validCardNumber)
-    interactor.changeSecret(to: validPIN)
-    interactor.logIn(shouldRememberID: true)
+  func testHandleInvalidToken() {
+    login(withIdentifier: validCardNumber, credential: validPIN, shouldRemember: true)
+    output.reset()
     
-    interactor.loginDidFailDueToExpiredToken()
+    interactor.loginDidFailDueToInvalidToken()
     
-    XCTAssertEqual(output.canLoginSpy, false)
-    XCTAssertEqual(output.loginDidEndSpy, false)
-    XCTAssertNil(output.errorsSpy)
-//    XCTAssertEqual(output.detailsSpy, true)
-    XCTAssertEqual(storage.cardNumberSpy, nil)
+    assertOutputReceived(canLogin: nil,
+                         loginDidBegin: false,
+                         loginDidEnd: false,
+                         loginErrors: nil)
+    XCTAssertEqual(output.verificationRequestSpy, RetailLoginRequest(cardNumber: validCardNumber, pin: validPIN))
+    assertStorageSaved(username: nil, cardNumber: nil)
   }
   
-  func testHelpWithIDInUsernameMode() {
-    interactor.changeID(to: validUsername)
+  func testHelpWithIdentifierInDigitalMode() {
+    interactor.changeIdentifier(to: validUsername)
     
-    interactor.helpWithID()
+    interactor.helpWithIdentifier()
     
-    XCTAssertEqual(output.helpSpy, LoginHelp.username)
+    assertHelp(is:.username)
   }
   
-  func testHelpWithIDInCardNumberMode() {
-    interactor.changeID(to: validCardNumber)
+  func testHelpWithIdentifierInRetailMode() {
+    interactor.changeIdentifier(to: validCardNumber)
     
-    interactor.helpWithID()
+    interactor.helpWithIdentifier()
     
-    XCTAssertEqual(output.helpSpy, LoginHelp.cardNumber)
+    assertHelp(is:.cardNumber)
   }
   
-  func testHelpWithSecretInUsernameMode() {
-    interactor.changeID(to: validUsername)
+  func testHelpWithCredentialInDigitalMode() {
+    interactor.changeIdentifier(to: validUsername)
     
-    interactor.helpWithSecret()
+    interactor.helpWithCredential()
     
-    XCTAssertEqual(output.helpSpy, LoginHelp.password)
+    assertHelp(is:.password)
   }
   
-  func testHelpWithSecretInCardNumberMode() {
-    interactor.changeID(to: validCardNumber)
+  func testHelpWithCredentialInRetailMode() {
+    interactor.changeIdentifier(to: validCardNumber)
     
-    interactor.helpWithSecret()
+    interactor.helpWithCredential()
     
-    XCTAssertEqual(output.helpSpy, LoginHelp.pin)
+    assertHelp(is:.pin)
+  }
+  
+  // MARK: helpers
+  
+  private func login(withIdentifier identifier: String, credential: String, shouldRemember: Bool) {
+    interactor.changeIdentifier(to: identifier)
+    interactor.changeCredential(to: credential)
+    output.reset()
+    interactor.logIn(shouldRememberIdentifier: shouldRemember)
+  }
+  
+  private func assertOutputReceived(identifier: String?,
+                                    credential: String?,
+                                    canLogin: Bool?,
+                                    mode: LoginMode?,
+                                    file: StaticString = #file,
+                                    line: UInt = #line) {
+    XCTAssertEqual(output.identifierSpy, identifier, "", file: file, line: line)
+    XCTAssertEqual(output.credentialSpy, credential, "", file: file, line: line)
+    XCTAssertEqual(output.canLoginSpy, canLogin, "", file: file, line: line)
+    XCTAssertEqual(output.modeSpy, mode, "", file: file, line: line)
+  }
+  
+  private func assertOutputReceived(canLogin: Bool?,
+                                    loginDidBegin: Bool?,
+                                    loginDidEnd: Bool?,
+                                    loginErrors: [LoginError]?,
+                                    file: StaticString = #file,
+                                    line: UInt = #line) {
+    XCTAssertEqual(output.canLoginSpy, canLogin, "", file: file, line: line)
+    XCTAssertEqual(output.didBeginLoginSpy, loginDidBegin, "", file: file, line: line)
+    XCTAssertEqual(output.didEndLoginSpy, loginDidEnd, "", file: file, line: line)
+    XCTAssertEqual(output.loginErrorsSpy, loginErrors, "", file: file, line: line)
+  }
+  
+  private func assertOutputReceived(mode: LoginMode?,
+                                    whenChangeIdentifier old: String,
+                                    to new: String,
+                                    file: StaticString = #file,
+                                    line: UInt = #line) {
+    interactor.changeIdentifier(to: old)
+    output.reset()
+    
+    interactor.changeIdentifier(to: new)
+    
+    XCTAssertEqual(output.modeSpy, mode, "", file: file, line: line)
+  }
+  
+  private func assertServiceReceived(digitalRequest: DigitalLoginRequest?,
+                                     retailRequest: RetailLoginRequest?,
+                                     file: StaticString = #file,
+                                     line: UInt = #line) {
+    XCTAssertEqual(service.degitalRequestSpy, digitalRequest, "digitalRequest", file: file, line: line)
+    XCTAssertEqual(service.retailRequestSpy, retailRequest, "retailRequest", file: file, line: line)
+  }
+  
+  private func assertStorageSaved(username: String?,
+                                  cardNumber: String?,
+                                  file: StaticString = #file,
+                                  line: UInt = #line) {
+    XCTAssertEqual(storage.usernameSpy, username, "username", file: file, line: line)
+    XCTAssertEqual(storage.cardNumberSpy, cardNumber, "cardNumber", file: file, line: line)
+  }
+  
+  private func assertHelp(is help: LoginHelp,
+                          file: StaticString = #file,
+                          line: UInt = #line) {
+    XCTAssertEqual(output.helpSpy, help, "", file: file, line: line)
   }
 }
 
 class DualModeLoginInteractorOutputSpy: DualModeLoginInteractorOutput {
-  var idSpy: String?
-  var secretSpy: String?
+  var identifierSpy: String?
+  var credentialSpy: String?
   var canLoginSpy: Bool?
   var modeSpy: LoginMode?
-  var loginDidBeginSpy = false
-  var loginDidEndSpy = false
-  var errorsSpy: [LoginError]?
+  var didBeginLoginSpy = false
+  var didEndLoginSpy = false
+  var loginErrorsSpy: [LoginError]?
   var helpSpy: LoginHelp?
-  var detailsSpy: CardNumberLoginDetails?
+  var verificationRequestSpy: RetailLoginRequest?
   
-  func idDidChange(to id: String) {
-    idSpy = id
+  func reset() {
+    identifierSpy = nil
+    credentialSpy = nil
+    canLoginSpy = nil
+    modeSpy = nil
+    didBeginLoginSpy = false
+    didEndLoginSpy = false
+    loginErrorsSpy = nil
+    helpSpy = nil
+    verificationRequestSpy = nil
   }
   
-  func secretDidChange(to secret: String) {
-    secretSpy = secret
+  func idDidChange(to id: String) {
+    identifierSpy = id
+  }
+  
+  func credentialDidChange(to credential: String) {
+    credentialSpy = credential
   }
   
   func canLoginDidChange(to canLogin: Bool) {
@@ -257,36 +294,36 @@ class DualModeLoginInteractorOutputSpy: DualModeLoginInteractorOutput {
   }
   
   func loginDidBegin() {
-    loginDidBeginSpy = true
+    didBeginLoginSpy = true
   }
   
   func loginDidEnd() {
-    loginDidEndSpy = true
+    didEndLoginSpy = true
   }
   
   func loginDidFail(withErrors errors: [LoginError]) {
-    errorsSpy = errors
+    loginErrorsSpy = errors
   }
   
   func showHelp(_ help: LoginHelp) {
     helpSpy = help
   }
   
-  func inquireVerificationCode(forDetails details: CardNumberLoginDetails) {
-    detailsSpy = details
+  func inquireVerificationCode(forRequest request: RetailLoginRequest) {
+    verificationRequestSpy = request
   }
 }
 
 class DualModeLoginServiceSpy: DualModeLoginServiceInput {
-  var usernameDetailsSpy: UsernameLoginDetails?
-  var cardNumberDetailsSpy: CardNumberLoginDetails?
+  var degitalRequestSpy: DigitalLoginRequest?
+  var retailRequestSpy: RetailLoginRequest?
   
-  func logIn(withUsernameDetails details: UsernameLoginDetails) {
-    usernameDetailsSpy = details
+  func logIn(withUsernameRequest request: DigitalLoginRequest) {
+    degitalRequestSpy = request
   }
   
-  func logIn(withCardNumberDetails details: CardNumberLoginDetails) {
-    cardNumberDetailsSpy = details
+  func logIn(withCardNumberRequest request: RetailLoginRequest) {
+    retailRequestSpy = request
   }
 }
 
@@ -324,32 +361,18 @@ class DualModeLoginStorageSpy: DualModeLoginStorage {
   }
 }
 
-//class UsernameLoginInteractorSpy: UsernameLoginInteractor {
-//  var resetSpy = false
-//  var usernameSpy: String?
-//
-//  override func reset() {
-//    resetSpy = true
-//  }
-//
-//  override func changeUsername(to username: String) {
-//    usernameSpy = username
-//  }
-//
-//  override func changePassword(to pasword: String) {
-//
-//  }
-//
-//  override func logIn(shouldRememberUsername: Bool) {
-//
-//  }
-//
-//  override func helpWithUsername() {
-//
-//  }
-//
-//  override func helpWithPassword() {
-//
-//  }
-//}
+extension DigitalLoginRequest: Equatable {
+  static func ==(lhs: DigitalLoginRequest, rhs: DigitalLoginRequest) -> Bool {
+    return lhs.username == rhs.username &&
+      lhs.password == rhs.password
+  }
+}
 
+extension RetailLoginRequest: Equatable {
+  static func ==(lhs: RetailLoginRequest, rhs: RetailLoginRequest) -> Bool {
+    return lhs.cardNumber == rhs.cardNumber &&
+      lhs.pin == rhs.pin &&
+      lhs.authenticationToken == rhs.authenticationToken &&
+      lhs.verificationCode == rhs.verificationCode
+  }
+}

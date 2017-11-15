@@ -1,19 +1,19 @@
-class CardNumberLoginController: ConsoleController {
+class RetailLoginController: ConsoleController {
   var configurator: Configurator?
   
-  var interactor: CardNumberLoginInteractorInput?
+  var interactor: RetailLoginInteractorInput?
   
   var cardNumber = ""
   var pin = ""
   var shouldRemember = false
-  var loginIsEnabled = false
+  var canLogin = false
 
   var verificationCodePage: LoginVerificationController!
   
   override func start() {
     configurator = Configurator(for: self)
     
-    interactor?.reset()
+    interactor?.initialize()
     
     output("🗝 CardNumber Log In 🗝\n")
     super.start()
@@ -26,7 +26,7 @@ class CardNumberLoginController: ConsoleController {
     output("3 Forgotten Membership Card No.")
     output("4 Forgotten PIN")
     output("5 Remember me [\(shouldRemember ? "Y" : "N")]")
-    if loginIsEnabled {
+    if canLogin {
       output("6 Login")
     }
     output("")
@@ -86,21 +86,26 @@ class CardNumberLoginController: ConsoleController {
   }
 }
 
-extension CardNumberLoginController: CardNumberLoginPresenterOutput {
-  func showCardNumber(_ cardNumber: String) {
+extension RetailLoginController: RetailLoginPresenterOutput {
+  func changeCardNumber(to cardNumber: String) {
     self.cardNumber = cardNumber
   }
   
-  func showPIN(_ pin: String) {
+  func changePIN(to pin: String) {
     self.pin = pin
   }
   
-  func enableLogin() {
-    loginIsEnabled = true
+  func changeCanLogin(to canLogin: Bool) {
+    self.canLogin = canLogin
   }
   
-  func disableLogin() {
-    loginIsEnabled = false
+  func changeIsLoggingIn(to isLoggingIn: Bool) {
+    if isLoggingIn {
+      showProgress()
+    }
+    else {
+      hideProgress()
+    }
   }
   
   func goToHelpPage(for help: LoginHelp) {
@@ -114,24 +119,24 @@ extension CardNumberLoginController: CardNumberLoginPresenterOutput {
     }
   }
   
-  func goToVerificationPage(withDetails details: CardNumberLoginDetails) {
-    verificationCodePage = LoginVerificationController(details: details)
+  func goToVerificationPage(withRequest request: RetailLoginRequest) {
+    verificationCodePage = LoginVerificationController(request: request)
     verificationCodePage.start()
     
     waitForCommand()
   }
 }
 
-extension CardNumberLoginController {
+extension RetailLoginController {
   class Configurator {
-    var presenter: CardNumberLoginPresenter
-    var interactor: CardNumberLoginInteractor
-    var service: CardNumberLoginServiceStub
+    var presenter: RetailLoginPresenter
+    var interactor: RetailLoginInteractor
+    var service: RetailLoginServiceStub
     
-    init(for userInterface: CardNumberLoginController) {
-      interactor = CardNumberLoginInteractor()
-      presenter = CardNumberLoginPresenter()
-      service = CardNumberLoginServiceStub()
+    init(for userInterface: RetailLoginController) {
+      interactor = RetailLoginInteractor()
+      presenter = RetailLoginPresenter()
+      service = RetailLoginServiceStub()
       
       interactor.output = presenter
       interactor.service = service

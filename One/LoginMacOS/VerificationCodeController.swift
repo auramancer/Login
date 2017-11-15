@@ -3,18 +3,18 @@ class LoginVerificationController: ConsoleController {
   
   var interactor: LoginVerificationInteractor?
   
-  var details: CardNumberLoginDetails
+  var request: RetailLoginRequest
   var code = ""
   var verifyIsEnabled = false
   
-  init(details: CardNumberLoginDetails) {
-    self.details = details
+  init(request: RetailLoginRequest) {
+    self.request = request
   }
   
   override func start() {
     configurator = Configurator(for: self)
     
-    interactor?.reset(withDetails: details, shouldRememberCardNumber: false)
+    interactor?.reset(withRequest: request, shouldRememberCardNumber: false)
     
     output("📮 Verification Code 📮\n")
     super.start()
@@ -68,6 +68,10 @@ extension LoginVerificationController: LoginVerificationPresenterOutput {
   func disableVerify() {
     verifyIsEnabled = false
   }
+  func showActivityMessage(_: String?){}
+  func hideActivityMessage(){}
+  func showErrorMessage(_: String){}
+  func hideErrorMessage(){}
   
   func goTo(_ destination: LoginDestination) {
     

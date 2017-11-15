@@ -3,24 +3,24 @@ import XCTest
 class LoginVerificationInteractorTests: XCTestCase {
   private var interactor: LoginVerificationInteractor!
   private var output: LoginVerificationInteractorOutputSpy!
-  private var service: CardNumberLoginServiceSpy!
-  private var storage: CardNumberLoginStorageSpy!
+  private var service: RetailLoginServiceSpy!
+  private var storage: RetailLoginStorageSpy!
   
   private let validCardNumber = "12345678"
   private let validPIN = "1234"
   private let validCode = "123456"
   private let validToken = "1QAZ"
   private let error = "Cannot log in."
-  private var details: CardNumberLoginDetails {
-    return CardNumberLoginDetails(cardNumber: validCardNumber, pin: validPIN)
+  private var request: RetailLoginRequest {
+    return RetailLoginRequest(cardNumber: validCardNumber, pin: validPIN)
   }
   
   override func setUp() {
     super.setUp()
     
     output = LoginVerificationInteractorOutputSpy()
-    service = CardNumberLoginServiceSpy()
-    storage = CardNumberLoginStorageSpy()
+    service = RetailLoginServiceSpy()
+    storage = RetailLoginStorageSpy()
     
     interactor = LoginVerificationInteractor()
     interactor.output = output
@@ -29,77 +29,77 @@ class LoginVerificationInteractorTests: XCTestCase {
   }
   
   func testReset() {
-    interactor.reset(withDetails: details, shouldRememberCardNumber: true)
+    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
     
     XCTAssertEqual(output.canVerifySpy, false)
   }
   
-  func testChangeCodeWithNoDetails() {
+  func testChangeCodeWithNoRequest() {
     interactor.changeCode(to: validCode)
     
     XCTAssertEqual(output.canVerifySpy, false)
   }
   
   func testChangeCode() {
-    interactor.reset(withDetails: details, shouldRememberCardNumber: true)
+    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
     
     interactor.changeCode(to: validCode)
     
     XCTAssertEqual(output.canVerifySpy, true)
   }
   
-  func testResendCodeWithNoDetails() {
+  func testResendCodeWithNoRequest() {
     interactor.resendCode()
     
-    XCTAssertNil(service.detailsSpy)
+    XCTAssertNil(service.requestSpy)
     XCTAssertEqual(output.verificationDidBeginSpy, false)
   }
   
   func testResendCode() {
-    interactor.reset(withDetails: details, shouldRememberCardNumber: true)
+    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
     
     interactor.resendCode()
     
-    let detailsSpy = service.detailsSpy
-    XCTAssertEqual(detailsSpy?.cardNumber, validCardNumber)
-    XCTAssertEqual(detailsSpy?.pin, validPIN)
-    XCTAssertEqual(detailsSpy?.verificationCode, nil)
-    XCTAssertEqual(detailsSpy?.authenticationToken, nil)
+    let requestSpy = service.requestSpy
+    XCTAssertEqual(requestSpy?.cardNumber, validCardNumber)
+    XCTAssertEqual(requestSpy?.pin, validPIN)
+    XCTAssertEqual(requestSpy?.verificationCode, nil)
+    XCTAssertEqual(requestSpy?.authenticationToken, nil)
   }
   
-  func testVerifyWithNoDetails() {
+  func testVerifyWithNoRequest() {
     interactor.verify()
     
-    XCTAssertNil(service.detailsSpy)
+    XCTAssertNil(service.requestSpy)
     XCTAssertEqual(output.verificationDidBeginSpy, false)
   }
   
   func testVerifyWithNoCode() {
-    interactor.reset(withDetails: details, shouldRememberCardNumber: true)
+    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
     
     interactor.verify()
     
-    XCTAssertNil(service.detailsSpy)
+    XCTAssertNil(service.requestSpy)
     XCTAssertEqual(output.verificationDidBeginSpy, false)
   }
   
   func testVerify() {
-    interactor.reset(withDetails: details, shouldRememberCardNumber: true)
+    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
     interactor.changeCode(to: validCode)
     
     interactor.verify()
     
-    let detailsSpy = service.detailsSpy
-    XCTAssertEqual(detailsSpy?.cardNumber, validCardNumber)
-    XCTAssertEqual(detailsSpy?.pin, validPIN)
-    XCTAssertEqual(detailsSpy?.verificationCode, validCode)
-    XCTAssertEqual(detailsSpy?.authenticationToken, nil)
+    let requestSpy = service.requestSpy
+    XCTAssertEqual(requestSpy?.cardNumber, validCardNumber)
+    XCTAssertEqual(requestSpy?.pin, validPIN)
+    XCTAssertEqual(requestSpy?.verificationCode, validCode)
+    XCTAssertEqual(requestSpy?.authenticationToken, nil)
     XCTAssertEqual(output.canVerifySpy, false)
     XCTAssertEqual(output.verificationDidBeginSpy, true)
   }
   
   func testHandleVerifySuccessAndRemember() {
-    interactor.reset(withDetails: details, shouldRememberCardNumber: true)
+    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
     interactor.changeCode(to: validCode)
     interactor.verify()
     
@@ -112,7 +112,7 @@ class LoginVerificationInteractorTests: XCTestCase {
   }
   
   func testHandleVerifySuccessAndNotRemember() {
-    interactor.reset(withDetails: details, shouldRememberCardNumber: false)
+    interactor.reset(withRequest: request, shouldRememberCardNumber: false)
     interactor.changeCode(to: validCode)
     interactor.verify()
     
@@ -125,7 +125,7 @@ class LoginVerificationInteractorTests: XCTestCase {
   }
   
   func testHandleVerifyFailure() {
-    interactor.reset(withDetails: details, shouldRememberCardNumber: true)
+    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
     interactor.changeCode(to: validCode)
     interactor.verify()
     

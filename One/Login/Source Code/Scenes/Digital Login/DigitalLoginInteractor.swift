@@ -1,4 +1,4 @@
-struct UsernameLoginDetails {
+struct DigitalLoginRequest {
   let username: String
   let password: String
 }
@@ -8,8 +8,8 @@ extension LoginHelp {
   static let password = LoginHelp("password")
 }
 
-protocol UsernameLoginInteractorInput: class {
-  func reset()
+protocol DigitalLoginInteractorInput: class {
+  func initialize()
   
   func changeUsername(to: String)
   func changePassword(to: String)
@@ -20,7 +20,7 @@ protocol UsernameLoginInteractorInput: class {
   func helpWithPassword()
 }
 
-protocol UsernameLoginInteractorOutput: class {
+protocol DigitalLoginInteractorOutput: class {
   func usernameDidChange(to: String)
   func passwordDidChange(to: String)
   func canLoginDidChange(to: Bool)
@@ -32,32 +32,32 @@ protocol UsernameLoginInteractorOutput: class {
   func showHelp(_: LoginHelp)
 }
 
-protocol UsernameLoginServiceInput: class {
-  func logIn(withUsernameDetails: UsernameLoginDetails)
+protocol DigitalLoginServiceInput: class {
+  func logIn(withUsernameRequest: DigitalLoginRequest)
 }
 
-protocol UsernameLoginServiceOutput: class {
+protocol DigitalLoginServiceOutput: class {
   func loginDidSucceed()
   func loginDidFail(dueTo: [LoginError])
 }
 
-protocol UsernameLoginStorage: class {
+protocol DigitalLoginStorage: class {
   func saveUsername(_: String)
   func loadUsername() -> String?
 }
 
-class UsernameLoginInteractor {
-  weak var output: UsernameLoginInteractorOutput?
-  var service: UsernameLoginServiceInput?
-  var storage: UsernameLoginStorage?
+class DigitalLoginInteractor {
+  weak var output: DigitalLoginInteractorOutput?
+  var service: DigitalLoginServiceInput?
+  var storage: DigitalLoginStorage?
   
   private var username = ""
   private var password = ""
   private var shouldRememberUsername = false
   private var isLoggingIn = false
   
-  private var details: UsernameLoginDetails {
-    return UsernameLoginDetails(username: username, password: password)
+  private var request: DigitalLoginRequest {
+    return DigitalLoginRequest(username: username, password: password)
   }
   
   private var canLogin: Bool {
@@ -73,8 +73,8 @@ class UsernameLoginInteractor {
   }
 }
 
-extension UsernameLoginInteractor: UsernameLoginInteractorInput {
-  func reset() {
+extension DigitalLoginInteractor: DigitalLoginInteractorInput {
+  func initialize() {
     username = storage?.loadUsername() ?? ""
     password = ""
     
@@ -107,7 +107,7 @@ extension UsernameLoginInteractor: UsernameLoginInteractorInput {
     shouldRememberUsername = shouldRemember
     isLoggingIn = true
     
-    service?.logIn(withUsernameDetails: details)
+    service?.logIn(withUsernameRequest: request)
     
     output?.canLoginDidChange(to: canLogin)
     output?.loginDidBegin()
@@ -122,7 +122,7 @@ extension UsernameLoginInteractor: UsernameLoginInteractorInput {
   }
 }
 
-extension UsernameLoginInteractor: UsernameLoginServiceOutput {
+extension DigitalLoginInteractor: DigitalLoginServiceOutput {
   func loginDidSucceed() {
     isLoggingIn = false
     

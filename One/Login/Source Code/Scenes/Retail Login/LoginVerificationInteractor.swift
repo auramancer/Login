@@ -1,5 +1,5 @@
 protocol LoginVerificationInteractorInput {
-  func reset(withDetails: CardNumberLoginDetails, shouldRememberCardNumber: Bool)
+  func reset(withRequest: RetailLoginRequest, shouldRememberCardNumber: Bool)
   func changeCode(to: String)
   
   func verify()
@@ -21,32 +21,32 @@ protocol  LoginVerificationServiceOutput: class {
 
 class LoginVerificationInteractor {
   weak var output: LoginVerificationInteractorOutput?
-  var service: CardNumberLoginServiceInput?
-  var storage: CardNumberLoginStorage?
+  var service: RetailLoginServiceInput?
+  var storage: RetailLoginStorage?
   
-  private var details: CardNumberLoginDetails?
+  private var request: RetailLoginRequest?
   private var shouldRememberCardNumber = false
   private var isVerifying = false
   
   private var canVerify: Bool {
-    guard let details = details,
-      let code = details.verificationCode else { return false }
+    guard let request = request,
+      let code = request.verificationCode else { return false }
     
     return code != "" && !isVerifying
   }
 }
 
 extension LoginVerificationInteractor: LoginVerificationInteractorInput {
-  func reset(withDetails details: CardNumberLoginDetails,
+  func reset(withRequest request: RetailLoginRequest,
              shouldRememberCardNumber: Bool) {
-    self.details = details
+    self.request = request
     self.shouldRememberCardNumber = shouldRememberCardNumber
     
     output?.canVerifyDidChange(to: canVerify)
   }
   
   func changeCode(to code: String) {
-    details?.verificationCode = code
+    request?.verificationCode = code
     
     output?.canVerifyDidChange(to: canVerify)
   }
@@ -56,16 +56,16 @@ extension LoginVerificationInteractor: LoginVerificationInteractorInput {
     
     isVerifying = true
     
-    service?.logIn(withCardNumberDetails: details!)
+    service?.logIn(withCardNumberRequest: request!)
     
     output?.canVerifyDidChange(to: canVerify)
     output?.verificationDidBegin()
   }
   
   func resendCode() {
-    guard let details = details else { return }
+    guard let request = request else { return }
     
-    service?.logIn(withCardNumberDetails: details)
+    service?.logIn(withCardNumberRequest: request)
   }
 }
 
@@ -80,7 +80,7 @@ extension LoginVerificationInteractor: LoginVerificationServiceOutput {
   
   private func saveCardNumber() {
     if shouldRememberCardNumber {
-      storage?.saveCardNumber(details!.cardNumber)
+      storage?.saveCardNumber(request!.cardNumber)
     }
   }
   

@@ -1,17 +1,17 @@
-class UsernameLoginController: ConsoleController {
+class DigitalLoginController: ConsoleController {
   var configurator: Configurator?
   
-  var interactor: UsernameLoginInteractorInput?
+  var interactor: DigitalLoginInteractorInput?
   
   var username = ""
   var password = ""
+  var canLogin = false
   var shouldRemember = false
-  var loginIsEnabled = false
   
   override func start() {
     configurator = Configurator(for: self)
     
-    interactor?.reset()
+    interactor?.initialize()
     
     output("🔑 Username Log In 🔑")
     super.start()
@@ -24,7 +24,7 @@ class UsernameLoginController: ConsoleController {
     output("3 Forgotten Username")
     output("4 Forgotten Password")
     output("5 Remember me [\(shouldRemember ? "Y" : "N")]")
-    if loginIsEnabled {
+    if canLogin {
       output("6 Login")
     }
     output("")
@@ -80,21 +80,26 @@ class UsernameLoginController: ConsoleController {
   }
 }
 
-extension UsernameLoginController: UsernameLoginPresenterOutput {
-  func showUsername(_ username: String) {
+extension DigitalLoginController: DigitalLoginPresenterOutput {
+  func changeUsername(to username: String) {
     self.username = username
   }
   
-  func showPassword(_ password: String) {
+  func changePassword(to password: String) {
     self.password = password
   }
   
-  func enableLogin() {
-    loginIsEnabled = true
+  func changeCanLogin(to canLogin: Bool) {
+    self.canLogin = canLogin
   }
-  
-  func disableLogin() {
-    loginIsEnabled = false
+
+  func changeIsLoggingIn(to isLoggingIn: Bool) {
+    if isLoggingIn {
+      showProgress()
+    }
+    else {
+      hideProgress()
+    }
   }
   
   func goToHelpPage(for help: LoginHelp) {
@@ -109,16 +114,16 @@ extension UsernameLoginController: UsernameLoginPresenterOutput {
   }
 }
 
-extension UsernameLoginController {
+extension DigitalLoginController {
   class Configurator {
-    var presenter: UsernameLoginPresenter
-    var interactor: UsernameLoginInteractor
-    var service: UsernameLoginServiceStub
+    var presenter: DigitalLoginPresenter
+    var interactor: DigitalLoginInteractor
+    var service: DigitalLoginServiceStub
     
-    init(for userInterface: UsernameLoginController) {
-      interactor = UsernameLoginInteractor()
-      presenter = UsernameLoginPresenter()
-      service = UsernameLoginServiceStub()
+    init(for userInterface: DigitalLoginController) {
+      interactor = DigitalLoginInteractor()
+      presenter = DigitalLoginPresenter()
+      service = DigitalLoginServiceStub()
       
       interactor.output = presenter
       interactor.service = service

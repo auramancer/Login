@@ -1,4 +1,4 @@
-struct CardNumberLoginDetails {
+struct RetailLoginRequest {
   let cardNumber: String
   let pin: String
   var verificationCode: String?
@@ -10,8 +10,8 @@ extension LoginHelp {
   static let pin = LoginHelp("pin")
 }
 
-protocol CardNumberLoginInteractorInput: class {
-  func reset()
+protocol RetailLoginInteractorInput: class {
+  func initialize()
   
   func changeCardNumber(to: String)
   func changePIN(to: String)
@@ -22,7 +22,7 @@ protocol CardNumberLoginInteractorInput: class {
   func helpWithPIN()
 }
 
-protocol CardNumberLoginInteractorOutput: class {
+protocol RetailLoginInteractorOutput: class {
   func cardNumberDidChange(to: String)
   func pinDidChange(to: String)
   func canLoginDidChange(to: Bool)
@@ -32,20 +32,20 @@ protocol CardNumberLoginInteractorOutput: class {
   func loginDidFail(withErrors: [LoginError])
   
   func showHelp(_: LoginHelp)
-  func inquireVerificationCode(forDetails: CardNumberLoginDetails)
+  func inquireVerificationCode(forRequest: RetailLoginRequest)
 }
 
-protocol CardNumberLoginServiceInput: class {
-  func logIn(withCardNumberDetails: CardNumberLoginDetails)
+protocol RetailLoginServiceInput: class {
+  func logIn(withCardNumberRequest: RetailLoginRequest)
 }
 
-protocol CardNumberLoginServiceOutput: class {
+protocol RetailLoginServiceOutput: class {
   func loginDidSucceed()
   func loginDidFail(dueTo: [LoginError])
-  func loginDidFailDueToExpiredToken()
+  func loginDidFailDueToInvalidToken()
 }
 
-protocol CardNumberLoginStorage: class {
+protocol RetailLoginStorage: class {
   func saveCardNumber(_: String)
   func loadCardNumber() -> String?
   func saveToken(_: String)
@@ -53,18 +53,18 @@ protocol CardNumberLoginStorage: class {
   func removeToken()
 }
 
-class CardNumberLoginInteractor {
-  weak var output: CardNumberLoginInteractorOutput?
-  var service: CardNumberLoginServiceInput?
-  var storage: CardNumberLoginStorage?
+class RetailLoginInteractor {
+  weak var output: RetailLoginInteractorOutput?
+  var service: RetailLoginServiceInput?
+  var storage: RetailLoginStorage?
   
   private var cardNumber = ""
   private var pin = ""
   private var shouldRememberCardNumber = false
   private var isLoggingIn = false
   
-  private var details: CardNumberLoginDetails {
-    return CardNumberLoginDetails(cardNumber: cardNumber,
+  private var request: RetailLoginRequest {
+    return RetailLoginRequest(cardNumber: cardNumber,
                                   pin: pin,
                                   authenticationToken: token)
   }
@@ -86,8 +86,8 @@ class CardNumberLoginInteractor {
   }
 }
 
-extension CardNumberLoginInteractor: CardNumberLoginInteractorInput {
-  func reset() {
+extension RetailLoginInteractor: RetailLoginInteractorInput {
+  func initialize() {
     cardNumber = storage?.loadCardNumber() ?? ""
     pin = ""
     
@@ -120,7 +120,7 @@ extension CardNumberLoginInteractor: CardNumberLoginInteractorInput {
     shouldRememberCardNumber = shouldRemember
     isLoggingIn = true
     
-    service?.logIn(withCardNumberDetails: details)
+    service?.logIn(withCardNumberRequest: request)
     
     output?.canLoginDidChange(to: canLogin)
     output?.loginDidBegin()
@@ -135,7 +135,7 @@ extension CardNumberLoginInteractor: CardNumberLoginInteractorInput {
   }
 }
 
-extension CardNumberLoginInteractor: CardNumberLoginServiceOutput {
+extension RetailLoginInteractor: RetailLoginServiceOutput {
   func loginDidSucceed() {
     isLoggingIn = false
     saveCardNumber()
@@ -156,15 +156,15 @@ extension CardNumberLoginInteractor: CardNumberLoginServiceOutput {
     output?.loginDidFail(withErrors: errors)
   }
   
-  func loginDidFailDueToExpiredToken() {
+  func loginDidFailDueToInvalidToken() {
     isLoggingIn = false
     storage?.removeToken()
     
-    output?.inquireVerificationCode(forDetails: details)
+    output?.inquireVerificationCode(forRequest: request)
   }
 }
 
-extension CardNumberLoginDetails {
+extension RetailLoginRequest {
   init(cardNumber: String, pin: String) {
     self.init(cardNumber: cardNumber,
               pin: pin,
