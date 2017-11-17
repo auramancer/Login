@@ -1,5 +1,5 @@
 protocol LoginVerificationInteractorInput {
-  func reset(withRequest: RetailLoginRequest, shouldRememberCardNumber: Bool)
+  func load(withRequest: RetailLoginRequest, shouldRememberCardNumber: Bool)
   func changeCode(to: String)
   
   func verify()
@@ -11,17 +11,21 @@ protocol LoginVerificationInteractorOutput: class {
   
   func verificationDidBegin()
   func verificationDidEnd()
-  func verificationDidFail(dueTo: [LoginError])
+  func verificationDidFail(dueTo: [String])
 }
 
-protocol  LoginVerificationServiceOutput: class {
+protocol LoginVerificationServiceInput: RetailLoginServiceInput {
+  func resendCode(withCardNumberRequest: RetailLoginRequest)
+}
+
+protocol LoginVerificationServiceOutput: class {
   func loginDidSucceed(withToken: String)
   func loginDidFail(dueTo: [LoginError])
 }
 
 class LoginVerificationInteractor {
   weak var output: LoginVerificationInteractorOutput?
-  var service: RetailLoginServiceInput?
+  var service: LoginVerificationServiceInput?
   var storage: RetailLoginStorage?
   
   private var request: RetailLoginRequest?
@@ -37,7 +41,7 @@ class LoginVerificationInteractor {
 }
 
 extension LoginVerificationInteractor: LoginVerificationInteractorInput {
-  func reset(withRequest request: RetailLoginRequest,
+  func load(withRequest request: RetailLoginRequest,
              shouldRememberCardNumber: Bool) {
     self.request = request
     self.shouldRememberCardNumber = shouldRememberCardNumber
@@ -92,7 +96,7 @@ extension LoginVerificationInteractor: LoginVerificationServiceOutput {
     isVerifying = false
     
     output?.canVerifyDidChange(to: canVerify)
-    output?.verificationDidFail(dueTo: errors)
+    output?.verificationDidFail(dueTo: errors.map{$0.message})
   }
 }
 

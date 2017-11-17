@@ -14,7 +14,7 @@ class LoginVerificationController: ConsoleController {
   override func start() {
     configurator = Configurator(for: self)
     
-    interactor?.reset(withRequest: request, shouldRememberCardNumber: false)
+    interactor?.load(withRequest: request, shouldRememberCardNumber: false)
     
     output("📮 Verification Code 📮\n")
     super.start()

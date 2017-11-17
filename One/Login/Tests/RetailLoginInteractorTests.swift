@@ -6,8 +6,8 @@ class RetailLoginInteractorTests: XCTestCase {
   private var service: RetailLoginServiceSpy!
   private var storage: RetailLoginStorageSpy!
   
-  private let validCardNumber = "12345678"
-  private let validPIN = "1234"
+  private let validCardNumber = "1234567890"
+  private let validPIN = "888888"
   private let validToken = "1QAZ2WSX"
   private let error = "Cannot log in."
   
@@ -24,53 +24,40 @@ class RetailLoginInteractorTests: XCTestCase {
     interactor.storage = storage
   }
   
-  func testInitializeWithNoRememberedCardNumber() {
-    interactor.initialize()
+  func testLoadWithNoRememberedCardNumber() {
+    interactor.load()
     
-    assertOutputReceived(cardNumber: "",
-                         pin: "",
-                         canLogin: false)
+    XCTAssertEqual(output.loadRequestSpy, RetailLoginRequest(cardNumber: "", pin: ""))
   }
   
-  func testInitializeWithRememberedCardNumber() {
+  func testLoadWithRememberedCardNumber() {
     storage.cardNumberSpy = validCardNumber
     
-    interactor.initialize()
+    interactor.load()
     
-    assertOutputReceived(cardNumber: validCardNumber,
-                         pin: "",
-                         canLogin: false)
+    XCTAssertEqual(output.loadRequestSpy, RetailLoginRequest(cardNumber: validCardNumber, pin: ""))
   }
   
   func testChangeCardNumber() {
-    assertOutputReceived(cardNumber: validCardNumber, canLogin: false, whenChangeCardNumber: "", to: validCardNumber, pinRemains: "")
-    assertOutputReceived(cardNumber: validCardNumber, canLogin: true, whenChangeCardNumber: "", to: validCardNumber, pinRemains: validPIN)
-    assertOutputReceived(cardNumber: nil, canLogin: nil, whenChangeCardNumber: validCardNumber, to: validCardNumber, pinRemains: "")
-    assertOutputReceived(cardNumber: "", canLogin: false, whenChangeCardNumber: validCardNumber, to: "", pinRemains: "")
+    assertOutputReceived(canLogin: nil, whenChangeCardNumber: "", to: validCardNumber, pinRemains: "")
+    assertOutputReceived(canLogin: true, whenChangeCardNumber: "", to: validCardNumber, pinRemains: validPIN)
+    assertOutputReceived(canLogin: false, whenChangeCardNumber: validCardNumber, to: "", pinRemains: validPIN)
   }
   
   func testChangePIN() {
-    assertOutputReceived(pin: validPIN, canLogin: false, whenChangePIN: "", to: validPIN, cardNumberRemains: "")
-    assertOutputReceived(pin: validPIN, canLogin: true, whenChangePIN: "", to: validPIN, cardNumberRemains: validCardNumber)
-    assertOutputReceived(pin: nil, canLogin: nil, whenChangePIN: validPIN, to: validPIN, cardNumberRemains: "")
-    assertOutputReceived(pin: "", canLogin: false, whenChangePIN: validPIN, to: "", cardNumberRemains: "")
-  }
-  
-  func testLogInWhenRequestNotValid() {
-    login(withCardNumber: "", pin: "", shouldRemember: true)
-    
-    assertOutputReceived(canLogin: nil,
-                         loginDidBegin: false,
-                         loginDidEnd: false,
-                         loginErrors: nil)
-    assertServiceReceived(nil)
+    assertOutputReceived(canLogin: nil, whenChangePIN: "", to: validPIN, cardNumberRemains: "")
+    assertOutputReceived(canLogin: true, whenChangePIN: "", to: validPIN, cardNumberRemains: validCardNumber)
+    assertOutputReceived(canLogin: false, whenChangePIN: validPIN, to: "", cardNumberRemains: validCardNumber)
   }
   
   func testLoginWithNoToken() {
-    login(withCardNumber: validCardNumber, pin: validPIN, shouldRemember: true)
+    set(cardNumber: validCardNumber, pin: validPIN)
+    output.reset()
     
-    assertOutputReceived(canLogin: false,
-                         loginDidBegin: true,
+    interactor.logIn(shouldRememberCardNumber: true)
+    
+    assertOutputReceived(canLogin: nil)
+    assertOutputReceived(loginDidBegin: true,
                          loginDidEnd: false,
                          loginErrors: nil)
     assertServiceReceived(RetailLoginRequest(cardNumber: validCardNumber,
@@ -79,11 +66,12 @@ class RetailLoginInteractorTests: XCTestCase {
   
   func testLoginWithToken() {
     storage.tokenSpy = validToken
+    set(cardNumber: validCardNumber, pin: validPIN)
+    output.reset()
     
-    login(withCardNumber: validCardNumber, pin: validPIN, shouldRemember: true)
+    interactor.logIn(shouldRememberCardNumber: true)
     
-    assertOutputReceived(canLogin: false,
-                         loginDidBegin: true,
+    assertOutputReceived(loginDidBegin: true,
                          loginDidEnd: false,
                          loginErrors: nil)
     assertServiceReceived(RetailLoginRequest(cardNumber: validCardNumber,
@@ -92,20 +80,19 @@ class RetailLoginInteractorTests: XCTestCase {
   }
   
   func testHandleLoginSuccessAndRemember() {
-    login(withCardNumber: validCardNumber, pin: validPIN, shouldRemember: true)
+    login()
     output.reset()
     
     interactor.loginDidSucceed()
     
-    assertOutputReceived(canLogin: nil,
-                         loginDidBegin: false,
+    assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: true,
                          loginErrors: nil)
     assertStorageSaved(validCardNumber)
   }
   
   func testHandleLoginSuccessAndNotRemember() {
-    login(withCardNumber: validCardNumber, pin: validPIN, shouldRemember: false)
+    login(shouldRemember: false)
     output.reset()
     
     interactor.loginDidSucceed()
@@ -114,13 +101,12 @@ class RetailLoginInteractorTests: XCTestCase {
   }
   
   func testHandleLoginFailure() {
-    login(withCardNumber: validCardNumber, pin: validPIN, shouldRemember: true)
+    login()
     output.reset()
     
-    interactor.loginDidFail(dueTo: [error])
+    interactor.loginDidFail(dueTo: [SimpleError(error)])
     
-    assertOutputReceived(canLogin: true,
-                         loginDidBegin: false,
+    assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: false,
                          loginErrors: [error])
     assertStorageSaved(nil)
@@ -140,65 +126,59 @@ class RetailLoginInteractorTests: XCTestCase {
   
   // MARK: helpers
   
-  private func login(withCardNumber cardNumber: String, pin: String, shouldRemember: Bool) {
+  private func set(cardNumber: String, pin: String) {
+    interactor.load()
     interactor.changeCardNumber(to: cardNumber)
     interactor.changePIN(to: pin)
-    output.reset()
+  }
+  
+  private func login(shouldRemember: Bool = true) {
+    set(cardNumber: validCardNumber, pin: validPIN)
     interactor.logIn(shouldRememberCardNumber: shouldRemember)
   }
   
-  private func assertOutputReceived(cardNumber: String?,
-                                    canLogin: Bool?,
+  private func assertOutputReceived(canLogin: Bool?,
                                     whenChangeCardNumber oldCardNumber: String,
                                     to newCardNumber: String,
                                     pinRemains pin: String,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
-    interactor.changeCardNumber(to: oldCardNumber)
-    interactor.changePIN(to: pin)
+    set(cardNumber: oldCardNumber, pin: pin)
     output.reset()
     
     interactor.changeCardNumber(to: newCardNumber)
     
-    assertOutputReceived(cardNumber: cardNumber, pin: nil, canLogin: canLogin)
+    assertOutputReceived(canLogin: canLogin, file: file, line: line)
   }
   
-  private func assertOutputReceived(pin: String?,
-                                    canLogin: Bool?,
+  private func assertOutputReceived(canLogin: Bool?,
                                     whenChangePIN oldPIN: String,
                                     to newPIN: String,
                                     cardNumberRemains cardNumber: String,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
-    interactor.changeCardNumber(to: cardNumber)
-    interactor.changePIN(to: oldPIN)
+    set(cardNumber: cardNumber, pin: oldPIN)
     output.reset()
     
     interactor.changePIN(to: newPIN)
     
-    assertOutputReceived(cardNumber: nil, pin: pin, canLogin: canLogin)
-  }
-  
-  private func assertOutputReceived(cardNumber: String?,
-                                    pin: String?,
-                                    canLogin: Bool?,
-                                    file: StaticString = #file,
-                                    line: UInt = #line) {
-    XCTAssertEqual(output.cardNumberSpy, cardNumber, "cardNumber", file: file, line: line)
-    XCTAssertEqual(output.pinSpy, pin, "pin", file: file, line: line)
-    XCTAssertEqual(output.canLoginSpy, canLogin, "canLogin", file: file, line: line)
+    assertOutputReceived(canLogin: canLogin, file: file, line: line)
   }
   
   private func assertOutputReceived(canLogin: Bool?,
-                                    loginDidBegin: Bool?,
-                                    loginDidEnd: Bool?,
-                                    loginErrors: [LoginError]?,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
     XCTAssertEqual(output.canLoginSpy, canLogin, "canLogin", file: file, line: line)
-    XCTAssertEqual(output.didBeginLoginSpy, loginDidBegin, "loginDidBegin", file: file, line: line)
-    XCTAssertEqual(output.didEndLoginSpy, loginDidEnd, "loginDidEnd", file: file, line: line)
-    XCTAssertEqual(output.loginErrorsSpy, loginErrors, "loginErrors", file: file, line: line)
+  }
+  
+  private func assertOutputReceived(loginDidBegin: Bool?,
+                                    loginDidEnd: Bool?,
+                                    loginErrors: [String]?,
+                                    file: StaticString = #file,
+                                    line: UInt = #line) {
+    XCTAssertEqual(output.loginDidBeginSpy, loginDidBegin, "loginDidBegin", file: file, line: line)
+    XCTAssertEqual(output.loginDidEndSpy, loginDidEnd, "loginDidEnd", file: file, line: line)
+    XCTAssertEqual(output.errorsSpy, loginErrors, "loginErrors", file: file, line: line)
   }
   
   private func assertServiceReceived(_ request: RetailLoginRequest?,
@@ -208,8 +188,8 @@ class RetailLoginInteractorTests: XCTestCase {
   }
   
   private func assertStorageSaved(_ cardNumber: String?,
-                                     file: StaticString = #file,
-                                     line: UInt = #line) {
+                                  file: StaticString = #file,
+                                  line: UInt = #line) {
     XCTAssertEqual(storage.cardNumberSpy, cardNumber, "cardNumber", file: file, line: line)
   }
   
@@ -221,12 +201,13 @@ class RetailLoginInteractorTests: XCTestCase {
 }
 
 class RetailLoginInteractorOutputSpy: RetailLoginInteractorOutput {
+  var loadRequestSpy: RetailLoginRequest?
   var cardNumberSpy: String?
   var pinSpy: String?
   var canLoginSpy: Bool?
-  var didBeginLoginSpy = false
-  var didEndLoginSpy = false
-  var loginErrorsSpy: [LoginError]?
+  var loginDidBeginSpy = false
+  var loginDidEndSpy = false
+  var errorsSpy: [String]?
   var helpSpy: LoginHelp?
   var verificationRequestSpy: RetailLoginRequest?
   
@@ -234,19 +215,15 @@ class RetailLoginInteractorOutputSpy: RetailLoginInteractorOutput {
     cardNumberSpy = nil
     pinSpy = nil
     canLoginSpy = nil
-    didBeginLoginSpy = false
-    didEndLoginSpy = false
-    loginErrorsSpy = nil
+    loginDidBeginSpy = false
+    loginDidEndSpy = false
+    errorsSpy = nil
     helpSpy = nil
     verificationRequestSpy = nil
   }
   
-  func cardNumberDidChange(to cardNumber: String) {
-    cardNumberSpy = cardNumber
-  }
-  
-  func pinDidChange(to pin: String) {
-    pinSpy = pin
+  func didLoad(withRememberedRequest request: RetailLoginRequest) {
+    loadRequestSpy = request
   }
   
   func canLoginDidChange(to canLogin: Bool) {
@@ -254,15 +231,15 @@ class RetailLoginInteractorOutputSpy: RetailLoginInteractorOutput {
   }
   
   func loginDidBegin() {
-    didBeginLoginSpy = true
+    loginDidBeginSpy = true
   }
   
   func loginDidEnd() {
-    didEndLoginSpy = true
+    loginDidEndSpy = true
   }
   
-  func loginDidFail(withErrors errors: [LoginError]) {
-    loginErrorsSpy = errors
+  func loginDidFail(withErrors errors: [String]) {
+    errorsSpy = errors
   }
   
   func showHelp(_ help: LoginHelp) {

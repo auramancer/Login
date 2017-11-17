@@ -3,19 +3,23 @@ import UIKit
 class DualModeLoginViewController: UIViewController {
   var configurator: Configurator?
   
-  weak var interactor: LoginInteractorInput?
+  weak var interactor: DualModeLoginInteractorInput?
   
-  @IBOutlet weak var idTitleLabel: UILabel!
-  @IBOutlet weak var idField: UITextField!
-  @IBOutlet var forgottenIdButton: UIButton!
+  @IBOutlet weak var errorView: UIView!
+  @IBOutlet weak var errorLabel: UILabel!
+  
+  @IBOutlet weak var identifierTitleLabel: UILabel!
+  @IBOutlet weak var identifierField: UITextField!
+  @IBOutlet var forgottenIdentifierButton: UIButton!
   
   @IBOutlet weak var credentialTitleLabel: UILabel!
   @IBOutlet weak var credentialField: UITextField!
   @IBOutlet var forgottenCredentialButton: UIButton!
   
   @IBOutlet weak var fieldsStackView: UIStackView!
+  @IBOutlet weak var rememberMeCheckbox: Checkbox!
   
-  @IBOutlet weak var logInButton: UIButton!
+  @IBOutlet weak var logInButton: Button!
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -23,33 +27,28 @@ class DualModeLoginViewController: UIViewController {
     setUpViews()
     
     configurator = Configurator(for: self)
-    update()
+    interactor?.initialize()
   }
   
   private func setUpViews() {
-    idField.addTarget(self, action: #selector(updateId), for: .editingChanged)
-    credentialField.addTarget(self, action: #selector(updateCredential), for: .editingChanged)
+    identifierField.addTarget(self, action: #selector(identifierDidChange), for: .editingChanged)
+    credentialField.addTarget(self, action: #selector(credentialDidChange), for: .editingChanged)
   }
   
-  private func update() {
-    updateId()
-    updateCredential()
+  @objc private func identifierDidChange() {
+    interactor?.changeIdentifier(to: identifierField.text ?? "")
   }
   
-  @objc private func updateId() {
-    interactor?.updateId(idField.text ?? "")
-  }
-  
-  @objc private func updateCredential() {
-    interactor?.updateCredential(credentialField.text ?? "")
+  @objc private func credentialDidChange() {
+    interactor?.changeCredential(to: credentialField.text ?? "")
   }
   
   @IBAction func didPressLogInButton(_ sender: Any) {
-    interactor?.logIn()
+    interactor?.logIn(shouldRememberIdentifier: rememberMeCheckbox.isChecked)
   }
   
   @IBAction func didPressForgottenIdButton(_ sender: Any) {
-    interactor?.helpWithId()
+    interactor?.helpWithIdentifier()
   }
   
   @IBAction func didPressForgottenCredentialButton(_ sender: Any) {
@@ -61,55 +60,9 @@ class DualModeLoginViewController: UIViewController {
     
     fieldsStackView.axis = size.width >= 480 ? .horizontal : .vertical
   }
-}
-
-extension DualModeLoginViewController: DualModeLoginPresenterOutput {
-  func loginWasEnabled() {
-    logInButton.isEnabled = true
-  }
-  
-  func loginWasDisabled() {
-    logInButton.isEnabled = false
-  }
-  
-  func showActivityMessage(_: String?) {
-  }
-  
-  func hideActivityMessage() {
-  }
-  
-  func showErrorMessage(_ error: String?) {
-  }
-  
-  func hideErrorMessage() {
-  }
-  
-  func leave() {
-  }
-  
-  func navigate(to destination: LoginDestination) {
-    switch destination {
-    case .forgottenUsername:
-      break
-    case .forgottenPassword:
-      break
-    case .forgottenCardNumber:
-      break
-    case .forgottenPIN:
-      break
-    default:
-      break
-    }
-  }
-  
-  func updateWording(_ wording: DualModeLoginWording) {
-    updateLabelsAnimated(with: wording)
-    changeAttributedTitle(of: forgottenIdButton, to: wording.forgottenId)
-    changeAttributedTitle(of: forgottenCredentialButton, to: wording.forgottenCredential)
-  }
   
   private func updateLabelsAnimated(with wording: DualModeLoginWording) {
-    updateLabel(idTitleLabel, withText: wording.id)
+    updateLabel(identifierTitleLabel, withText: wording.id)
     updateLabel(credentialTitleLabel, withText: wording.credential)
   }
   
@@ -132,7 +85,7 @@ extension DualModeLoginViewController: DualModeLoginPresenterOutput {
   }
   
   private func updateLabels(with wording: DualModeLoginWording) {
-    idTitleLabel.text = wording.id
+    identifierTitleLabel.text = wording.id
     credentialTitleLabel.text = wording.credential
   }
   
@@ -142,6 +95,57 @@ extension DualModeLoginViewController: DualModeLoginPresenterOutput {
     let mutableAttributedTitle = NSMutableAttributedString(attributedString: attributedTitle)
     mutableAttributedTitle.replaceCharacters(in: NSMakeRange(0, mutableAttributedTitle.length), with: newTitle)
     button.setAttributedTitle(mutableAttributedTitle, for: .normal)
+  }
+}
+
+extension DualModeLoginViewController: DualModeLoginPresenterOutput {
+  func changeIdentifier(to identifier: String) {
+    identifierField.text = identifier
+  }
+  
+  func changeCredential(to credential: String) {
+    credentialField.text = credential
+  }
+  
+  func changeWording(to wording: DualModeLoginWording) {
+    updateLabelsAnimated(with: wording)
+    changeAttributedTitle(of: forgottenIdentifierButton, to: wording.forgottenIdentifier)
+    changeAttributedTitle(of: forgottenCredentialButton, to: wording.forgottenCredential)
+  }
+  
+  func changeCanLogin(to canLogin: Bool) {
+    logInButton.isEnabled = canLogin
+  }
+  
+  func changeIsLoggingIn(to isLoggingIn: Bool) {
+    logInButton.shouldShowActivityIndicator = isLoggingIn
+  }
+  
+  func changeErrorMessage(to message: String) {
+    errorLabel.text = message
+    
+    UIView.animate(withDuration: 0.15) { [weak self] in
+      self?.errorView.alpha = 1
+      self?.errorView.isHidden = false
+    }
+  }
+  
+  func clearErrorMessage() {
+    errorLabel.text = nil
+    
+    UIView.animate(withDuration: 0.15) { [weak self] in
+      self?.errorView.alpha = 0
+      self?.errorView.isHidden = true
+    }
+  }
+  
+  func goToHelpPage(for: LoginHelp) {
+  }
+  
+  func goToVerificationPage(withRequest: RetailLoginRequest) {
+  }
+  
+  func leave() {
   }
 }
 

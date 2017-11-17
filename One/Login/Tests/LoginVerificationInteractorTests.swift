@@ -29,7 +29,7 @@ class LoginVerificationInteractorTests: XCTestCase {
   }
   
   func testReset() {
-    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
+    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
     
     XCTAssertEqual(output.canVerifySpy, false)
   }
@@ -41,7 +41,7 @@ class LoginVerificationInteractorTests: XCTestCase {
   }
   
   func testChangeCode() {
-    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
+    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
     
     interactor.changeCode(to: validCode)
     
@@ -56,7 +56,7 @@ class LoginVerificationInteractorTests: XCTestCase {
   }
   
   func testResendCode() {
-    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
+    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
     
     interactor.resendCode()
     
@@ -75,7 +75,7 @@ class LoginVerificationInteractorTests: XCTestCase {
   }
   
   func testVerifyWithNoCode() {
-    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
+    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
     
     interactor.verify()
     
@@ -84,7 +84,7 @@ class LoginVerificationInteractorTests: XCTestCase {
   }
   
   func testVerify() {
-    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
+    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
     interactor.changeCode(to: validCode)
     
     interactor.verify()
@@ -99,7 +99,7 @@ class LoginVerificationInteractorTests: XCTestCase {
   }
   
   func testHandleVerifySuccessAndRemember() {
-    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
+    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
     interactor.changeCode(to: validCode)
     interactor.verify()
     
@@ -112,7 +112,7 @@ class LoginVerificationInteractorTests: XCTestCase {
   }
   
   func testHandleVerifySuccessAndNotRemember() {
-    interactor.reset(withRequest: request, shouldRememberCardNumber: false)
+    interactor.initialize(withRequest: request, shouldRememberCardNumber: false)
     interactor.changeCode(to: validCode)
     interactor.verify()
     
@@ -125,7 +125,7 @@ class LoginVerificationInteractorTests: XCTestCase {
   }
   
   func testHandleVerifyFailure() {
-    interactor.reset(withRequest: request, shouldRememberCardNumber: true)
+    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
     interactor.changeCode(to: validCode)
     interactor.verify()
     

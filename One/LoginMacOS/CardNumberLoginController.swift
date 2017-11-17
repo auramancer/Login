@@ -13,7 +13,7 @@ class RetailLoginController: ConsoleController {
   override func start() {
     configurator = Configurator(for: self)
     
-    interactor?.initialize()
+    interactor?.load()
     
     output("🗝 CardNumber Log In 🗝\n")
     super.start()

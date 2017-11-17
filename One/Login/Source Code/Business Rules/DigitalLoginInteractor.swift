@@ -1,6 +1,6 @@
 struct DigitalLoginRequest {
-  let username: String
-  let password: String
+  var username: String
+  var password: String
 }
 
 extension LoginHelp {
@@ -9,7 +9,7 @@ extension LoginHelp {
 }
 
 protocol DigitalLoginInteractorInput: class {
-  func initialize()
+  func load()
   
   func changeUsername(to: String)
   func changePassword(to: String)
@@ -21,13 +21,13 @@ protocol DigitalLoginInteractorInput: class {
 }
 
 protocol DigitalLoginInteractorOutput: class {
-  func usernameDidChange(to: String)
-  func passwordDidChange(to: String)
+  func didLoad(username: String, password: String, canLogin: Bool)
+  
   func canLoginDidChange(to: Bool)
   
   func loginDidBegin()
   func loginDidEnd()
-  func loginDidFail(withErrors: [LoginError])
+  func loginDidFail(withErrors: [String])
   
   func showHelp(_: LoginHelp)
 }
@@ -51,65 +51,60 @@ class DigitalLoginInteractor {
   var service: DigitalLoginServiceInput?
   var storage: DigitalLoginStorage?
   
-  private var username = ""
-  private var password = ""
+  private var request: DigitalLoginRequest!
   private var shouldRememberUsername = false
-  private var isLoggingIn = false
   
-  private var request: DigitalLoginRequest {
-    return DigitalLoginRequest(username: username, password: password)
+  private var rememberedUsername: String {
+    return storage?.loadUsername() ?? ""
+  }
+  
+  private var rememberedPassword: String {
+    return ""
   }
   
   private var canLogin: Bool {
-    return usernameIsValid && passwordIsValid && !isLoggingIn
+    return request?.isValid ?? false
   }
   
-  private var usernameIsValid: Bool {
-    return username != ""
-  }
+  private var canLoginOldValue = false
   
-  private var passwordIsValid: Bool {
-    return password != ""
+  private func outputCanLoginDidChange() {
+    let newValue = canLogin
+    
+    if newValue != canLoginOldValue {
+      output?.canLoginDidChange(to: newValue)
+      canLoginOldValue = newValue
+    }
   }
 }
 
 extension DigitalLoginInteractor: DigitalLoginInteractorInput {
-  func initialize() {
-    username = storage?.loadUsername() ?? ""
-    password = ""
+  func load() {
+    request = DigitalLoginRequest(username: rememberedUsername, password: rememberedPassword)
+    canLoginOldValue = canLogin
     
-    output?.usernameDidChange(to: username)
-    output?.passwordDidChange(to: password)
-    output?.canLoginDidChange(to: canLogin)
+    output?.didLoad(username: request.username,
+                    password: request.password,
+                    canLogin: canLoginOldValue)
   }
   
   func changeUsername(to username: String) {
-    guard self.username != username else { return }
+    request.username = username
     
-    self.username = username
-    
-    output?.usernameDidChange(to: username)
-    output?.canLoginDidChange(to: canLogin)
+    outputCanLoginDidChange()
   }
   
   func changePassword(to password: String) {
-    guard self.password != password else { return }
+    request.password = password
     
-    self.password = password
-    
-    output?.passwordDidChange(to: password)
-    output?.canLoginDidChange(to: canLogin)
+    outputCanLoginDidChange()
   }
   
   func logIn(shouldRememberUsername shouldRemember: Bool) {
-    guard canLogin else { return }
-    
     shouldRememberUsername = shouldRemember
-    isLoggingIn = true
     
     service?.logIn(withUsernameRequest: request)
     
-    output?.canLoginDidChange(to: canLogin)
     output?.loginDidBegin()
   }
   
@@ -124,19 +119,29 @@ extension DigitalLoginInteractor: DigitalLoginInteractorInput {
 
 extension DigitalLoginInteractor: DigitalLoginServiceOutput {
   func loginDidSucceed() {
-    isLoggingIn = false
-    
     if shouldRememberUsername {
-      storage?.saveUsername(username)
+      storage?.saveUsername(request.username)
     }
     
     output?.loginDidEnd()
   }
   
   func loginDidFail(dueTo errors: [LoginError]) {
-    isLoggingIn = false
-    
-    output?.canLoginDidChange(to: canLogin)
-    output?.loginDidFail(withErrors: errors)
+    let messages = errors.map{ $0.message }
+    output?.loginDidFail(withErrors: messages)
+  }
+}
+
+extension DigitalLoginRequest {
+  var isValid: Bool {
+    return usernameIsValid && passwordIsValid
+  }
+  
+  var usernameIsValid: Bool {
+    return username != ""
+  }
+  
+  var passwordIsValid: Bool {
+    return password != ""
   }
 }

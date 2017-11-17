@@ -1,8 +1,9 @@
 struct RetailLoginRequest {
-  let cardNumber: String
-  let pin: String
+  var cardNumber: String
+  var pin: String
   var verificationCode: String?
   var authenticationToken: String?
+  var membershipNumber: String?
 }
 
 extension LoginHelp {
@@ -11,7 +12,7 @@ extension LoginHelp {
 }
 
 protocol RetailLoginInteractorInput: class {
-  func initialize()
+  func load()
   
   func changeCardNumber(to: String)
   func changePIN(to: String)
@@ -23,13 +24,13 @@ protocol RetailLoginInteractorInput: class {
 }
 
 protocol RetailLoginInteractorOutput: class {
-  func cardNumberDidChange(to: String)
-  func pinDidChange(to: String)
+  func didLoad(cardNumber: String, pin: String, canLogin: Bool)
+  
   func canLoginDidChange(to: Bool)
   
   func loginDidBegin()
   func loginDidEnd()
-  func loginDidFail(withErrors: [LoginError])
+  func loginDidFail(withErrors: [String])
   
   func showHelp(_: LoginHelp)
   func inquireVerificationCode(forRequest: RetailLoginRequest)
@@ -50,7 +51,6 @@ protocol RetailLoginStorage: class {
   func loadCardNumber() -> String?
   func saveToken(_: String)
   func loadToken() -> String?
-  func removeToken()
 }
 
 class RetailLoginInteractor {
@@ -58,71 +58,66 @@ class RetailLoginInteractor {
   var service: RetailLoginServiceInput?
   var storage: RetailLoginStorage?
   
-  private var cardNumber = ""
-  private var pin = ""
+  private var request: RetailLoginRequest!
   private var shouldRememberCardNumber = false
-  private var isLoggingIn = false
   
-  private var request: RetailLoginRequest {
-    return RetailLoginRequest(cardNumber: cardNumber,
-                                  pin: pin,
-                                  authenticationToken: token)
+  private var rememberedCardNumber: String {
+    return storage?.loadCardNumber() ?? ""
   }
   
-  private var token: String? {
+  private var rememberedPIN: String {
+    return ""
+  }
+  
+  private var remeberedToken: String? {
     return storage?.loadToken()
   }
   
   private var canLogin: Bool {
-    return cardNumberIsValid && pinIsValid && !isLoggingIn
+    return request?.isValid ?? false
   }
   
-  private var cardNumberIsValid: Bool {
-    return cardNumber != ""
-  }
+  private var canLoginOldValue = false
   
-  private var pinIsValid: Bool {
-    return pin != ""
+  private func outputCanLoginDidChange() {
+    let newValue = canLogin
+    
+    if newValue != canLoginOldValue {
+      output?.canLoginDidChange(to: newValue)
+      canLoginOldValue = newValue
+    }
   }
 }
 
 extension RetailLoginInteractor: RetailLoginInteractorInput {
-  func initialize() {
-    cardNumber = storage?.loadCardNumber() ?? ""
-    pin = ""
+  func load() {
+    request = RetailLoginRequest(cardNumber: rememberedCardNumber,
+                                 pin: rememberedPIN,
+                                 authenticationToken: remeberedToken)
+    canLoginOldValue = canLogin
     
-    output?.cardNumberDidChange(to: cardNumber)
-    output?.pinDidChange(to: pin)
-    output?.canLoginDidChange(to: canLogin)
+    output?.didLoad(cardNumber: request.cardNumber,
+                    pin: request.pin,
+                    canLogin: canLoginOldValue)
   }
   
   func changeCardNumber(to cardNumber: String) {
-    guard self.cardNumber != cardNumber else { return }
+    request.cardNumber = cardNumber
     
-    self.cardNumber = cardNumber
-    
-    output?.cardNumberDidChange(to: cardNumber)
-    output?.canLoginDidChange(to: canLogin)
+    outputCanLoginDidChange()
   }
   
   func changePIN(to pin: String) {
-    guard self.pin != pin else { return }
+    request.pin = pin
     
-    self.pin = pin
-    
-    output?.pinDidChange(to: pin)
-    output?.canLoginDidChange(to: canLogin)
+    outputCanLoginDidChange()
   }
   
   func logIn(shouldRememberCardNumber shouldRemember: Bool) {
-    guard canLogin else { return }
-    
     shouldRememberCardNumber = shouldRemember
-    isLoggingIn = true
     
     service?.logIn(withCardNumberRequest: request)
     
-    output?.canLoginDidChange(to: canLogin)
     output?.loginDidBegin()
   }
   
@@ -137,29 +132,19 @@ extension RetailLoginInteractor: RetailLoginInteractorInput {
 
 extension RetailLoginInteractor: RetailLoginServiceOutput {
   func loginDidSucceed() {
-    isLoggingIn = false
-    saveCardNumber()
+    if shouldRememberCardNumber {
+      storage?.saveCardNumber(request.cardNumber)
+    }
     
     output?.loginDidEnd()
   }
   
-  private func saveCardNumber() {
-    if shouldRememberCardNumber {
-      storage?.saveCardNumber(cardNumber)
-    }
-  }
-  
   func loginDidFail(dueTo errors: [LoginError]) {
-    isLoggingIn = false
-    
-    output?.canLoginDidChange(to: canLogin)
-    output?.loginDidFail(withErrors: errors)
+    let messages = errors.map{ $0.message }
+    output?.loginDidFail(withErrors: messages)
   }
   
   func loginDidFailDueToInvalidToken() {
-    isLoggingIn = false
-    storage?.removeToken()
-    
     output?.inquireVerificationCode(forRequest: request)
   }
 }
@@ -169,14 +154,29 @@ extension RetailLoginRequest {
     self.init(cardNumber: cardNumber,
               pin: pin,
               verificationCode: nil,
-              authenticationToken: nil)
+              authenticationToken: nil,
+              membershipNumber: nil)
   }
   
   init(cardNumber: String, pin: String, authenticationToken: String?) {
     self.init(cardNumber: cardNumber,
               pin: pin,
               verificationCode: nil,
-              authenticationToken: authenticationToken)
+              authenticationToken: authenticationToken,
+              membershipNumber: nil)
+  }
+  
+  var isValid: Bool {
+    return cardNumberIsValid && pinIsValid
+  }
+  
+  var cardNumberIsValid: Bool {
+    return cardNumber != ""
+  }
+  
+  var pinIsValid: Bool {
+    return pin != ""
   }
 }
+
 

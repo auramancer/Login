@@ -7,7 +7,7 @@ enum LoginMode {
 }
 
 protocol DualModeLoginInteractorInput: class {
-  func initialize()
+  func load()
   
   func changeIdentifier(to: String)
   func changeCredential(to: String)
@@ -19,15 +19,14 @@ protocol DualModeLoginInteractorInput: class {
 }
 
 protocol DualModeLoginInteractorOutput: class {
-  func idDidChange(to: String)
-  func credentialDidChange(to: String)
-  func canLoginDidChange(to: Bool)
+  func didLoad(withIdentifier: String, credential: String, canLogin: Bool, mode: LoginMode)
   
+  func canLoginDidChange(to: Bool)
   func loginModeDidChange(to: LoginMode)
   
   func loginDidBegin()
   func loginDidEnd()
-  func loginDidFail(withErrors: [LoginError])
+  func loginDidFail(withErrors: [String])
   
   func showHelp(_: LoginHelp)
   func inquireVerificationCode(forRequest: RetailLoginRequest)
@@ -104,30 +103,21 @@ class DualModeLoginInteractor {
   
   private func isMembershipCardNumber(_ id: String) -> Bool {
     // starts with 6 digits
-    return pattern("^[0-9]{6,}?", doesMatch: id)
+    return id.containsMatch(of: "^[0-9]{6,}?")
   }
   
   private func isPartialMembershipCardNumber(_ id: String) -> Bool {
     // 0-5 digits
-    return pattern("^[0-9]{0,5}?$", doesMatch: id)
-  }
-  
-  private func pattern(_ pattern: String, doesMatch string: String) -> Bool {
-    let expression = try! NSRegularExpression(pattern: pattern, options: [])
-    let range = NSRange(string.startIndex..<string.endIndex, in: string)
-    return expression.matches(in: string, options: [], range: range).count > 0
+    return id.containsMatch(of: "^[0-9]{0,5}?$")
   }
 }
 
 extension DualModeLoginInteractor: DualModeLoginInteractorInput {
-  func initialize() {
-    mode = LoginMode.undetermined
-    switchSubInteractor()
+  func load() {
     
-    usernameInteractor.initialize()
-    cardNumberInteractor.initialize()
     
-    output?.loginModeDidChange(to: mode)
+    usernameInteractor.load()
+    cardNumberInteractor.load()
   }
   
   func changeIdentifier(to id: String) {
@@ -158,20 +148,10 @@ extension DualModeLoginInteractor: DualModeLoginInteractorInput {
 }
 
 extension DualModeLoginInteractor: DigitalLoginInteractorOutput, RetailLoginInteractorOutput {
-  func usernameDidChange(to username: String) {
-    output?.idDidChange(to: username)
+  func didLoad(username: String, password: String, canLogin: Bool) {
   }
   
-  func passwordDidChange(to password: String) {
-    output?.credentialDidChange(to: password)
-  }
-  
-  func cardNumberDidChange(to cardNumber: String) {
-    output?.idDidChange(to: cardNumber)
-  }
-  
-  func pinDidChange(to pin: String) {
-    output?.credentialDidChange(to: pin)
+  func didLoad(cardNumber: String, pin: String, canLogin: Bool) {
   }
   
   func canLoginDidChange(to canLogin: Bool) {
@@ -186,7 +166,7 @@ extension DualModeLoginInteractor: DigitalLoginInteractorOutput, RetailLoginInte
     output?.loginDidEnd()
   }
   
-  func loginDidFail(withErrors errors: [LoginError]) {
+  func loginDidFail(withErrors errors: [String]) {
     output?.loginDidFail(withErrors: errors)
   }
   

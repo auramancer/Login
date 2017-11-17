@@ -16,51 +16,129 @@ class DualModeLoginPresenterTests: XCTestCase {
     presenter = DualModeLoginPresenter()
     presenter.output = output
   }
+  
+  func testChangeCanLogin() {
+    assertOutputReceived(canLogin: true, whenChangeCanLoginTo: true)
+    assertOutputReceived(canLogin: false, whenChangeCanLoginTo: false)
+  }
+  
+  func testLoginDidBegin() {
+    presenter.loginDidBegin()
+    
+    assertOutputReceived(isLoggingIn: true,
+                         message: nil,
+                         clearMessage: true,
+                         leave: false)
+  }
+  
+  func testLoginDidEnd() {
+    presenter.loginDidEnd()
+    
+    assertOutputReceived(isLoggingIn: false,
+                         message: nil,
+                         clearMessage: false,
+                         leave: true)
+  }
+  
+  func testLoginDidFail() {
+    presenter.loginDidFail(withErrors: [error])
+    
+    assertOutputReceived(isLoggingIn: false,
+                         message: LoginMessage(text: error, style: .error),
+                         clearMessage: false,
+                         leave: false)
+  }
+  
+  func testShowHelp() {
+    let help = LoginHelp.cardNumber
+    
+    presenter.showHelp(help)
+    
+    XCTAssertEqual(output.helpSpy, help)
+  }
+  
+  func testInquireVerificationCode() {
+    let request = RetailLoginRequest(cardNumber: validCardNumber, pin: validPIN)
+    presenter.loginModeDidChange(to: .retail)
+    
+    presenter.inquireVerificationCode(forRequest: request)
+    
+    XCTAssertEqual(output.verificationRequestSpy, RetailLoginRequest(cardNumber: validCardNumber, pin: validPIN))
+  }
+  
+  // MARK: helpers
+  
+  private func assertOutputReceived(canLogin expected: Bool?,
+                                    whenChangeCanLoginTo canLogin: Bool,
+                                    file: StaticString = #file,
+                                    line: UInt = #line) {
+    presenter.canLoginDidChange(to: canLogin)
+    
+    XCTAssertEqual(output.canLoginSpy, expected, "canLogin", file: file, line: line)
+  }
+  
+  private func assertOutputReceived(isLoggingIn: Bool?,
+                                    message: LoginMessage?,
+                                    clearMessage: Bool,
+                                    leave: Bool,
+                                    file: StaticString = #file,
+                                    line: UInt = #line) {
+    XCTAssertEqual(output.isLoggingInSpy, isLoggingIn, "isLoggingIn", file: file, line: line)
+    XCTAssertEqual(output.messageSpy, message, "message", file: file, line: line)
+    XCTAssertEqual(output.clearMessageSpy, clearMessage, "clearMessage", file: file, line: line)
+    XCTAssertEqual(output.leaveSpy, leave, "leave", file: file, line: line)
+  }
 }
 
 class DualModeLoginPresenterOutputSpy: DualModeLoginPresenterOutput {
-  func changeIsLoggingIn(to: Bool) {
-    
+  var identifierSpy: String?
+  var credentialSpy: String?
+  var wordingSpy: DualModeLoginWording?
+  var canLoginSpy: Bool?
+  var isLoggingInSpy: Bool?
+  var messageSpy: LoginMessage?
+  var clearMessageSpy = false
+  var helpSpy: LoginHelp?
+  var verificationRequestSpy: RetailLoginRequest?
+  var leaveSpy = false
+  
+  func changeIdentifier(to identifier: String) {
+    identifierSpy = identifier
   }
   
-  func changeErrorMessage(to: String) {
-    
+  func changeCredential(to credential: String) {
+    credentialSpy = credential
   }
   
-  func clearErrorMessage() {
-    
+  func changeWording(to wording: DualModeLoginWording) {
+    wordingSpy = wording
   }
   
-  func changeIdentifier(to: String) {
+  func changeCanLogin(to canLogin: Bool) {
+    canLoginSpy = canLogin
   }
   
-  func changeCredential(to: String) {
+  func changeIsLoggingIn(to isLoggingIn: Bool) {
+    isLoggingInSpy = isLoggingIn
   }
   
-  func changeCanLogin(to: Bool) {
+  func showMessage(_ message: LoginMessage) {
+    messageSpy = message
   }
   
-  func changeWording(to: DualModeLoginWording) {
+  func clearMessage() {
+    clearMessageSpy = true
   }
   
-  func showActivityMessage(_: String?) {
+  func goToHelpPage(for help: LoginHelp) {
+    helpSpy = help
   }
   
-  func hideActivityMessage() {
-  }
-  
-  func showErrorMessage(_: String) {
-  }
-  
-  func hideErrorMessage() {
-  }
-  
-  func goToHelpPage(for: LoginHelp) {
-  }
-  
-  func goToVerificationPage(withRequest: RetailLoginRequest) {
+  func goToVerificationPage(withRequest request: RetailLoginRequest) {
+    verificationRequestSpy = request
   }
   
   func leave() {
+    leaveSpy = true
   }
 }

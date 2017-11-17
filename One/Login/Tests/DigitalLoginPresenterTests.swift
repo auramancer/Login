@@ -4,8 +4,11 @@ class DigitalLoginPresenterTests: XCTestCase {
   private var presenter: DigitalLoginPresenter!
   private var output: DigitalLoginPresenterOutputSpy!
   
-  private let validUsername = "name"
-  private let validPassword = "pass"
+  private let validUsername = "username"
+  private let validPassword = "password"
+  private var validRequest: DigitalLoginRequest {
+    return DigitalLoginRequest(username: validUsername, password: validPassword)
+  }
   private let error = "Cannot log in."
   
   override func setUp() {
@@ -17,16 +20,12 @@ class DigitalLoginPresenterTests: XCTestCase {
     presenter.output = output
   }
   
-  func testChangeUsername() {
-    presenter.usernameDidChange(to: validUsername)
-  
-    XCTAssertEqual(output.usernameSpy, validUsername)
-  }
-  
-  func testChangePassword() {
-    presenter.passwordDidChange(to: validPassword)
+  func testDidLoad() {
+    presenter.didLoad(withRememberedRequest: validRequest)
     
+    XCTAssertEqual(output.usernameSpy, validUsername)
     XCTAssertEqual(output.passwordSpy, validPassword)
+    XCTAssertEqual(output.canLoginSpy, false)
   }
   
   func testChangeCanLogin() {
@@ -38,27 +37,27 @@ class DigitalLoginPresenterTests: XCTestCase {
     presenter.loginDidBegin()
 
     assertOutputReceived(isLoggingIn: true,
-                         errorMessage: nil,
-                         didClearErrorMessage: true,
-                         didLeave: false)
+                         message: nil,
+                         clearMessage: true,
+                         leave: false)
   }
 
   func testLoginDidEnd() {
     presenter.loginDidEnd()
 
     assertOutputReceived(isLoggingIn: false,
-                         errorMessage: nil,
-                         didClearErrorMessage: false,
-                         didLeave: true)
+                         message: nil,
+                         clearMessage: false,
+                         leave: true)
   }
 
   func testLoginDidFail() {
     presenter.loginDidFail(withErrors: [error])
 
     assertOutputReceived(isLoggingIn: false,
-                         errorMessage: error,
-                         didClearErrorMessage: false,
-                         didLeave: false)
+                         message: LoginMessage(text: error, style: .error),
+                         clearMessage: false,
+                         leave: false)
   }
   
   func testShowHelp() {
@@ -81,15 +80,15 @@ class DigitalLoginPresenterTests: XCTestCase {
   }
   
   private func assertOutputReceived(isLoggingIn: Bool?,
-                                    errorMessage: String?,
-                                    didClearErrorMessage: Bool,
-                                    didLeave: Bool,
+                                    message: LoginMessage?,
+                                    clearMessage: Bool,
+                                    leave: Bool,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
     XCTAssertEqual(output.isLoggingInSpy, isLoggingIn, "isLoggingIn", file: file, line: line)
-    XCTAssertEqual(output.errorMessageSpy, errorMessage, "errorMessage", file: file, line: line)
-    XCTAssertEqual(output.didClearErrorMessageSpy, didClearErrorMessage, "didClearErrorMessage", file: file, line: line)
-    XCTAssertEqual(output.didLeaveSpy, didLeave, "didLeave", file: file, line: line)
+    XCTAssertEqual(output.messageSpy, message, "message", file: file, line: line)
+    XCTAssertEqual(output.clearMessageSpy, clearMessage, "clearMessage", file: file, line: line)
+    XCTAssertEqual(output.leaveSpy, leave, "leave", file: file, line: line)
   }
 }
 
@@ -98,10 +97,10 @@ class DigitalLoginPresenterOutputSpy: DigitalLoginPresenterOutput {
   var passwordSpy: String?
   var canLoginSpy: Bool?
   var isLoggingInSpy: Bool?
-  var errorMessageSpy: String?
-  var didClearErrorMessageSpy = false
+  var messageSpy: LoginMessage?
+  var clearMessageSpy = false
   var helpSpy: LoginHelp?
-  var didLeaveSpy = false
+  var leaveSpy = false
   
   func changeUsername(to username: String) {
     usernameSpy = username
@@ -119,12 +118,12 @@ class DigitalLoginPresenterOutputSpy: DigitalLoginPresenterOutput {
     isLoggingInSpy = isLoggingIn
   }
   
-  func changeErrorMessage(to message: String) {
-    errorMessageSpy = message
+  func showMessage(_ message: LoginMessage) {
+    messageSpy = message
   }
   
-  func clearErrorMessage() {
-    didClearErrorMessageSpy = true
+  func clearMessage() {
+    clearMessageSpy = true
   }
   
   func goToHelpPage(for help: LoginHelp) {
@@ -132,6 +131,6 @@ class DigitalLoginPresenterOutputSpy: DigitalLoginPresenterOutput {
   }
   
   func leave() {
-    didLeaveSpy = true
+    leaveSpy = true
   }
 }

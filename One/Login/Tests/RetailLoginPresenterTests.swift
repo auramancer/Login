@@ -17,18 +17,6 @@ class RetailLoginPresenterTests: XCTestCase {
     presenter.output = output
   }
   
-  func testChangeCardNumber() {
-    presenter.cardNumberDidChange(to: validCardNumber)
-    
-    XCTAssertEqual(output.cardNumberSpy, validCardNumber)
-  }
-  
-  func testChangePIN() {
-    presenter.pinDidChange(to: validPIN)
-    
-    XCTAssertEqual(output.pinSpy, validPIN)
-  }
-  
   func testChangeCanLogin() {
     assertOutputReceived(canLogin: true, whenChangeCanLoginTo: true)
     assertOutputReceived(canLogin: false, whenChangeCanLoginTo: false)
@@ -38,27 +26,27 @@ class RetailLoginPresenterTests: XCTestCase {
     presenter.loginDidBegin()
     
     assertOutputReceived(isLoggingIn: true,
-                         errorMessage: nil,
-                         didClearErrorMessage: true,
-                         didLeave: false)
+                         message: nil,
+                         clearMessage: true,
+                         leave: false)
   }
   
   func testLoginDidEnd() {
     presenter.loginDidEnd()
     
     assertOutputReceived(isLoggingIn: false,
-                         errorMessage: nil,
-                         didClearErrorMessage: false,
-                         didLeave: true)
+                         message: nil,
+                         clearMessage: false,
+                         leave: true)
   }
   
   func testLoginDidFail() {
     presenter.loginDidFail(withErrors: [error])
     
     assertOutputReceived(isLoggingIn: false,
-                         errorMessage: error,
-                         didClearErrorMessage: false,
-                         didLeave: false)
+                         message: LoginMessage(text: "Cannot log in.", style: .error),
+                         clearMessage: false,
+                         leave: false)
   }
   
   func testShowHelp() {
@@ -71,6 +59,7 @@ class RetailLoginPresenterTests: XCTestCase {
   
   func testInquireVerificationCode() {
     let request = RetailLoginRequest(cardNumber: validCardNumber, pin: validPIN)
+    presenter.loginModeDidChange(to: .retail)
     
     presenter.inquireVerificationCode(forRequest: request)
     
@@ -89,15 +78,15 @@ class RetailLoginPresenterTests: XCTestCase {
   }
   
   private func assertOutputReceived(isLoggingIn: Bool?,
-                                    errorMessage: String?,
-                                    didClearErrorMessage: Bool,
-                                    didLeave: Bool,
+                                    message: LoginMessage?,
+                                    clearMessage: Bool,
+                                    leave: Bool,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
     XCTAssertEqual(output.isLoggingInSpy, isLoggingIn, "isLoggingIn", file: file, line: line)
-    XCTAssertEqual(output.errorMessageSpy, errorMessage, "errorMessage", file: file, line: line)
-    XCTAssertEqual(output.didClearErrorMessageSpy, didClearErrorMessage, "didClearErrorMessage", file: file, line: line)
-    XCTAssertEqual(output.didLeaveSpy, didLeave, "didLeave", file: file, line: line)
+    XCTAssertEqual(output.messageSpy, message, "message", file: file, line: line)
+    XCTAssertEqual(output.clearMessageSpy, clearMessage, "clearMessage", file: file, line: line)
+    XCTAssertEqual(output.leaveSpy, leave, "leave", file: file, line: line)
   }
 }
 
@@ -106,11 +95,11 @@ class RetailLoginPresenterOutputSpy: RetailLoginPresenterOutput {
   var pinSpy: String?
   var canLoginSpy: Bool?
   var isLoggingInSpy: Bool?
-  var errorMessageSpy: String?
-  var didClearErrorMessageSpy = false
+  var messageSpy: LoginMessage?
+  var clearMessageSpy = false
   var helpSpy: LoginHelp?
   var verificationRequestSpy: RetailLoginRequest?
-  var didLeaveSpy = false
+  var leaveSpy = false
   
   func changeCardNumber(to cardNumber: String) {
     cardNumberSpy = cardNumber
@@ -128,12 +117,12 @@ class RetailLoginPresenterOutputSpy: RetailLoginPresenterOutput {
     isLoggingInSpy = isLoggingIn
   }
   
-  func changeErrorMessage(to message: String) {
-    errorMessageSpy = message
+  func showMessage(_ message: LoginMessage) {
+    messageSpy = message
   }
   
-  func clearErrorMessage() {
-    didClearErrorMessageSpy = true
+  func clearMessage() {
+    clearMessageSpy = true
   }
   
   func goToHelpPage(for help: LoginHelp) {
@@ -145,6 +134,6 @@ class RetailLoginPresenterOutputSpy: RetailLoginPresenterOutput {
   }
   
   func leave() {
-    didLeaveSpy = true
+    leaveSpy = true
   }
 }

@@ -8,8 +8,9 @@ protocol DigitalLoginPresenterOutput: class {
   func changePassword(to: String)
   func changeCanLogin(to: Bool)
   func changeIsLoggingIn(to: Bool)
-  func changeErrorMessage(to: String)
-  func clearErrorMessage()
+  
+  func showMessage(_: LoginMessage)
+  func clearMessage()
   
   func goToHelpPage(for: LoginHelp)
   func leave()
@@ -20,12 +21,10 @@ class DigitalLoginPresenter {
 }
 
 extension DigitalLoginPresenter: DigitalLoginInteractorOutput {
-  func usernameDidChange(to username: String) {
+  func didLoad(username: String, password: String, canLogin: Bool) {
     output?.changeUsername(to: username)
-  }
-
-  func passwordDidChange(to password: String) {
     output?.changePassword(to: password)
+    output?.changeCanLogin(to: canLogin)
   }
   
   func canLoginDidChange(to canLogin: Bool) {
@@ -33,7 +32,7 @@ extension DigitalLoginPresenter: DigitalLoginInteractorOutput {
   }
   
   func loginDidBegin() {
-    output?.clearErrorMessage()
+    output?.clearMessage()
     output?.changeIsLoggingIn(to: true)
   }
   
@@ -42,13 +41,9 @@ extension DigitalLoginPresenter: DigitalLoginInteractorOutput {
     output?.leave()
   }
   
-  func loginDidFail(withErrors errors: [LoginError]) {
+  func loginDidFail(withErrors errors: [String]) {
     output?.changeIsLoggingIn(to: false)
-    output?.changeErrorMessage(to: errorMessage(for: errors))
-  }
-  
-  private func errorMessage(for errors: [LoginError]) -> String {
-    return errors.first ?? "Something went wrong."
+    output?.showMessage(LoginMessage(text: errors.joined(separator: "\n\n"), style: .error))
   }
   
   func showHelp(_ help: LoginHelp) {

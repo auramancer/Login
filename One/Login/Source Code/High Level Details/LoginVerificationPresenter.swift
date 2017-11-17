@@ -39,14 +39,14 @@ extension LoginVerificationPresenter: LoginVerificationInteractorOutput {
     output?.leave()
   }
   
-  func verificationDidFail(dueTo errors: [LoginError]) {
+  func verificationDidFail(dueTo errors: [String]) {
     output?.hideActivityMessage()
     
     let message = errorMessage(for: errors)
     output?.showErrorMessage(message)
   }
   
-  private func errorMessage(for errors: [LoginError]) -> String {
+  private func errorMessage(for errors: [String]) -> String {
     return errors.first ?? "Something went wrong."
   }
 }

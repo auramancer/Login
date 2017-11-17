@@ -47,13 +47,13 @@ class ConsoleController {
     print("")
   }
   
-  func changeErrorMessage(to message: String) {
-    output("❗️\(message)")
+  func showMessage(_ message: LoginMessage) {
+    output("\(message.style == .error ? "❗️" : "💡") \(message.text)")
     
     waitForCommand()
   }
   
-  func clearErrorMessage() {
+  func clearMessage() {
   }
   
   func leave() {

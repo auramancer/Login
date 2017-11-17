@@ -9,8 +9,9 @@ protocol RetailLoginPresenterOutput: class {
   func changePIN(to: String)
   func changeCanLogin(to: Bool)
   func changeIsLoggingIn(to: Bool)
-  func changeErrorMessage(to: String)
-  func clearErrorMessage()
+  
+  func showMessage(_: LoginMessage)
+  func clearMessage()
   
   func goToHelpPage(for: LoginHelp)
   func goToVerificationPage(withRequest: RetailLoginRequest)
@@ -22,12 +23,10 @@ class RetailLoginPresenter {
 }
 
 extension RetailLoginPresenter: RetailLoginInteractorOutput {
-  func cardNumberDidChange(to cardNumber: String) {
+  func didLoad(cardNumber: String, pin: String, canLogin: Bool) {
     output?.changeCardNumber(to: cardNumber)
-  }
-
-  func pinDidChange(to pin: String) {
     output?.changePIN(to: pin)
+    output?.changeCanLogin(to: canLogin)
   }
   
   func canLoginDidChange(to canLogin: Bool) {
@@ -35,7 +34,7 @@ extension RetailLoginPresenter: RetailLoginInteractorOutput {
   }
   
   func loginDidBegin() {
-    output?.clearErrorMessage()
+    output?.clearMessage()
     output?.changeIsLoggingIn(to: true)
   }
   
@@ -44,13 +43,9 @@ extension RetailLoginPresenter: RetailLoginInteractorOutput {
     output?.leave()
   }
   
-  func loginDidFail(withErrors errors: [LoginError]) {
+  func loginDidFail(withErrors errors: [String]) {
     output?.changeIsLoggingIn(to: false)
-    output?.changeErrorMessage(to: errorMessage(for: errors))
-  }
-  
-  private func errorMessage(for errors: [LoginError]) -> String {
-    return errors.first ?? "Something went wrong."
+    output?.showMessage(errorMessage(with: errors))
   }
   
   func showHelp(_ help: LoginHelp) {

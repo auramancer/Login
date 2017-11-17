@@ -11,7 +11,7 @@ class DigitalLoginController: ConsoleController {
   override func start() {
     configurator = Configurator(for: self)
     
-    interactor?.initialize()
+    interactor?.load()
     
     output("🔑 Username Log In 🔑")
     super.start()

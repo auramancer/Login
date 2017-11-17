@@ -11,7 +11,7 @@ class DigitalLoginServiceStub: DigitalLoginServiceInput {
         self.output?.loginDidSucceed()
       }
       else {
-        self.output?.loginDidFail(dueTo: ["Wrong password"])
+        self.output?.loginDidFail(dueTo: [SimpleError("Wrong password")])
       }
     }
   }
@@ -33,13 +33,13 @@ class RetailLoginServiceStub: RetailLoginServiceInput {
         }
       }
       else {
-        self.output?.loginDidFail(dueTo: ["Wrong pin"])
+        self.output?.loginDidFail(dueTo: [SimpleError("Wrong pin")])
       }
     }
   }
 }
 
-class LoginVerificationServiceStub: RetailLoginServiceInput {
+class LoginVerificationServiceStub: LoginVerificationServiceInput {
   weak var output: LoginVerificationServiceOutput?
   
   func logIn(withCardNumberRequest request: RetailLoginRequest) {
@@ -50,29 +50,35 @@ class LoginVerificationServiceStub: RetailLoginServiceInput {
         self.output?.loginDidSucceed(withToken: "1QAZ2WSX")
       }
       else {
-        self.output?.loginDidFail(dueTo: ["Wrong code"])
+        self.output?.loginDidFail(dueTo: [SimpleError("Wrong code")])
       }
     }
   }
+  
+  func resendCode(withCardNumberRequest: RetailLoginRequest) {
+    
+  }
 }
-//
-//class DualModeLoginServiceStub: DualModeLoginServiceInput {
-//  weak var output: LoginServiceOutput? {
-//    didSet {
-//      usernameService.output = output
-//      cardNumberService.output = output
-//    }
-//  }
-//
-//  private var usernameService = DigitalLoginServiceStub()
-//  private var cardNumberService = RetailLoginServiceStub()
-//
-//  func logIn(withUsernameRequest request: DigitalLoginRequest) {
-//    usernameService.logIn(withUsernameRequest: request)
-//  }
-//
-//  func logIn(withCardNumberRequest request: RetailLoginRequest) {
-//    cardNumberService.logIn(withCardNumberRequest: request)
-//  }
-//}
 
+class DualModeLoginServiceStub: DualModeLoginServiceInput {
+  weak var output: DualModeLoginServiceOutput? {
+    didSet {
+      usernameService.output = output
+      cardNumberService.output = output
+    }
+  }
+
+  private var usernameService = DigitalLoginServiceStub()
+  private var cardNumberService = RetailLoginServiceStub()
+
+  func logIn(withUsernameRequest request: DigitalLoginRequest) {
+    usernameService.logIn(withUsernameRequest: request)
+  }
+
+  func logIn(withCardNumberRequest request: RetailLoginRequest) {
+    cardNumberService.logIn(withCardNumberRequest: request)
+  }
+}
+
+extension SimpleError: LoginError {
+}

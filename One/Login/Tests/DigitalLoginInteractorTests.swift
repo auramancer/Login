@@ -6,8 +6,8 @@ class DigitalLoginInteractorTests: XCTestCase {
   private var service: DigitalLoginServiceSpy!
   private var storage: DigitalLoginStorageSpy!
   
-  private let validUsername = "name"
-  private let validPassword = "pass"
+  private let validUsername = "username"
+  private let validPassword = "password"
   private let error = "Cannot log in."
   
   override func setUp() {
@@ -23,73 +23,59 @@ class DigitalLoginInteractorTests: XCTestCase {
     interactor.storage = storage
   }
   
-  func testInitializeWithNoRememberedUsername() {
-    interactor.initialize()
+  func testLoadWithNoRememberedUsername() {
+    interactor.load()
     
-    assertOutputReceived(username: "",
-                         password: "",
-                         canLogin: false)
+    XCTAssertEqual(output.loadRequestSpy, DigitalLoginRequest(username: "", password: ""))
   }
   
-  func testInitializeWithRememberedUsername() {
+  func testLoadWithRememberedUsername() {
     storage.usernameSpy = validUsername
     
-    interactor.initialize()
+    interactor.load()
     
-    assertOutputReceived(username: validUsername,
-                         password: "",
-                         canLogin: false)
+    XCTAssertEqual(output.loadRequestSpy, DigitalLoginRequest(username: validUsername, password: ""))
   }
   
   func testChangeUsername() {
-    assertOutputReceived(username: validUsername, canLogin: false, whenChangeUsername: "", to: validUsername, passwordRemains: "")
-    assertOutputReceived(username: validUsername, canLogin: true, whenChangeUsername: "", to: validUsername, passwordRemains: validPassword)
-    assertOutputReceived(username: nil, canLogin: nil, whenChangeUsername: validUsername, to: validUsername, passwordRemains: "")
-    assertOutputReceived(username: "", canLogin: false, whenChangeUsername: validUsername, to: "", passwordRemains: "")
+    assertOutputReceived(canLogin: nil, whenChangeUsername: "", to: validUsername, passwordRemains: "")
+    assertOutputReceived(canLogin: true, whenChangeUsername: "", to: validUsername, passwordRemains: validPassword)
+    assertOutputReceived(canLogin: false, whenChangeUsername: validUsername, to: "", passwordRemains: validPassword)
   }
   
   func testChangePassword() {
-    assertOutputReceived(password: validPassword, canLogin: false, whenChangePassword: "", to: validPassword, usernameRemains: "")
-    assertOutputReceived(password: validPassword, canLogin: true, whenChangePassword: "", to: validPassword, usernameRemains: validUsername)
-    assertOutputReceived(password: nil, canLogin: nil, whenChangePassword: validPassword, to: validPassword, usernameRemains: "")
-    assertOutputReceived(password: "", canLogin: false, whenChangePassword: validPassword, to: "", usernameRemains: "")
-  }
-  
-  func testLogInWhenRequestNotValid() {
-    login(withUsername: "", password: "", shouldRemember: true)
-    
-    assertOutputReceived(canLogin: nil,
-                         loginDidBegin: false,
-                         loginDidEnd: false,
-                         loginErrors: nil)
-    assertServiceReceived(nil)
+    assertOutputReceived(canLogin: nil, whenChangePassword: "", to: validPassword, usernameRemains: "")
+    assertOutputReceived(canLogin: true, whenChangePassword: "", to: validPassword, usernameRemains: validUsername)
+    assertOutputReceived(canLogin: false, whenChangePassword: validPassword, to: "", usernameRemains: validUsername)
   }
   
   func testLogin() {
-    login(withUsername: validUsername, password: validPassword, shouldRemember: true)
+    set(username: validUsername, password: validPassword)
+    output.reset()
     
-    assertOutputReceived(canLogin: false,
-                         loginDidBegin: true,
+    interactor.logIn(shouldRememberUsername: true)
+    
+    assertOutputReceived(canLogin: nil)
+    assertOutputReceived(loginDidBegin: true,
                          loginDidEnd: false,
                          loginErrors: nil)
     assertServiceReceived(DigitalLoginRequest(username: validUsername, password: validPassword))
   }
   
   func testHandleLoginSuccessAndRemember() {
-    login(withUsername: validUsername, password: validPassword, shouldRemember: true)
+    login()
     output.reset()
     
     interactor.loginDidSucceed()
     
-    assertOutputReceived(canLogin: nil,
-                         loginDidBegin: false,
+    assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: true,
                          loginErrors: nil)
     assertStorageSaved(validUsername)
   }
   
   func testHandleLoginSuccessAndNotRemember() {
-    login(withUsername: validUsername, password: validPassword, shouldRemember: false)
+    login(shouldRemember: false)
     output.reset()
     
     interactor.loginDidSucceed()
@@ -98,13 +84,12 @@ class DigitalLoginInteractorTests: XCTestCase {
   }
   
   func testHandleLoginFailure() {
-    login(withUsername: validUsername, password: validPassword, shouldRemember: true)
+    login()
     output.reset()
     
-    interactor.loginDidFail(dueTo: [error])
+    interactor.loginDidFail(dueTo: [SimpleError(error)])
     
-    assertOutputReceived(canLogin: true,
-                         loginDidBegin: false,
+    assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: false,
                          loginErrors: [error])
     assertStorageSaved(nil)
@@ -124,64 +109,58 @@ class DigitalLoginInteractorTests: XCTestCase {
   
   // MARK: helpers
   
-  private func login(withUsername username: String, password: String, shouldRemember: Bool) {
+  private func set(username: String, password: String) {
+    interactor.load()
     interactor.changeUsername(to: username)
     interactor.changePassword(to: password)
-    output.reset()
+  }
+  
+  private func login(shouldRemember: Bool = true) {
+    set(username: validUsername, password: validPassword)
     interactor.logIn(shouldRememberUsername: shouldRemember)
   }
   
-  private func assertOutputReceived(username: String?,
-                                    canLogin: Bool?,
+  private func assertOutputReceived(canLogin: Bool?,
                                     whenChangeUsername oldUsername: String,
                                     to newUsername: String,
                                     passwordRemains password: String,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
-    interactor.changeUsername(to: oldUsername)
-    interactor.changePassword(to: password)
+    set(username: oldUsername, password: password)
     output.reset()
     
     interactor.changeUsername(to: newUsername)
     
-    assertOutputReceived(username: username, password: nil, canLogin: canLogin)
+    assertOutputReceived(canLogin: canLogin, file: file, line: line)
   }
   
-  private func assertOutputReceived(password: String?,
-                                    canLogin: Bool?,
+  private func assertOutputReceived(canLogin: Bool?,
                                     whenChangePassword oldPassword: String,
                                     to newPassword: String,
                                     usernameRemains username: String,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
-    interactor.changeUsername(to: username)
-    interactor.changePassword(to: oldPassword)
+    set(username: username, password: oldPassword)
     output.reset()
     
     interactor.changePassword(to: newPassword)
     
-    assertOutputReceived(username: nil, password: password, canLogin: canLogin)
-  }
-  
-  private func assertOutputReceived(username: String?,
-                                    password: String?,
-                                    canLogin: Bool?,
-                                    file: StaticString = #file,
-                                    line: UInt = #line) {
-    XCTAssertEqual(output.usernameSpy, username, "username", file: file, line: line)
-    XCTAssertEqual(output.passwordSpy, password, "password", file: file, line: line)
-    XCTAssertEqual(output.canLoginSpy, canLogin, "canLogin", file: file, line: line)
+    assertOutputReceived(canLogin: canLogin, file: file, line: line)
   }
   
   private func assertOutputReceived(canLogin: Bool?,
-                                    loginDidBegin: Bool?,
-                                    loginDidEnd: Bool?,
-                                    loginErrors: [LoginError]?,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
     XCTAssertEqual(output.canLoginSpy, canLogin, "canLogin", file: file, line: line)
-    XCTAssertEqual(output.didBeginLoginSpy, loginDidBegin, "loginDidBegin", file: file, line: line)
-    XCTAssertEqual(output.didEndLoginSpy, loginDidEnd, "loginDidEnd", file: file, line: line)
+  }
+  
+  private func assertOutputReceived(loginDidBegin: Bool?,
+                                    loginDidEnd: Bool?,
+                                    loginErrors: [String]?,
+                                    file: StaticString = #file,
+                                    line: UInt = #line) {
+    XCTAssertEqual(output.loginDidBeginSpy, loginDidBegin, "loginDidBegin", file: file, line: line)
+    XCTAssertEqual(output.loginDidEndSpy, loginDidEnd, "loginDidEnd", file: file, line: line)
     XCTAssertEqual(output.loginErrorsSpy, loginErrors, "loginErrors", file: file, line: line)
   }
   
@@ -218,30 +197,23 @@ public func XCTAssertEqual<T>(_ expression1: [T]?,
 }
 
 class DigitalLoginInteractorOutputSpy: DigitalLoginInteractorOutput {
-  var usernameSpy: String?
-  var passwordSpy: String?
+  var loadRequestSpy: DigitalLoginRequest?
   var canLoginSpy: Bool?
-  var didBeginLoginSpy = false
-  var didEndLoginSpy = false
-  var loginErrorsSpy: [LoginError]?
+  var loginDidBeginSpy = false
+  var loginDidEndSpy = false
+  var loginErrorsSpy: [String]?
   var helpSpy: LoginHelp?
   
   func reset() {
-    usernameSpy = nil
-    passwordSpy = nil
     canLoginSpy = nil
-    didBeginLoginSpy = false
-    didEndLoginSpy = false
+    loginDidBeginSpy = false
+    loginDidEndSpy = false
     loginErrorsSpy = nil
     helpSpy = nil
   }
   
-  func usernameDidChange(to username: String) {
-    usernameSpy = username
-  }
-  
-  func passwordDidChange(to password: String) {
-    passwordSpy = password
+  func didLoad(withRememberedRequest request: DigitalLoginRequest) {
+    loadRequestSpy = request
   }
   
   func canLoginDidChange(to canLogin: Bool) {
@@ -249,14 +221,14 @@ class DigitalLoginInteractorOutputSpy: DigitalLoginInteractorOutput {
   }
   
   func loginDidBegin() {
-    didBeginLoginSpy = true
+    loginDidBeginSpy = true
   }
   
   func loginDidEnd() {
-    didEndLoginSpy = true
+    loginDidEndSpy = true
   }
   
-  func loginDidFail(withErrors errors: [LoginError]) {
+  func loginDidFail(withErrors errors: [String]) {
     loginErrorsSpy = errors
   }
   

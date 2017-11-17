@@ -1,21 +1,21 @@
 struct DualModeLoginWording {
   let id: String
-  let forgottenId: String
+  let forgottenIdentifier: String
   let credential: String
   let forgottenCredential: String
   
   static let undetermined = DualModeLoginWording(id: "Username/Membership Card Number",
-                                    forgottenId: "Forgotten Username",
+                                    forgottenIdentifier: "Forgotten Username",
                                     credential: "Password/PIN",
                                     forgottenCredential: "Forgotten Password")
   
   static let username = DualModeLoginWording(id: "Username",
-                                             forgottenId: "Forgotten Username",
+                                             forgottenIdentifier: "Forgotten Username",
                                              credential: "Password",
                                              forgottenCredential: "Forgotten Password")
   
   static let membershipCardNumber = DualModeLoginWording(id: "Membership Card Number",
-                                                         forgottenId: "Forgotten Membership Card No.",
+                                                         forgottenIdentifier: "Forgotten Membership Card No.",
                                                          credential: "PIN",
                                                          forgottenCredential: "Forgotten PIN")
 }
@@ -26,8 +26,9 @@ protocol DualModeLoginPresenterOutput: class {
   func changeWording(to: DualModeLoginWording)
   func changeCanLogin(to: Bool)
   func changeIsLoggingIn(to: Bool)
-  func changeErrorMessage(to: String)
-  func clearErrorMessage()
+  
+  func showMessage(_: LoginMessage)
+  func clearMessage()
   
   func goToHelpPage(for: LoginHelp)
   func goToVerificationPage(withRequest: RetailLoginRequest)
@@ -73,12 +74,10 @@ class DualModeLoginPresenter {
 }
 
 extension DualModeLoginPresenter: DualModeLoginInteractorOutput {
-  func idDidChange(to id: String) {
-    currentPresenter.idDidChange(to: id)
-  }
-  
-  func credentialDidChange(to credential: String) {
-    currentPresenter.credentialDidChange(to: credential)
+  func didLoad(withIdentifier identifier: String, credential: String) {
+    output?.changeIdentifier(to: identifier)
+    output?.changeCredential(to: credential)
+    output?.changeCanLogin(to: false)
   }
   
   func canLoginDidChange(to canLogin: Bool) {
@@ -100,7 +99,7 @@ extension DualModeLoginPresenter: DualModeLoginInteractorOutput {
     currentPresenter.loginDidEnd()
   }
   
-  func loginDidFail(withErrors errors: [LoginError]) {
+  func loginDidFail(withErrors errors: [String]) {
     currentPresenter.loginDidFail(withErrors: errors)
   }
   
@@ -114,6 +113,7 @@ extension DualModeLoginPresenter: DualModeLoginInteractorOutput {
 }
 
 extension DualModeLoginPresenter: DigitalLoginPresenterOutput, RetailLoginPresenterOutput {
+  
   func changeUsername(to username: String) {
     output?.changeIdentifier(to: username)
   }
@@ -138,12 +138,12 @@ extension DualModeLoginPresenter: DigitalLoginPresenterOutput, RetailLoginPresen
     output?.changeIsLoggingIn(to: isLogginIn)
   }
   
-  func changeErrorMessage(to message: String) {
-    output?.changeErrorMessage(to: message)
+  func showMessage(_ message: LoginMessage) {
+    output?.showMessage(message)
   }
   
-  func clearErrorMessage() {
-    output?.clearErrorMessage()
+  func clearMessage() {
+    output?.clearMessage()
   }
   
   func goToHelpPage(for help: LoginHelp) {
@@ -160,22 +160,14 @@ extension DualModeLoginPresenter: DigitalLoginPresenterOutput, RetailLoginPresen
 }
 
 extension DigitalLoginPresenter: DualModeLoginInteractorOutput {
-  func idDidChange(to id: String) {
-    usernameDidChange(to: id)
-  }
-  
-  func credentialDidChange(to credential: String) {
-    passwordDidChange(to: credential)
+  func didLoad(withIdentifier identifier: String, credential: String) {
+    didLoad(withRememberedRequest: DigitalLoginRequest(username: identifier, password: credential))
   }
 }
 
 extension RetailLoginPresenter: DualModeLoginInteractorOutput {
-  func idDidChange(to id: String) {
-    cardNumberDidChange(to: id)
-  }
-  
-  func credentialDidChange(to credential: String) {
-    pinDidChange(to: credential)
+  func didLoad(withIdentifier identifier: String, credential: String) {
+    didLoad(withRememberedRequest: RetailLoginRequest(cardNumber: identifier, pin: credential))
   }
 }
 

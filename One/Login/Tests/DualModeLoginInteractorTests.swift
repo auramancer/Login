@@ -7,10 +7,11 @@ class DualModeLoginInteractorTests: XCTestCase {
   private var storage: DualModeLoginStorageSpy!
   
   private let ambiguousIdentifier = "12345"
-  private let validUsername = "name"
-  private let validCardNumber = "12345678"
-  private let validPassword = "1234"
-  private let validPIN = "1234"
+  private let validUsername = "username"
+  private let validPassword = "password"
+  private let validCardNumber = "1234567890"
+  private let validPIN = "888888"
+  private let validToken = "1QAZ2WSX"
   private let error = "Cannot log in."
   
   override func setUp() {
@@ -26,13 +27,10 @@ class DualModeLoginInteractorTests: XCTestCase {
     interactor.storage = storage
   }
   
-  func testInitialize() {
-    interactor.initialize()
+  func testLoad() {
+    interactor.load()
     
-    assertOutputReceived(identifier: "",
-                         credential: "",
-                         canLogin: false,
-                         mode: .undetermined)
+    assertOutputReceived(canLogin: false,  mode: .undetermined)
   }
   
   func testSwitchMode() {
@@ -48,25 +46,28 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testChangeIdentifier() {
+    interactor.load()
+    
     interactor.changeIdentifier(to: validUsername)
     
-    assertOutputReceived(identifier: validUsername,
-                         credential: nil,
-                         canLogin: false,
+    assertOutputReceived(canLogin: false,
                          mode: .digital)
   }
   
   func testChangeCredential() {
+    interactor.load()
+    
     interactor.changeCredential(to: validPassword)
     
-    assertOutputReceived(identifier: nil,
-                         credential: validPassword,
-                         canLogin: false,
+    assertOutputReceived(canLogin: false,
                          mode: nil)
   }
   
   func testLoginWithUsername() {
-    login(withIdentifier: validUsername, credential: validPassword, shouldRemember: true)
+    set(identifier: validUsername, credential: validPassword)
+    output.reset()
+    
+    interactor.logIn(shouldRememberIdentifier: true)
     
     assertOutputReceived(canLogin: false,
                          loginDidBegin: true,
@@ -77,7 +78,10 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testLoginWithCardNumber() {
-    login(withIdentifier: validCardNumber, credential: validPIN, shouldRemember: true)
+    set(identifier: validCardNumber, credential: validPIN)
+    output.reset()
+    
+    interactor.logIn(shouldRememberIdentifier: true)
     
     assertOutputReceived(canLogin: false,
                          loginDidBegin: true,
@@ -88,7 +92,7 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testHandleLoginSuccessInDigitalMode() {
-    login(withIdentifier: validUsername, credential: validPassword, shouldRemember: true)
+    login(identifier: validUsername, credential: validPassword)
     output.reset()
     
     interactor.loginDidSucceed()
@@ -101,7 +105,7 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testHandleLoginSuccessInRetailMode() {
-    login(withIdentifier: validCardNumber, credential: validPIN, shouldRemember: true)
+    login(identifier: validCardNumber, credential: validPIN)
     output.reset()
     
     interactor.loginDidSucceed()
@@ -114,7 +118,7 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testHandleLoginFailureInDigitalMode() {
-    login(withIdentifier: validUsername, credential: validPassword, shouldRemember: true)
+    login(identifier: validUsername, credential: validPassword)
     output.reset()
     
     interactor.loginDidFail(dueTo: [error])
@@ -122,12 +126,12 @@ class DualModeLoginInteractorTests: XCTestCase {
     assertOutputReceived(canLogin: true,
                          loginDidBegin: false,
                          loginDidEnd: false,
-                         loginErrors: [error])
+                         loginErrors: ["Cannot log in."])
     assertStorageSaved(username: nil, cardNumber: nil)
   }
   
   func testHandleLoginFailureInRetailMode() {
-    login(withIdentifier: validCardNumber, credential: validPIN, shouldRemember: true)
+    login(identifier: validCardNumber, credential: validPIN)
     output.reset()
     
     interactor.loginDidFail(dueTo: [error])
@@ -135,12 +139,12 @@ class DualModeLoginInteractorTests: XCTestCase {
     assertOutputReceived(canLogin: true,
                          loginDidBegin: false,
                          loginDidEnd: false,
-                         loginErrors: [error])
+                         loginErrors: ["Cannot log in."])
     assertStorageSaved(username: nil, cardNumber: nil)
   }
   
   func testHandleInvalidToken() {
-    login(withIdentifier: validCardNumber, credential: validPIN, shouldRemember: true)
+    login(identifier: validCardNumber, credential: validPIN)
     output.reset()
     
     interactor.loginDidFailDueToInvalidToken()
@@ -154,7 +158,7 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testHelpWithIdentifierInDigitalMode() {
-    interactor.changeIdentifier(to: validUsername)
+    set(identifier: validUsername, credential: "")
     
     interactor.helpWithIdentifier()
     
@@ -162,7 +166,7 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testHelpWithIdentifierInRetailMode() {
-    interactor.changeIdentifier(to: validCardNumber)
+    set(identifier: validCardNumber, credential: "")
     
     interactor.helpWithIdentifier()
     
@@ -170,7 +174,7 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testHelpWithCredentialInDigitalMode() {
-    interactor.changeIdentifier(to: validUsername)
+    set(identifier: validUsername, credential: "")
     
     interactor.helpWithCredential()
     
@@ -178,7 +182,7 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testHelpWithCredentialInRetailMode() {
-    interactor.changeIdentifier(to: validCardNumber)
+    set(identifier: validCardNumber, credential: "")
     
     interactor.helpWithCredential()
     
@@ -187,21 +191,21 @@ class DualModeLoginInteractorTests: XCTestCase {
   
   // MARK: helpers
   
-  private func login(withIdentifier identifier: String, credential: String, shouldRemember: Bool) {
+  private func set(identifier: String, credential: String) {
+    interactor.load()
     interactor.changeIdentifier(to: identifier)
     interactor.changeCredential(to: credential)
-    output.reset()
+  }
+  
+  private func login(identifier: String, credential: String, shouldRemember: Bool = true) {
+    set(identifier: identifier, credential: credential)
     interactor.logIn(shouldRememberIdentifier: shouldRemember)
   }
   
-  private func assertOutputReceived(identifier: String?,
-                                    credential: String?,
-                                    canLogin: Bool?,
+  private func assertOutputReceived(canLogin: Bool?,
                                     mode: LoginMode?,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
-    XCTAssertEqual(output.identifierSpy, identifier, "", file: file, line: line)
-    XCTAssertEqual(output.credentialSpy, credential, "", file: file, line: line)
     XCTAssertEqual(output.canLoginSpy, canLogin, "", file: file, line: line)
     XCTAssertEqual(output.modeSpy, mode, "", file: file, line: line)
   }
@@ -209,12 +213,12 @@ class DualModeLoginInteractorTests: XCTestCase {
   private func assertOutputReceived(canLogin: Bool?,
                                     loginDidBegin: Bool?,
                                     loginDidEnd: Bool?,
-                                    loginErrors: [LoginError]?,
+                                    loginErrors: [String]?,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
     XCTAssertEqual(output.canLoginSpy, canLogin, "", file: file, line: line)
-    XCTAssertEqual(output.didBeginLoginSpy, loginDidBegin, "", file: file, line: line)
-    XCTAssertEqual(output.didEndLoginSpy, loginDidEnd, "", file: file, line: line)
+    XCTAssertEqual(output.loginDidBeginSpy, loginDidBegin, "", file: file, line: line)
+    XCTAssertEqual(output.loginDidEndSpy, loginDidEnd, "", file: file, line: line)
     XCTAssertEqual(output.loginErrorsSpy, loginErrors, "", file: file, line: line)
   }
   
@@ -223,7 +227,7 @@ class DualModeLoginInteractorTests: XCTestCase {
                                     to new: String,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
-    interactor.changeIdentifier(to: old)
+    set(identifier: old, credential: "")
     output.reset()
     
     interactor.changeIdentifier(to: new)
@@ -259,9 +263,9 @@ class DualModeLoginInteractorOutputSpy: DualModeLoginInteractorOutput {
   var credentialSpy: String?
   var canLoginSpy: Bool?
   var modeSpy: LoginMode?
-  var didBeginLoginSpy = false
-  var didEndLoginSpy = false
-  var loginErrorsSpy: [LoginError]?
+  var loginDidBeginSpy = false
+  var loginDidEndSpy = false
+  var loginErrorsSpy: [String]?
   var helpSpy: LoginHelp?
   var verificationRequestSpy: RetailLoginRequest?
   
@@ -270,14 +274,19 @@ class DualModeLoginInteractorOutputSpy: DualModeLoginInteractorOutput {
     credentialSpy = nil
     canLoginSpy = nil
     modeSpy = nil
-    didBeginLoginSpy = false
-    didEndLoginSpy = false
+    loginDidBeginSpy = false
+    loginDidEndSpy = false
     loginErrorsSpy = nil
     helpSpy = nil
     verificationRequestSpy = nil
   }
   
-  func idDidChange(to id: String) {
+  func didLoad(withIdentifier identifier: String, credential: String) {
+    identifierSpy = identifier
+    credentialSpy = credential
+  }
+  
+  func identifierDidChange(to id: String) {
     identifierSpy = id
   }
   
@@ -294,14 +303,14 @@ class DualModeLoginInteractorOutputSpy: DualModeLoginInteractorOutput {
   }
   
   func loginDidBegin() {
-    didBeginLoginSpy = true
+    loginDidBeginSpy = true
   }
   
   func loginDidEnd() {
-    didEndLoginSpy = true
+    loginDidEndSpy = true
   }
   
-  func loginDidFail(withErrors errors: [LoginError]) {
+  func loginDidFail(withErrors errors: [String]) {
     loginErrorsSpy = errors
   }
   
