@@ -7,12 +7,39 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C3145B0A1FC32B2900B012E2 /* BiometricsLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3145B091FC32B2900B012E2 /* BiometricsLoginInteractor.swift */; };
+		C3145B0B1FC32B2900B012E2 /* BiometricsLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3145B091FC32B2900B012E2 /* BiometricsLoginInteractor.swift */; };
+		C3145B0C1FC32B2900B012E2 /* BiometricsLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3145B091FC32B2900B012E2 /* BiometricsLoginInteractor.swift */; };
+		C3145B0D1FC330B100B012E2 /* RetailLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99291FBA13810019B59F /* RetailLoginInteractor.swift */; };
+		C3145B0E1FC330B200B012E2 /* RetailLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99291FBA13810019B59F /* RetailLoginInteractor.swift */; };
+		C3145B0F1FC330B200B012E2 /* RetailLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99291FBA13810019B59F /* RetailLoginInteractor.swift */; };
+		C3145B101FC3334A00B012E2 /* RetailLoginInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99311FBA157F0019B59F /* RetailLoginInteractorTests.swift */; };
+		C3145B111FC3334A00B012E2 /* RetailLoginPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99301FBA157F0019B59F /* RetailLoginPresenterTests.swift */; };
+		C3145B121FC3334F00B012E2 /* RetailLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99281FBA13810019B59F /* RetailLoginPresenter.swift */; };
+		C3145B131FC3335000B012E2 /* RetailLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99281FBA13810019B59F /* RetailLoginPresenter.swift */; };
+		C3145B141FC3335000B012E2 /* RetailLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99281FBA13810019B59F /* RetailLoginPresenter.swift */; };
+		C3145B1B1FC3466300B012E2 /* LoginVerificationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99411FBAF7D20019B59F /* LoginVerificationInteractor.swift */; };
+		C3145B1C1FC3466300B012E2 /* LoginVerificationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99411FBAF7D20019B59F /* LoginVerificationInteractor.swift */; };
+		C3145B1D1FC3466400B012E2 /* LoginVerificationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99411FBAF7D20019B59F /* LoginVerificationInteractor.swift */; };
+		C3145B1F1FC3475300B012E2 /* LoginVerificationInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3145AEE1FC2F26600B012E2 /* LoginVerificationInteractorTests.swift */; };
+		C3145B201FC3490700B012E2 /* LoginVerificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3145AF21FC2FD8000B012E2 /* LoginVerificationPresenter.swift */; };
+		C3145B211FC3490800B012E2 /* LoginVerificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3145AF21FC2FD8000B012E2 /* LoginVerificationPresenter.swift */; };
+		C3145B221FC3490800B012E2 /* LoginVerificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3145AF21FC2FD8000B012E2 /* LoginVerificationPresenter.swift */; };
+		C3145B231FC3493500B012E2 /* LoginVerificationPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3145AF01FC2FD7500B012E2 /* LoginVerificationPresenterTests.swift */; };
+		C3145B241FC349BB00B012E2 /* IdentityCreationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B001FBDE32E00E6FFE7 /* IdentityCreationInteractor.swift */; };
+		C3145B251FC349BB00B012E2 /* IdentityCreationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B001FBDE32E00E6FFE7 /* IdentityCreationInteractor.swift */; };
+		C3145B261FC349BC00B012E2 /* IdentityCreationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B001FBDE32E00E6FFE7 /* IdentityCreationInteractor.swift */; };
+		C3145B271FC34BC700B012E2 /* IdentityCreationInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B091FBE063800E6FFE7 /* IdentityCreationInteractorTests.swift */; };
+		C3145B281FC34E9F00B012E2 /* IdentityCreationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B031FBE061600E6FFE7 /* IdentityCreationPresenter.swift */; };
+		C3145B291FC34E9F00B012E2 /* IdentityCreationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B031FBE061600E6FFE7 /* IdentityCreationPresenter.swift */; };
+		C3145B2A1FC34EA000B012E2 /* IdentityCreationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B031FBE061600E6FFE7 /* IdentityCreationPresenter.swift */; };
+		C3145B2B1FC34EEF00B012E2 /* IdentityCreationPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B0D1FBEFA9E00E6FFE7 /* IdentityCreationPresenterTests.swift */; };
 		C33DD99F1FB460E000C24898 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DD99E1FB460E000C24898 /* AppDelegate.swift */; };
 		C33DD9A61FB460E000C24898 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C33DD9A51FB460E000C24898 /* Assets.xcassets */; };
 		C33DD9A91FB460E000C24898 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C33DD9A71FB460E000C24898 /* LaunchScreen.storyboard */; };
 		C33DD9C31FB460FB00C24898 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DD9C21FB460FB00C24898 /* main.swift */; };
 		C33DD9D41FB4611C00C24898 /* ConsoleController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37466DA1FB36EA4003C66B4 /* ConsoleController.swift */; };
-		C33DD9D51FB4611C00C24898 /* UsernameLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E97081FB2052F007AF061 /* UsernameLoginController.swift */; };
+		C33DD9D51FB4611C00C24898 /* DigitalLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E97081FB2052F007AF061 /* DigitalLoginController.swift */; };
 		C33DD9DB1FB4611C00C24898 /* DigitalLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6C1FB325F5007AF061 /* DigitalLoginInteractor.swift */; };
 		C33DD9FE1FB461D900C24898 /* DigitalLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6C1FB325F5007AF061 /* DigitalLoginInteractor.swift */; };
 		C33DDA071FB461E900C24898 /* DigitalLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38E9B6C1FB325F5007AF061 /* DigitalLoginInteractor.swift */; };
@@ -30,14 +57,6 @@
 		C3532ACA1FBD99D400E6FFE7 /* ComplianceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532AC81FBD99D400E6FFE7 /* ComplianceView.swift */; };
 		C3532ACC1FBD9E1200E6FFE7 /* Compliance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532ACB1FBD9E1200E6FFE7 /* Compliance.swift */; };
 		C3532ACE1FBDAD7F00E6FFE7 /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3532ACD1FBDAD7F00E6FFE7 /* Login.storyboard */; };
-		C3532B021FBDF53000E6FFE7 /* IdentityCreationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B001FBDE32E00E6FFE7 /* IdentityCreationInteractor.swift */; };
-		C3532B041FBE061600E6FFE7 /* IdentityCreationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B031FBE061600E6FFE7 /* IdentityCreationPresenter.swift */; };
-		C3532B051FBE061600E6FFE7 /* IdentityCreationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B031FBE061600E6FFE7 /* IdentityCreationPresenter.swift */; };
-		C3532B061FBE061600E6FFE7 /* IdentityCreationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B031FBE061600E6FFE7 /* IdentityCreationPresenter.swift */; };
-		C3532B071FBE061900E6FFE7 /* IdentityCreationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B001FBDE32E00E6FFE7 /* IdentityCreationInteractor.swift */; };
-		C3532B081FBE061900E6FFE7 /* IdentityCreationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B001FBDE32E00E6FFE7 /* IdentityCreationInteractor.swift */; };
-		C3532B0C1FBE063800E6FFE7 /* IdentityCreationInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B091FBE063800E6FFE7 /* IdentityCreationInteractorTests.swift */; };
-		C3532B101FBEFA9E00E6FFE7 /* IdentityCreationPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3532B0D1FBEFA9E00E6FFE7 /* IdentityCreationPresenterTests.swift */; };
 		C3FF98F51FB9B1850019B59F /* ServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33DDA211FB4708300C24898 /* ServiceStub.swift */; };
 		C3FF991A1FB9BA130019B59F /* LoginDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99191FB9BA130019B59F /* LoginDataStorage.swift */; };
 		C3FF991B1FB9BA130019B59F /* LoginDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99191FB9BA130019B59F /* LoginDataStorage.swift */; };
@@ -47,33 +66,9 @@
 		C3FF99231FB9F2DA0019B59F /* DigitalLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99201FB9F2DA0019B59F /* DigitalLoginPresenter.swift */; };
 		C3FF99251FBA04130019B59F /* DigitalLoginInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99241FBA04120019B59F /* DigitalLoginInteractorTests.swift */; };
 		C3FF99271FBA10200019B59F /* DigitalLoginPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99261FBA10200019B59F /* DigitalLoginPresenterTests.swift */; };
-		C3FF992A1FBA13810019B59F /* RetailLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99281FBA13810019B59F /* RetailLoginPresenter.swift */; };
-		C3FF992B1FBA13810019B59F /* RetailLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99281FBA13810019B59F /* RetailLoginPresenter.swift */; };
-		C3FF992C1FBA13810019B59F /* RetailLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99281FBA13810019B59F /* RetailLoginPresenter.swift */; };
-		C3FF992D1FBA13810019B59F /* RetailLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99291FBA13810019B59F /* RetailLoginInteractor.swift */; };
-		C3FF992E1FBA13810019B59F /* RetailLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99291FBA13810019B59F /* RetailLoginInteractor.swift */; };
-		C3FF992F1FBA13810019B59F /* RetailLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99291FBA13810019B59F /* RetailLoginInteractor.swift */; };
-		C3FF99341FBA157F0019B59F /* RetailLoginPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99301FBA157F0019B59F /* RetailLoginPresenterTests.swift */; };
-		C3FF99371FBA157F0019B59F /* RetailLoginInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99311FBA157F0019B59F /* RetailLoginInteractorTests.swift */; };
-		C3FF99401FBA17CD0019B59F /* CardNumberLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF993C1FBA17920019B59F /* CardNumberLoginController.swift */; };
-		C3FF99421FBAF7D30019B59F /* LoginVerificationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99411FBAF7D20019B59F /* LoginVerificationInteractor.swift */; };
-		C3FF99431FBAF7D30019B59F /* LoginVerificationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99411FBAF7D20019B59F /* LoginVerificationInteractor.swift */; };
-		C3FF99441FBAF7D30019B59F /* LoginVerificationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99411FBAF7D20019B59F /* LoginVerificationInteractor.swift */; };
-		C3FF99461FBAFA850019B59F /* LoginVerificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99451FBAFA850019B59F /* LoginVerificationPresenter.swift */; };
-		C3FF99471FBAFA850019B59F /* LoginVerificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99451FBAFA850019B59F /* LoginVerificationPresenter.swift */; };
-		C3FF99481FBAFA850019B59F /* LoginVerificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99451FBAFA850019B59F /* LoginVerificationPresenter.swift */; };
 		C3FF994A1FBB02C30019B59F /* LoginModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99491FBB02C30019B59F /* LoginModels.swift */; };
 		C3FF994B1FBB02C30019B59F /* LoginModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99491FBB02C30019B59F /* LoginModels.swift */; };
 		C3FF994C1FBB02C30019B59F /* LoginModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99491FBB02C30019B59F /* LoginModels.swift */; };
-		C3FF994F1FBB0B130019B59F /* VerificationCodeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF994D1FBB0B130019B59F /* VerificationCodeController.swift */; };
-		C3FF99661FBB54950019B59F /* DualModeLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99651FBB54940019B59F /* DualModeLoginInteractor.swift */; };
-		C3FF99671FBB54950019B59F /* DualModeLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99651FBB54940019B59F /* DualModeLoginInteractor.swift */; };
-		C3FF99681FBB54950019B59F /* DualModeLoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99651FBB54940019B59F /* DualModeLoginInteractor.swift */; };
-		C3FF996C1FBB57380019B59F /* DualModeLoginInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99691FBB57380019B59F /* DualModeLoginInteractorTests.swift */; };
-		C3FF99701FBC423B0019B59F /* DualModeLoginPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF996D1FBC423B0019B59F /* DualModeLoginPresenterTests.swift */; };
-		C3FF99721FBC427B0019B59F /* DualModeLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99711FBC427B0019B59F /* DualModeLoginPresenter.swift */; };
-		C3FF99731FBC427B0019B59F /* DualModeLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99711FBC427B0019B59F /* DualModeLoginPresenter.swift */; };
-		C3FF99741FBC427B0019B59F /* DualModeLoginPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FF99711FBC427B0019B59F /* DualModeLoginPresenter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +94,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C3145AEE1FC2F26600B012E2 /* LoginVerificationInteractorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginVerificationInteractorTests.swift; sourceTree = "<group>"; };
+		C3145AF01FC2FD7500B012E2 /* LoginVerificationPresenterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginVerificationPresenterTests.swift; sourceTree = "<group>"; };
+		C3145AF21FC2FD8000B012E2 /* LoginVerificationPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginVerificationPresenter.swift; sourceTree = "<group>"; };
+		C3145B091FC32B2900B012E2 /* BiometricsLoginInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricsLoginInteractor.swift; sourceTree = "<group>"; };
 		C33DD99C1FB460E000C24898 /* LoginIOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoginIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C33DD99E1FB460E000C24898 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C33DD9A51FB460E000C24898 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -128,7 +127,7 @@
 		C3532B091FBE063800E6FFE7 /* IdentityCreationInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityCreationInteractorTests.swift; sourceTree = "<group>"; };
 		C3532B0D1FBEFA9E00E6FFE7 /* IdentityCreationPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityCreationPresenterTests.swift; sourceTree = "<group>"; };
 		C37466DA1FB36EA4003C66B4 /* ConsoleController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleController.swift; sourceTree = "<group>"; };
-		C38E97081FB2052F007AF061 /* UsernameLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameLoginController.swift; sourceTree = "<group>"; };
+		C38E97081FB2052F007AF061 /* DigitalLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalLoginController.swift; sourceTree = "<group>"; };
 		C38E9B6C1FB325F5007AF061 /* DigitalLoginInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalLoginInteractor.swift; sourceTree = "<group>"; };
 		C3FF99191FB9BA130019B59F /* LoginDataStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginDataStorage.swift; sourceTree = "<group>"; };
 		C3FF99201FB9F2DA0019B59F /* DigitalLoginPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DigitalLoginPresenter.swift; sourceTree = "<group>"; };
@@ -138,11 +137,9 @@
 		C3FF99291FBA13810019B59F /* RetailLoginInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetailLoginInteractor.swift; sourceTree = "<group>"; };
 		C3FF99301FBA157F0019B59F /* RetailLoginPresenterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetailLoginPresenterTests.swift; sourceTree = "<group>"; };
 		C3FF99311FBA157F0019B59F /* RetailLoginInteractorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetailLoginInteractorTests.swift; sourceTree = "<group>"; };
-		C3FF993C1FBA17920019B59F /* CardNumberLoginController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardNumberLoginController.swift; sourceTree = "<group>"; };
+		C3FF993C1FBA17920019B59F /* RetailLoginController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetailLoginController.swift; sourceTree = "<group>"; };
 		C3FF99411FBAF7D20019B59F /* LoginVerificationInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginVerificationInteractor.swift; sourceTree = "<group>"; };
-		C3FF99451FBAFA850019B59F /* LoginVerificationPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginVerificationPresenter.swift; sourceTree = "<group>"; };
 		C3FF99491FBB02C30019B59F /* LoginModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginModels.swift; sourceTree = "<group>"; };
-		C3FF994D1FBB0B130019B59F /* VerificationCodeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationCodeController.swift; sourceTree = "<group>"; };
 		C3FF99651FBB54940019B59F /* DualModeLoginInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualModeLoginInteractor.swift; sourceTree = "<group>"; };
 		C3FF99691FBB57380019B59F /* DualModeLoginInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualModeLoginInteractorTests.swift; sourceTree = "<group>"; };
 		C3FF996D1FBC423B0019B59F /* DualModeLoginPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualModeLoginPresenterTests.swift; sourceTree = "<group>"; };
@@ -217,9 +214,8 @@
 			children = (
 				C33DD9C21FB460FB00C24898 /* main.swift */,
 				C37466DA1FB36EA4003C66B4 /* ConsoleController.swift */,
-				C38E97081FB2052F007AF061 /* UsernameLoginController.swift */,
-				C3FF993C1FBA17920019B59F /* CardNumberLoginController.swift */,
-				C3FF994D1FBB0B130019B59F /* VerificationCodeController.swift */,
+				C38E97081FB2052F007AF061 /* DigitalLoginController.swift */,
+				C3FF993C1FBA17920019B59F /* RetailLoginController.swift */,
 			);
 			path = LoginMacOS;
 			sourceTree = "<group>";
@@ -251,6 +247,8 @@
 				C3FF99301FBA157F0019B59F /* RetailLoginPresenterTests.swift */,
 				C3FF99691FBB57380019B59F /* DualModeLoginInteractorTests.swift */,
 				C3FF996D1FBC423B0019B59F /* DualModeLoginPresenterTests.swift */,
+				C3145AEE1FC2F26600B012E2 /* LoginVerificationInteractorTests.swift */,
+				C3145AF01FC2FD7500B012E2 /* LoginVerificationPresenterTests.swift */,
 				C3532B091FBE063800E6FFE7 /* IdentityCreationInteractorTests.swift */,
 				C3532B0D1FBEFA9E00E6FFE7 /* IdentityCreationPresenterTests.swift */,
 			);
@@ -262,8 +260,8 @@
 			children = (
 				C3FF99201FB9F2DA0019B59F /* DigitalLoginPresenter.swift */,
 				C3FF99281FBA13810019B59F /* RetailLoginPresenter.swift */,
-				C3FF99451FBAFA850019B59F /* LoginVerificationPresenter.swift */,
 				C3FF99711FBC427B0019B59F /* DualModeLoginPresenter.swift */,
+				C3145AF21FC2FD8000B012E2 /* LoginVerificationPresenter.swift */,
 				C3532B031FBE061600E6FFE7 /* IdentityCreationPresenter.swift */,
 			);
 			path = "High Level Details";
@@ -275,6 +273,7 @@
 				C3FF99491FBB02C30019B59F /* LoginModels.swift */,
 				C3FF99191FB9BA130019B59F /* LoginDataStorage.swift */,
 				C38E9B6C1FB325F5007AF061 /* DigitalLoginInteractor.swift */,
+				C3145B091FC32B2900B012E2 /* BiometricsLoginInteractor.swift */,
 				C3FF99291FBA13810019B59F /* RetailLoginInteractor.swift */,
 				C3FF99651FBB54940019B59F /* DualModeLoginInteractor.swift */,
 				C3FF99411FBAF7D20019B59F /* LoginVerificationInteractor.swift */,
@@ -480,28 +479,27 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C3FF992A1FBA13810019B59F /* RetailLoginPresenter.swift in Sources */,
 				C3FF991A1FB9BA130019B59F /* LoginDataStorage.swift in Sources */,
-				C3532B041FBE061600E6FFE7 /* IdentityCreationPresenter.swift in Sources */,
 				C340A1701FBCAE2A00052139 /* Font.swift in Sources */,
+				C3145B2A1FC34EA000B012E2 /* IdentityCreationPresenter.swift in Sources */,
 				C340A1761FBCAF9200052139 /* Button.swift in Sources */,
+				C3145B1D1FC3466400B012E2 /* LoginVerificationInteractor.swift in Sources */,
+				C3145B0A1FC32B2900B012E2 /* BiometricsLoginInteractor.swift in Sources */,
 				C340A1781FBCB01900052139 /* Color.swift in Sources */,
-				C3FF99721FBC427B0019B59F /* DualModeLoginPresenter.swift in Sources */,
 				C3532ACA1FBD99D400E6FFE7 /* ComplianceView.swift in Sources */,
 				C33DDA221FB4708300C24898 /* ServiceStub.swift in Sources */,
 				C340A16E1FBCADE400052139 /* Checkbox.swift in Sources */,
-				C3FF99661FBB54950019B59F /* DualModeLoginInteractor.swift in Sources */,
+				C3145B221FC3490800B012E2 /* LoginVerificationPresenter.swift in Sources */,
 				C3532ACC1FBD9E1200E6FFE7 /* Compliance.swift in Sources */,
-				C3FF99461FBAFA850019B59F /* LoginVerificationPresenter.swift in Sources */,
+				C3145B141FC3335000B012E2 /* RetailLoginPresenter.swift in Sources */,
 				C3FF99211FB9F2DA0019B59F /* DigitalLoginPresenter.swift in Sources */,
-				C3532B081FBE061900E6FFE7 /* IdentityCreationInteractor.swift in Sources */,
 				C33DDA071FB461E900C24898 /* DigitalLoginInteractor.swift in Sources */,
+				C3145B261FC349BC00B012E2 /* IdentityCreationInteractor.swift in Sources */,
+				C3145B0F1FC330B200B012E2 /* RetailLoginInteractor.swift in Sources */,
 				C33DD99F1FB460E000C24898 /* AppDelegate.swift in Sources */,
 				C3FF994A1FBB02C30019B59F /* LoginModels.swift in Sources */,
 				C33DDA1F1FB46D4900C24898 /* DualModeLoginViewController.swift in Sources */,
-				C3FF99421FBAF7D30019B59F /* LoginVerificationInteractor.swift in Sources */,
 				C340A17A1FBCB14100052139 /* UIViewExtensions.swift in Sources */,
-				C3FF992D1FBA13810019B59F /* RetailLoginInteractor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -516,24 +514,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C3FF992B1FBA13810019B59F /* RetailLoginPresenter.swift in Sources */,
+				C3145B251FC349BB00B012E2 /* IdentityCreationInteractor.swift in Sources */,
 				C33DDA231FB470AD00C24898 /* ServiceStub.swift in Sources */,
 				C3FF994B1FBB02C30019B59F /* LoginModels.swift in Sources */,
-				C3FF99671FBB54950019B59F /* DualModeLoginInteractor.swift in Sources */,
-				C33DD9D51FB4611C00C24898 /* UsernameLoginController.swift in Sources */,
-				C3532B021FBDF53000E6FFE7 /* IdentityCreationInteractor.swift in Sources */,
+				C33DD9D51FB4611C00C24898 /* DigitalLoginController.swift in Sources */,
 				C3FF99221FB9F2DA0019B59F /* DigitalLoginPresenter.swift in Sources */,
-				C3FF99471FBAFA850019B59F /* LoginVerificationPresenter.swift in Sources */,
-				C3FF99401FBA17CD0019B59F /* CardNumberLoginController.swift in Sources */,
-				C3FF994F1FBB0B130019B59F /* VerificationCodeController.swift in Sources */,
+				C3145B211FC3490800B012E2 /* LoginVerificationPresenter.swift in Sources */,
+				C3145B131FC3335000B012E2 /* RetailLoginPresenter.swift in Sources */,
 				C3FF991B1FB9BA130019B59F /* LoginDataStorage.swift in Sources */,
-				C3FF99731FBC427B0019B59F /* DualModeLoginPresenter.swift in Sources */,
 				C33DD9DB1FB4611C00C24898 /* DigitalLoginInteractor.swift in Sources */,
-				C3FF99431FBAF7D30019B59F /* LoginVerificationInteractor.swift in Sources */,
+				C3145B0B1FC32B2900B012E2 /* BiometricsLoginInteractor.swift in Sources */,
 				C33DD9D41FB4611C00C24898 /* ConsoleController.swift in Sources */,
+				C3145B281FC34E9F00B012E2 /* IdentityCreationPresenter.swift in Sources */,
+				C3145B1C1FC3466300B012E2 /* LoginVerificationInteractor.swift in Sources */,
 				C33DD9C31FB460FB00C24898 /* main.swift in Sources */,
-				C3FF992E1FBA13810019B59F /* RetailLoginInteractor.swift in Sources */,
-				C3532B051FBE061600E6FFE7 /* IdentityCreationPresenter.swift in Sources */,
+				C3145B0D1FC330B100B012E2 /* RetailLoginInteractor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -541,27 +536,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C3FF992C1FBA13810019B59F /* RetailLoginPresenter.swift in Sources */,
+				C3145B101FC3334A00B012E2 /* RetailLoginInteractorTests.swift in Sources */,
 				C3FF99251FBA04130019B59F /* DigitalLoginInteractorTests.swift in Sources */,
+				C3145B201FC3490700B012E2 /* LoginVerificationPresenter.swift in Sources */,
+				C3145B271FC34BC700B012E2 /* IdentityCreationInteractorTests.swift in Sources */,
 				C3FF994C1FBB02C30019B59F /* LoginModels.swift in Sources */,
+				C3145B111FC3334A00B012E2 /* RetailLoginPresenterTests.swift in Sources */,
+				C3145B241FC349BB00B012E2 /* IdentityCreationInteractor.swift in Sources */,
 				C33DD9FE1FB461D900C24898 /* DigitalLoginInteractor.swift in Sources */,
-				C3FF99341FBA157F0019B59F /* RetailLoginPresenterTests.swift in Sources */,
-				C3FF99681FBB54950019B59F /* DualModeLoginInteractor.swift in Sources */,
-				C3FF99441FBAF7D30019B59F /* LoginVerificationInteractor.swift in Sources */,
-				C3FF99701FBC423B0019B59F /* DualModeLoginPresenterTests.swift in Sources */,
-				C3FF99741FBC427B0019B59F /* DualModeLoginPresenter.swift in Sources */,
-				C3FF99481FBAFA850019B59F /* LoginVerificationPresenter.swift in Sources */,
+				C3145B0E1FC330B200B012E2 /* RetailLoginInteractor.swift in Sources */,
+				C3145B2B1FC34EEF00B012E2 /* IdentityCreationPresenterTests.swift in Sources */,
+				C3145B231FC3493500B012E2 /* LoginVerificationPresenterTests.swift in Sources */,
 				C3FF99231FB9F2DA0019B59F /* DigitalLoginPresenter.swift in Sources */,
+				C3145B121FC3334F00B012E2 /* RetailLoginPresenter.swift in Sources */,
 				C3FF99271FBA10200019B59F /* DigitalLoginPresenterTests.swift in Sources */,
 				C3FF98F51FB9B1850019B59F /* ServiceStub.swift in Sources */,
-				C3532B0C1FBE063800E6FFE7 /* IdentityCreationInteractorTests.swift in Sources */,
-				C3532B101FBEFA9E00E6FFE7 /* IdentityCreationPresenterTests.swift in Sources */,
-				C3532B071FBE061900E6FFE7 /* IdentityCreationInteractor.swift in Sources */,
-				C3FF996C1FBB57380019B59F /* DualModeLoginInteractorTests.swift in Sources */,
-				C3FF99371FBA157F0019B59F /* RetailLoginInteractorTests.swift in Sources */,
+				C3145B1B1FC3466300B012E2 /* LoginVerificationInteractor.swift in Sources */,
+				C3145B291FC34E9F00B012E2 /* IdentityCreationPresenter.swift in Sources */,
+				C3145B1F1FC3475300B012E2 /* LoginVerificationInteractorTests.swift in Sources */,
 				C3FF991C1FB9BA130019B59F /* LoginDataStorage.swift in Sources */,
-				C3FF992F1FBA13810019B59F /* RetailLoginInteractor.swift in Sources */,
-				C3532B061FBE061600E6FFE7 /* IdentityCreationPresenter.swift in Sources */,
+				C3145B0C1FC32B2900B012E2 /* BiometricsLoginInteractor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

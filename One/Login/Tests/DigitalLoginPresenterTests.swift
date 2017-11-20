@@ -6,8 +6,8 @@ class DigitalLoginPresenterTests: XCTestCase {
   
   private let validUsername = "username"
   private let validPassword = "password"
-  private var validRequest: DigitalLoginRequest {
-    return DigitalLoginRequest(username: validUsername, password: validPassword)
+  private var validIdentity: DigitalIdentity {
+    return DigitalIdentity(identifier: validUsername, credential: validPassword)
   }
   private let error = "Cannot log in."
   
@@ -21,11 +21,11 @@ class DigitalLoginPresenterTests: XCTestCase {
   }
   
   func testDidLoad() {
-    presenter.didLoad(withRememberedRequest: validRequest)
+    presenter.didLoad(identity: validIdentity, canLogin: true)
     
     XCTAssertEqual(output.usernameSpy, validUsername)
     XCTAssertEqual(output.passwordSpy, validPassword)
-    XCTAssertEqual(output.canLoginSpy, false)
+    XCTAssertEqual(output.canLoginSpy, true)
   }
   
   func testChangeCanLogin() {
@@ -102,11 +102,11 @@ class DigitalLoginPresenterOutputSpy: DigitalLoginPresenterOutput {
   var helpSpy: LoginHelp?
   var leaveSpy = false
   
-  func changeUsername(to username: String) {
+  func changeIdentifier(to username: String) {
     usernameSpy = username
   }
   
-  func changePassword(to password: String) {
+  func changeCredential(to password: String) {
     passwordSpy = password
   }
   
@@ -132,5 +132,12 @@ class DigitalLoginPresenterOutputSpy: DigitalLoginPresenterOutput {
   
   func leave() {
     leaveSpy = true
+  }
+}
+
+extension LoginMessage: Equatable {
+  static func ==(lhs: LoginMessage, rhs: LoginMessage) -> Bool {
+    return lhs.text == rhs.text &&
+      lhs.style == rhs.style
   }
 }

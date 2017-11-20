@@ -4,8 +4,8 @@ class RetailLoginPresenterTests: XCTestCase {
   private var presenter: RetailLoginPresenter!
   private var output: RetailLoginPresenterOutputSpy!
   
-  private let validCardNumber = "12345678"
-  private let validPIN = "1234"
+  private let validCardNumber = "1234567890"
+  private let validPIN = "8888"
   private let error = "Cannot log in."
   
   override func setUp() {
@@ -44,7 +44,7 @@ class RetailLoginPresenterTests: XCTestCase {
     presenter.loginDidFail(withErrors: [error])
     
     assertOutputReceived(isLoggingIn: false,
-                         message: LoginMessage(text: "Cannot log in.", style: .error),
+                         message: LoginMessage(text: error, style: .error),
                          clearMessage: false,
                          leave: false)
   }
@@ -57,13 +57,12 @@ class RetailLoginPresenterTests: XCTestCase {
     XCTAssertEqual(output.helpSpy, help)
   }
   
-  func testInquireVerificationCode() {
-    let request = RetailLoginRequest(cardNumber: validCardNumber, pin: validPIN)
-    presenter.loginModeDidChange(to: .retail)
+  func testShowVerification() {
+    let identity = RetailIdentity(cardNumber: validCardNumber, pin: validPIN)
     
-    presenter.inquireVerificationCode(forRequest: request)
+    presenter.showVerification(withIdentity: identity)
     
-    XCTAssertEqual(output.verificationRequestSpy, RetailLoginRequest(cardNumber: validCardNumber, pin: validPIN))
+    XCTAssertEqual(output.verificationIdentitySpy, RetailIdentity(cardNumber: validCardNumber, pin: validPIN))
   }
   
   // MARK: helpers
@@ -98,7 +97,8 @@ class RetailLoginPresenterOutputSpy: RetailLoginPresenterOutput {
   var messageSpy: LoginMessage?
   var clearMessageSpy = false
   var helpSpy: LoginHelp?
-  var verificationRequestSpy: RetailLoginRequest?
+  var verificationIdentitySpy: RetailIdentity?
+  var identityCreationIdentitySpy: RetailIdentity?
   var leaveSpy = false
   
   func changeCardNumber(to cardNumber: String) {
@@ -129,8 +129,12 @@ class RetailLoginPresenterOutputSpy: RetailLoginPresenterOutput {
     helpSpy = help
   }
   
-  func goToVerificationPage(withRequest request: RetailLoginRequest) {
-    verificationRequestSpy = request
+  func goToVerificationPage(withIdentity identity: RetailIdentity) {
+    verificationIdentitySpy = identity
+  }
+  
+  func goToIdentityCreationPage(withIdentity identity: RetailIdentity) {
+    identityCreationIdentitySpy = identity
   }
   
   func leave() {

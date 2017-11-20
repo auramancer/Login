@@ -25,8 +25,9 @@ class IdentityCreationPresenter {
 }
 
 extension IdentityCreationPresenter: IdentityCreationInteractorOutput {
-  func didLoad() {
+  func didLoad(canCreate: Bool) {
     output?.showMessage(defaultMessage)
+    output?.changeCanCreate(to: canCreate)
   }
   
   func canCreateDidChange(to canCreate: Bool) {
@@ -43,8 +44,8 @@ extension IdentityCreationPresenter: IdentityCreationInteractorOutput {
     output?.leave()
   }
   
-  func creationDidFail(withErrors errors: [IdentityCreationError]) {
+  func creationDidFail(withErrors errors: [String]) {
     output?.changeIsCreating(to: false)
-    output?.showMessage(errorMessage(withErrors: errors))
+    output?.showMessage(LoginMessage(text: errors.joined(separator: "\n\n"), style: .error))
   }
 }

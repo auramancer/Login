@@ -142,7 +142,7 @@ extension DualModeLoginViewController: DualModeLoginPresenterOutput {
   func goToHelpPage(for: LoginHelp) {
   }
   
-  func goToVerificationPage(withRequest: RetailLoginRequest) {
+  func goToVerificationPage(withRequest: RetailIdentity) {
   }
   
   func leave() {

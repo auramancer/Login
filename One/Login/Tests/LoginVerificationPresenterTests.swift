@@ -4,8 +4,8 @@ class LoginVerificationPresenterTests: XCTestCase {
   private var presenter: LoginVerificationPresenter!
   private var output: LoginVerificationPresenterOutputSpy!
   
-  private let validCardNumber = "12345678"
-  private let validPIN = "1234"
+  private let validCardNumber = "1234567890"
+  private let validPIN = "8888"
   private let error = "Cannot log in."
   
   override func setUp() {
@@ -17,76 +17,106 @@ class LoginVerificationPresenterTests: XCTestCase {
     presenter.output = output
   }
   
-  func testCanVerify() {
+  func testDidLoad() {
+    presenter.didLoad(canVerify: false)
+    
+    XCTAssertEqual(output.canVerifySpy, false)
+  }
+  
+  func testCanVerifyDidChange() {
     presenter.canVerifyDidChange(to: true)
     
-    XCTAssertEqual(output.enableVerifySpy, true)
-    XCTAssertEqual(output.disableVerifySpy, false)
+    XCTAssertEqual(output.canVerifySpy, true)
   }
-  
-  func testCannotVerify() {
-    presenter.canVerifyDidChange(to: false)
-    
-    XCTAssertEqual(output.enableVerifySpy, false)
-    XCTAssertEqual(output.disableVerifySpy, true)
-  }
-  
-  func testVerifyDidBegin() {
+
+  func testVerificationDidBegin() {
     presenter.verificationDidBegin()
     
-    XCTAssertEqual(output.hideErrorMessageSpy, true)
-    XCTAssertEqual(output.showActivityMessageSpy, true)
-    XCTAssertEqual(output.activityMessageSpy, nil)
+    assertOutputReceived(isVerifying: true,
+                         message: nil,
+                         clearMessage: true,
+                         leave: false)
   }
   
-  func testVerifyDidEnd() {
+  func testVerificationDidEnd() {
     presenter.verificationDidEnd()
     
-    XCTAssertEqual(output.hideActivityMessageSpy, true)
-    XCTAssertEqual(output.leaveSpy, true)
+    assertOutputReceived(isVerifying: false,
+                         message: nil,
+                         clearMessage: false,
+                         leave: true)
   }
   
-  func testVerifyDidFail() {
+  func testVerificationDidFail() {
     presenter.verificationDidFail(dueTo: [error])
     
-    XCTAssertEqual(output.hideActivityMessageSpy, true)
-    XCTAssertEqual(output.errorMessageSpy, error)
+    assertOutputReceived(isVerifying: false,
+                         message: LoginMessage(text: error, style: .error),
+                         clearMessage: false,
+                         leave: false)
+  }
+  
+  func testShowIdentityCreation() {
+    let identity = RetailIdentity(cardNumber: "", pin: "")
+    
+    presenter.showIdentityCreation(withIdentity: identity)
+    
+    XCTAssertEqual(output.identityCreationIdentitySpy, identity)
+  }
+  
+  func testShowAlert() {
+    presenter.showResendConfirmation()
+    
+    XCTAssertEqual(output.alertSpy?.message, "Are you sure you want a new verification code?")
+    XCTAssertEqual(output.alertSpy?.confirmActionTitle, "Confirm")
+  }
+  
+  // MARK: helpers
+  
+  private func assertOutputReceived(isVerifying: Bool?,
+                                    message: LoginMessage?,
+                                    clearMessage: Bool,
+                                    leave: Bool,
+                                    file: StaticString = #file,
+                                    line: UInt = #line) {
+    XCTAssertEqual(output.isVerifyingSpy, isVerifying, "isVerifying", file: file, line: line)
+    XCTAssertEqual(output.messageSpy, message, "message", file: file, line: line)
+    XCTAssertEqual(output.clearMessageSpy, clearMessage, "clearMessage", file: file, line: line)
+    XCTAssertEqual(output.leaveSpy, leave, "leave", file: file, line: line)
   }
 }
 
 class LoginVerificationPresenterOutputSpy: LoginVerificationPresenterOutput {
-  var enableVerifySpy = false
-  var disableVerifySpy = false
-  var showActivityMessageSpy = false
-  var activityMessageSpy: String?
-  var hideActivityMessageSpy = false
-  var errorMessageSpy: String?
-  var hideErrorMessageSpy = false
+  var canVerifySpy: Bool?
+  var isVerifyingSpy: Bool?
+  var messageSpy: LoginMessage?
+  var clearMessageSpy = false
+  var alertSpy: ResendCodeConfirmaitonAlert?
+  var identityCreationIdentitySpy: RetailIdentity?
   var leaveSpy = false
   
-  func enableVerify() {
-    enableVerifySpy = true
+  func changeCanVerify(to canVerify: Bool) {
+    canVerifySpy = canVerify
   }
   
-  func disableVerify() {
-    disableVerifySpy = true
+  func changeIsVerifying(to isVerifying: Bool) {
+    isVerifyingSpy = isVerifying
   }
   
-  func showActivityMessage(_ message: String?) {
-    showActivityMessageSpy = true
-    activityMessageSpy = message
+  func showMessage(_ message: LoginMessage) {
+    messageSpy = message
   }
   
-  func hideActivityMessage() {
-    hideActivityMessageSpy = true
+  func clearMessage() {
+    clearMessageSpy = true
   }
   
-  func showErrorMessage(_ message: String) {
-    errorMessageSpy = message
+  func showResendCodeConfirmaitonAlert(_ alert: ResendCodeConfirmaitonAlert) {
+    alertSpy = alert
   }
   
-  func hideErrorMessage() {
-    hideErrorMessageSpy = true
+  func goToIdentityCreationPage(withIdentity identity: RetailIdentity) {
+    identityCreationIdentitySpy = identity
   }
   
   func leave() {

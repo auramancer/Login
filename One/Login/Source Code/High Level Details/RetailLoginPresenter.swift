@@ -1,9 +1,3 @@
-extension LoginDestination {
-  static let forgottenCardNumber = LoginDestination("forgottenCardNumber")
-  static let forgottenPIN = LoginDestination("forgottenPIN")
-  static let verificationCode = LoginDestination("verificationCode")
-}
-
 protocol RetailLoginPresenterOutput: class {
   func changeCardNumber(to: String)
   func changePIN(to: String)
@@ -14,7 +8,8 @@ protocol RetailLoginPresenterOutput: class {
   func clearMessage()
   
   func goToHelpPage(for: LoginHelp)
-  func goToVerificationPage(withRequest: RetailLoginRequest)
+  func goToVerificationPage(withIdentity: RetailIdentity)
+  func goToIdentityCreationPage(withIdentity: RetailIdentity)
   func leave()
 }
 
@@ -23,9 +18,9 @@ class RetailLoginPresenter {
 }
 
 extension RetailLoginPresenter: RetailLoginInteractorOutput {
-  func didLoad(cardNumber: String, pin: String, canLogin: Bool) {
-    output?.changeCardNumber(to: cardNumber)
-    output?.changePIN(to: pin)
+  func didLoad(identity: RetailIdentity, canLogin: Bool) {
+    output?.changeCardNumber(to: identity.cardNumber)
+    output?.changePIN(to: identity.pin)
     output?.changeCanLogin(to: canLogin)
   }
   
@@ -52,7 +47,13 @@ extension RetailLoginPresenter: RetailLoginInteractorOutput {
     output?.goToHelpPage(for: help)
   }
   
-  func inquireVerificationCode(forRequest request: RetailLoginRequest) {
-    output?.goToVerificationPage(withRequest: request)
+  func showVerification(withIdentity identity: RetailIdentity) {
+    output?.changeIsLoggingIn(to: false)
+    output?.goToVerificationPage(withIdentity: identity)
+  }
+  
+  func showIdentityCreation(withIdentity identity: RetailIdentity) {
+    output?.changeIsLoggingIn(to: false)
+    output?.goToIdentityCreationPage(withIdentity: identity)
   }
 }

@@ -1,7 +1,7 @@
 import Foundation
 
-//let controller = DigitalLoginController()
-let controller = RetailLoginController()
+let controller = DigitalLoginController()
+//let controller = RetailLoginController()
 //let controller = DualModeLoginController()
 
 controller.start()

@@ -33,9 +33,9 @@ class DigitalLoginController: ConsoleController {
   override func excuteCommand(_ command: Command) {
     switch command.type {
     case "1":
-      changeUsername(command)
+      changeIdentifier(command)
     case "2":
-      changePassword(command)
+      changeCredential(command)
     case "3":
       forgottenUsername()
     case "4":
@@ -49,43 +49,44 @@ class DigitalLoginController: ConsoleController {
     }
   }
   
-  func changeUsername(_ command: Command) {
-    interactor?.changeUsername(to: command.parameters ?? "")
+  func changeIdentifier(_ command: Command) {
+    interactor?.changeIdentifier(to: command.parameters ?? "")
     
     waitForCommand()
   }
   
-  func changePassword(_ command: Command) {
-    interactor?.changePassword(to: command.parameters ?? "")
+  func changeCredential(_ command: Command) {
+    interactor?.changeCredential(to: command.parameters ?? "")
     
     waitForCommand()
   }
   
   func changeRememberMe() {
     shouldRemember = !shouldRemember
+    interactor?.changeShouldRememberIdentity(to: shouldRemember)
     
     waitForCommand()
   }
   
   func login() {
-    interactor?.logIn(shouldRememberUsername: shouldRemember)
+    interactor?.logIn()
   }
   
   func forgottenUsername() {
-    interactor?.helpWithUsername()
+    interactor?.helpWithIdentifier()
   }
   
   func forgottenPassword() {
-    interactor?.helpWithPassword()
+    interactor?.helpWithCredential()
   }
 }
 
 extension DigitalLoginController: DigitalLoginPresenterOutput {
-  func changeUsername(to username: String) {
+  func changeIdentifier(to username: String) {
     self.username = username
   }
   
-  func changePassword(to password: String) {
+  func changeCredential(to password: String) {
     self.password = password
   }
   

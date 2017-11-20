@@ -5,7 +5,6 @@ class IdentityCreationInteractorTests: XCTestCase {
   private var output: IdentityCreationInteractorOutputSpy!
   private var service: IdentityCreationServiceSpy!
   
-  private let request = IdentityCreationRequest(membershipNumber: "", verificationCode: "")
   private let validUsername = "username"
   private let validUsername2 = "username0"
   private let shortUsername = "user"
@@ -14,7 +13,11 @@ class IdentityCreationInteractorTests: XCTestCase {
   private let validPassword2 = "password0"
   private let shortPassword = "pass"
   private let nonAlphanumericPassword = "pass_word"
-  private let error = IdentityCreationErrorMock(message: "Username taken")
+  private let error = "Username taken"
+  private let retailIdentity = RetailIdentity(cardNumber: "", pin: "")
+  private var digitalIdentity: DigitalIdentity {
+    return DigitalIdentity(identifier: validUsername, credential: validPassword)
+  }
   
   override func setUp() {
     super.setUp()
@@ -28,27 +31,27 @@ class IdentityCreationInteractorTests: XCTestCase {
   }
   
   func testLoad() {
-    interactor.load(withRequest: request)
+    load()
     
-    XCTAssertEqual(output.didLoadSpy, true)
+    assertOutputReceived(canCreate: false)
   }
   
   func testChangeUsernameOnly() {
-    interactor.load(withRequest: request)
+    load()
     output.reset()
     
-    interactor.changeUsername(to: validUsername)
+    interactor.changeIdentifier(to: validUsername)
     
-    XCTAssertEqual(output.canCreateSpy, nil)
+    assertOutputReceived(canCreate: nil)
   }
   
   func testChangePasswordOnly() {
-    interactor.load(withRequest: request)
+    load()
     output.reset()
     
-    interactor.changePassword(to: validPassword)
+    interactor.changeCredential(to: validPassword)
     
-    XCTAssertEqual(output.canCreateSpy, nil)
+    assertOutputReceived(canCreate: nil)
   }
   
   func testChangeUsername() {
@@ -76,10 +79,8 @@ class IdentityCreationInteractorTests: XCTestCase {
     assertOutputReceived(creationDidBegin: true,
                          creationDidEnd: false,
                          errors: nil)
-    assertServiceReceived(IdentityCreationRequest(membershipNumber: "",
-                                                  verificationCode: "",
-                                                  username: validUsername,
-                                                  password: validPassword))
+    assertServiceReceived(digitalIdentity: digitalIdentity,
+                          retailIdentity: retailIdentity)
   }
   
   func testCreationDidSucceed() {
@@ -97,7 +98,7 @@ class IdentityCreationInteractorTests: XCTestCase {
     create()
     output.reset()
     
-    interactor.creationDidFail(dueTo: [error])
+    interactor.creationDidFail(dueTo: [IdentityCreationServiceError(error)])
     
     assertOutputReceived(creationDidBegin: false,
                          creationDidEnd: false,
@@ -106,10 +107,14 @@ class IdentityCreationInteractorTests: XCTestCase {
   
   // Mark: helpers
   
+  private func load() {
+    interactor.load(withRetailIdentity: retailIdentity)
+  }
+  
   private func set(username: String, password: String) {
-    interactor.load(withRequest: request)
-    interactor.changeUsername(to: username)
-    interactor.changePassword(to: password)
+    load()
+    interactor.changeIdentifier(to: username)
+    interactor.changeCredential(to: password)
   }
   
   private func create() {
@@ -126,9 +131,9 @@ class IdentityCreationInteractorTests: XCTestCase {
     set(username: oldUsername, password: password)
     output.reset()
     
-    interactor.changeUsername(to: newUsername)
+    interactor.changeIdentifier(to: newUsername)
     
-    XCTAssertEqual(output.canCreateSpy, canCreate, "canCreate", file: file, line: line)
+    assertOutputReceived(canCreate: canCreate, file: file, line: line)
   }
   
   private func assertOutputReceived(canCreate: Bool?,
@@ -140,54 +145,51 @@ class IdentityCreationInteractorTests: XCTestCase {
     set(username: username, password: oldPassword)
     output.reset()
     
-    interactor.changePassword(to: newPassword)
+    interactor.changeCredential(to: newPassword)
     
+    assertOutputReceived(canCreate: canCreate, file: file, line: line)
+  }
+  
+  private func assertOutputReceived(canCreate: Bool?,
+                                    file: StaticString = #file,
+                                    line: UInt = #line) {
     XCTAssertEqual(output.canCreateSpy, canCreate, "canCreate", file: file, line: line)
   }
   
   private func assertOutputReceived(creationDidBegin: Bool?,
                                     creationDidEnd: Bool?,
-                                    errors: [IdentityCreationError]?,
+                                    errors: [String]?,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
     XCTAssertEqual(output.creationDidBeginSpy, creationDidBegin, "creationDidBegin", file: file, line: line)
     XCTAssertEqual(output.creationDidEndSpy, creationDidEnd, "creationDidEnd", file: file, line: line)
-    assertOutputReceived(errors: errors, file: file, line: line)
+    XCTAssertEqual(output.errorsSpy, errors, "errors", file: file, line: line)
   }
   
-  private func assertOutputReceived(errors: [IdentityCreationError]?,
-                                    file: StaticString = #file,
-                                    line: UInt = #line) {
-    let messages = output.errorsSpy?.map { $0.message }
-    let expected = errors?.map { $0.message }
-    
-    XCTAssertEqual(messages, expected, "errors", file: file, line: line)
-  }
-  
-  private func assertServiceReceived(_ request: IdentityCreationRequest?,
+  private func assertServiceReceived(digitalIdentity: DigitalIdentity?,
+                                     retailIdentity: RetailIdentity?,
                                      file: StaticString = #file,
                                      line: UInt = #line) {
-    XCTAssertEqual(service.requestSpy, request, "request", file: file, line: line)
+    XCTAssertEqual(service.digitalIdentitySpy, digitalIdentity, "digitalIdentity", file: file, line: line)
+    XCTAssertEqual(service.retailIdentitySpy, retailIdentity, "retailIdentity", file: file, line: line)
   }
 }
 
 class IdentityCreationInteractorOutputSpy: IdentityCreationInteractorOutput {
-  var didLoadSpy = false
   var canCreateSpy: Bool?
   var creationDidBeginSpy = false
   var creationDidEndSpy = false
-  var errorsSpy: [IdentityCreationError]?
+  var errorsSpy: [String]?
   
   func reset() {
-    didLoadSpy = false
     canCreateSpy = nil
     creationDidBeginSpy = false
     creationDidEndSpy = false
     errorsSpy = nil
   }
   
-  func didLoad() {
-    didLoadSpy = true
+  func didLoad(canCreate: Bool) {
+    canCreateSpy = canCreate
   }
   
   func canCreateDidChange(to canCreate: Bool) {
@@ -202,28 +204,25 @@ class IdentityCreationInteractorOutputSpy: IdentityCreationInteractorOutput {
     creationDidEndSpy = true
   }
   
-  func creationDidFail(withErrors errors: [IdentityCreationError]) {
+  func creationDidFail(withErrors errors: [String]) {
     errorsSpy = errors
   }
 }
 
 class IdentityCreationServiceSpy: IdentityCreationServiceInput {
-  var requestSpy: IdentityCreationRequest?
+  var digitalIdentitySpy: DigitalIdentity?
+  var retailIdentitySpy: RetailIdentity?
   
-  func create(withRequest request: IdentityCreationRequest) {
-    requestSpy = request
+  func create(digitalIdentity: DigitalIdentity, withRetailIdentity retailIdentity: RetailIdentity) {
+    digitalIdentitySpy = digitalIdentity
+    retailIdentitySpy = retailIdentity
   }
 }
 
-struct IdentityCreationErrorMock: IdentityCreationError {
+struct IdentityCreationServiceError: IdentityCreationError {
   var message: String
-}
-
-extension IdentityCreationRequest: Equatable {
-  static func ==(lhs: IdentityCreationRequest, rhs: IdentityCreationRequest) -> Bool {
-    return lhs.membershipNumber == rhs.membershipNumber &&
-     lhs.verificationCode == rhs.verificationCode &&
-     lhs.username == rhs.username &&
-     lhs.password == rhs.password
+  
+  init(_ message: String) {
+    self.message = message
   }
 }

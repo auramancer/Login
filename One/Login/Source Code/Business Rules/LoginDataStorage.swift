@@ -1,11 +1,11 @@
 protocol LoginDataPersistable {
-  func saveUsername(_: String)
+  func saveIdentity(_: String)
   func savePassword(_: String)
   func saveCardNumber(_: String)
   func savePin(_: String)
   func saveToken(_: String)
   
-  func loadUsername() -> String?
+  func loadIdentity() -> String?
   func loadPassword() -> String?
   func loadCardNumber() -> String?
   func loadPin() -> String?
@@ -14,7 +14,7 @@ protocol LoginDataPersistable {
 
 //
 //class LoginDataStorage {
-//  func saveUsername() {
+//  func saveIdentity() {
 //
 //  }
 //
@@ -31,7 +31,7 @@ protocol LoginDataPersistable {
 //  }
 //  func saveToken()
 //
-//  func loadUsername() -> String?
+//  func loadIdentity() -> String?
 //  func
 //}
 

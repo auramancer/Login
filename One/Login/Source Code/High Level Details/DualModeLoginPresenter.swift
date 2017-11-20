@@ -31,7 +31,8 @@ protocol DualModeLoginPresenterOutput: class {
   func clearMessage()
   
   func goToHelpPage(for: LoginHelp)
-  func goToVerificationPage(withRequest: RetailLoginRequest)
+  func goToVerificationPage(withIdentity: RetailIdentity)
+  func goToIdentityCreationPage(withIdentity: RetailIdentity)
   func leave()
 }
 
@@ -40,24 +41,25 @@ class DualModeLoginPresenter {
 
   private var mode = LoginMode.undetermined
 
-  private var usernamePresenter = DigitalLoginPresenter()
-  private var cardNumberPresenter = RetailLoginPresenter()
+  private var digitalPresenter = DigitalLoginPresenter()
+  private var retailPresenter = RetailLoginPresenter()
   private var currentPresenter: DualModeLoginInteractorOutput!
   
   init() {
-    switchSubPresenter()
+    digitalPresenter.output = self
+    currentPresenter = digitalPresenter
   }
   
   private func switchSubPresenter() {
     switch mode {
     case .undetermined, .digital:
-      usernamePresenter.output = self
-      cardNumberPresenter.output = nil
-      currentPresenter = usernamePresenter
+      digitalPresenter.output = self
+      retailPresenter.output = nil
+      currentPresenter = digitalPresenter
     case .retail:
-      cardNumberPresenter.output = self
-      usernamePresenter.output = nil
-      currentPresenter = cardNumberPresenter
+      retailPresenter.output = self
+      digitalPresenter.output = nil
+      currentPresenter = retailPresenter
     }
   }
 
@@ -74,10 +76,11 @@ class DualModeLoginPresenter {
 }
 
 extension DualModeLoginPresenter: DualModeLoginInteractorOutput {
-  func didLoad(withIdentifier identifier: String, credential: String) {
+  func didLoad(identifier: String, credential: String, canLogin: Bool, mode: LoginMode) {
     output?.changeIdentifier(to: identifier)
     output?.changeCredential(to: credential)
     output?.changeCanLogin(to: false)
+    loginModeDidChange(to: mode)
   }
   
   func canLoginDidChange(to canLogin: Bool) {
@@ -107,18 +110,22 @@ extension DualModeLoginPresenter: DualModeLoginInteractorOutput {
     currentPresenter.showHelp(help)
   }
   
-  func inquireVerificationCode(forRequest request: RetailLoginRequest) {
-    currentPresenter.inquireVerificationCode(forRequest: request)
+  func showVerification(withIdentity identity: RetailIdentity) {
+    currentPresenter.showVerification(withIdentity: identity)
   }
+  
+  func showIdentityCreation(withIdentity identity: RetailIdentity) {
+    currentPresenter.showIdentityCreation(withIdentity: identity)
+  }
+  
 }
 
 extension DualModeLoginPresenter: DigitalLoginPresenterOutput, RetailLoginPresenterOutput {
-  
-  func changeUsername(to username: String) {
+  func changeIdentifier(to username: String) {
     output?.changeIdentifier(to: username)
   }
   
-  func changePassword(to password: String) {
+  func changeCredential(to password: String) {
     output?.changeCredential(to: password)
   }
   
@@ -150,8 +157,8 @@ extension DualModeLoginPresenter: DigitalLoginPresenterOutput, RetailLoginPresen
     output?.goToHelpPage(for: help)
   }
   
-  func goToVerificationPage(withRequest request: RetailLoginRequest) {
-    output?.goToVerificationPage(withRequest: request)
+  func goToVerificationPage(withIdentity identity: RetailIdentity) {
+    output?.goToVerificationPage(withIdentity: identity)
   }
   
   func leave() {
@@ -160,19 +167,27 @@ extension DualModeLoginPresenter: DigitalLoginPresenterOutput, RetailLoginPresen
 }
 
 extension DigitalLoginPresenter: DualModeLoginInteractorOutput {
-  func didLoad(withIdentifier identifier: String, credential: String) {
-    didLoad(withRememberedRequest: DigitalLoginRequest(username: identifier, password: credential))
+  func showVerification(withIdentity: RetailIdentity) {
+    <#code#>
+  }
+  
+  func showIdentityCreation(withIdentity: RetailIdentity) {
+    <#code#>
+  }
+  
+  func didLoad(identifier: String, credential: String, canLogin: Bool, mode: LoginMode) {
+    didLoad(identity: <#T##DigitalIdentity#>, canLogin: <#T##Bool#>)
   }
 }
 
 extension RetailLoginPresenter: DualModeLoginInteractorOutput {
-  func didLoad(withIdentifier identifier: String, credential: String) {
-    didLoad(withRememberedRequest: RetailLoginRequest(cardNumber: identifier, pin: credential))
+  func didLoad(identifier: String, credential: String, canLogin: Bool, mode: LoginMode) {
+    didLoad(identifier: identifier, credential: credential, canLogin: canLogin)
   }
 }
 
 extension DualModeLoginInteractorOutput {
-  func inquireVerificationCode(forRequest: RetailLoginRequest) {
+  func showVerificationForm(withRequest: RetailIdentity) {
   }
   
   func loginModeDidChange(to: LoginMode) {

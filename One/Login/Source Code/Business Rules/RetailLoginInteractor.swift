@@ -1,4 +1,4 @@
-struct RetailLoginRequest {
+struct RetailIdentity {
   var cardNumber: String
   var pin: String
   var verificationCode: String?
@@ -14,17 +14,18 @@ extension LoginHelp {
 protocol RetailLoginInteractorInput: class {
   func load()
   
-  func changeCardNumber(to: String)
-  func changePIN(to: String)
+  func changeIdentifier(to: String)
+  func changeCredential(to: String)
+  func changeShouldRememberIdentity(to: Bool)
   
-  func logIn(shouldRememberCardNumber: Bool)
+  func logIn()
   
-  func helpWithCardNumber()
-  func helpWithPIN()
+  func helpWithIdentifier()
+  func helpWithCredential()
 }
 
 protocol RetailLoginInteractorOutput: class {
-  func didLoad(cardNumber: String, pin: String, canLogin: Bool)
+  func didLoad(identity: RetailIdentity, canLogin: Bool)
   
   func canLoginDidChange(to: Bool)
   
@@ -33,24 +34,28 @@ protocol RetailLoginInteractorOutput: class {
   func loginDidFail(withErrors: [String])
   
   func showHelp(_: LoginHelp)
-  func inquireVerificationCode(forRequest: RetailLoginRequest)
+  func showVerification(withIdentity: RetailIdentity)
+  func showIdentityCreation(withIdentity: RetailIdentity)
 }
 
 protocol RetailLoginServiceInput: class {
-  func logIn(withCardNumberRequest: RetailLoginRequest)
+  func logIn(withRetailIdentity: RetailIdentity)
 }
 
 protocol RetailLoginServiceOutput: class {
-  func loginDidSucceed()
+  func changeMemebershipNumber(to: String)
+  
+  func loginDidSucceed(withSession: String, needToCreateDigitalIdentity: Bool)
   func loginDidFail(dueTo: [LoginError])
   func loginDidFailDueToInvalidToken()
 }
 
 protocol RetailLoginStorage: class {
-  func saveCardNumber(_: String)
-  func loadCardNumber() -> String?
+  func saveIdentity(_: RetailIdentity)
+  func loadIdentity() -> RetailIdentity?
   func saveToken(_: String)
   func loadToken() -> String?
+  func saveSession(_: String)
 }
 
 class RetailLoginInteractor {
@@ -58,23 +63,19 @@ class RetailLoginInteractor {
   var service: RetailLoginServiceInput?
   var storage: RetailLoginStorage?
   
-  private var request: RetailLoginRequest!
-  private var shouldRememberCardNumber = false
+  private var identity: RetailIdentity!
+  private var shouldRememberIdentity = false
   
-  private var rememberedCardNumber: String {
-    return storage?.loadCardNumber() ?? ""
+  private var rememberedIdentity: RetailIdentity? {
+    return storage?.loadIdentity()
   }
   
-  private var rememberedPIN: String {
-    return ""
-  }
-  
-  private var remeberedToken: String? {
+  private var rememberedToken: String? {
     return storage?.loadToken()
   }
   
   private var canLogin: Bool {
-    return request?.isValid ?? false
+    return identity.isValid 
   }
   
   private var canLoginOldValue = false
@@ -91,52 +92,65 @@ class RetailLoginInteractor {
 
 extension RetailLoginInteractor: RetailLoginInteractorInput {
   func load() {
-    request = RetailLoginRequest(cardNumber: rememberedCardNumber,
-                                 pin: rememberedPIN,
-                                 authenticationToken: remeberedToken)
+    identity = rememberedIdentity ?? RetailIdentity(cardNumber: "", pin: "")
+    identity.authenticationToken = rememberedToken
     canLoginOldValue = canLogin
     
-    output?.didLoad(cardNumber: request.cardNumber,
-                    pin: request.pin,
-                    canLogin: canLoginOldValue)
+    output?.didLoad(identity: identity, canLogin: canLoginOldValue)
   }
   
-  func changeCardNumber(to cardNumber: String) {
-    request.cardNumber = cardNumber
+  func changeIdentifier(to identifier: String) {
+    identity.cardNumber = identifier
     
     outputCanLoginDidChange()
   }
   
-  func changePIN(to pin: String) {
-    request.pin = pin
+  func changeCredential(to credential: String) {
+    identity.pin = credential
     
     outputCanLoginDidChange()
   }
   
-  func logIn(shouldRememberCardNumber shouldRemember: Bool) {
-    shouldRememberCardNumber = shouldRemember
-    
-    service?.logIn(withCardNumberRequest: request)
+  func changeShouldRememberIdentity(to shouldRemember: Bool) {
+    shouldRememberIdentity = shouldRemember
+  }
+  
+  func logIn() {
+    service?.logIn(withRetailIdentity: identity)
     
     output?.loginDidBegin()
   }
   
-  func helpWithCardNumber() {
+  func helpWithIdentifier() {
     output?.showHelp(.cardNumber)
   }
   
-  func helpWithPIN() {
+  func helpWithCredential() {
     output?.showHelp(.pin)
   }
 }
 
 extension RetailLoginInteractor: RetailLoginServiceOutput {
-  func loginDidSucceed() {
-    if shouldRememberCardNumber {
-      storage?.saveCardNumber(request.cardNumber)
-    }
+  func changeMemebershipNumber(to membershipNumber: String) {
+    identity.membershipNumber = membershipNumber
+  }
+  
+  func loginDidSucceed(withSession session: String, needToCreateDigitalIdentity: Bool) {
+    saveIdentity()
+    storage?.saveSession(session)
     
-    output?.loginDidEnd()
+    if needToCreateDigitalIdentity {
+      output?.showIdentityCreation(withIdentity: identity)
+    }
+    else {
+      output?.loginDidEnd()
+    }
+  }
+  
+  private func saveIdentity() {
+    if shouldRememberIdentity {
+      storage?.saveIdentity(RetailIdentity(cardNumber: identity.cardNumber, pin: ""))
+    }
   }
   
   func loginDidFail(dueTo errors: [LoginError]) {
@@ -145,11 +159,13 @@ extension RetailLoginInteractor: RetailLoginServiceOutput {
   }
   
   func loginDidFailDueToInvalidToken() {
-    output?.inquireVerificationCode(forRequest: request)
+    saveIdentity()
+    
+    output?.showVerification(withIdentity: identity)
   }
 }
 
-extension RetailLoginRequest {
+extension RetailIdentity {
   init(cardNumber: String, pin: String) {
     self.init(cardNumber: cardNumber,
               pin: pin,
@@ -178,5 +194,3 @@ extension RetailLoginRequest {
     return pin != ""
   }
 }
-
-

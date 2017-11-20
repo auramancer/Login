@@ -3,138 +3,170 @@ import XCTest
 class LoginVerificationInteractorTests: XCTestCase {
   private var interactor: LoginVerificationInteractor!
   private var output: LoginVerificationInteractorOutputSpy!
-  private var service: RetailLoginServiceSpy!
+  private var service: LoginVerificationServiceSpy!
   private var storage: RetailLoginStorageSpy!
   
-  private let validCardNumber = "12345678"
-  private let validPIN = "1234"
+  private let validCardNumber = "1234567890"
+  private let validPIN = "8888"
   private let validCode = "123456"
-  private let validToken = "1QAZ"
+  private let session = "12345QWERT"
+  private let token = "1QAZ2WSX"
   private let error = "Cannot log in."
-  private var request: RetailLoginRequest {
-    return RetailLoginRequest(cardNumber: validCardNumber, pin: validPIN)
+  private var validIdentity: RetailIdentity {
+    return RetailIdentity(cardNumber: validCardNumber, pin: validPIN)
   }
+  private var shouldRemember = true
   
   override func setUp() {
     super.setUp()
     
     output = LoginVerificationInteractorOutputSpy()
-    service = RetailLoginServiceSpy()
+    service = LoginVerificationServiceSpy()
     storage = RetailLoginStorageSpy()
     
     interactor = LoginVerificationInteractor()
     interactor.output = output
-    interactor.service = service
+    interactor.loginService = service
+    interactor.codeService = service
     interactor.storage = storage
+    
+    shouldRemember = true
   }
   
-  func testReset() {
-    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
+  func testLoad() {
+    load()
     
-    XCTAssertEqual(output.canVerifySpy, false)
-  }
-  
-  func testChangeCodeWithNoRequest() {
-    interactor.changeCode(to: validCode)
-    
-    XCTAssertEqual(output.canVerifySpy, false)
+    assertOutputReceived(canVerify: false)
   }
   
   func testChangeCode() {
-    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
-    
+    load()
+    output.reset()
+
     interactor.changeCode(to: validCode)
-    
-    XCTAssertEqual(output.canVerifySpy, true)
+
+    assertOutputReceived(canVerify: true)
   }
   
-  func testResendCodeWithNoRequest() {
-    interactor.resendCode()
+  func testClearCode() {
+    changeCode()
+    output.reset()
     
-    XCTAssertNil(service.requestSpy)
-    XCTAssertEqual(output.verificationDidBeginSpy, false)
+    interactor.changeCode(to: "")
+    
+    assertOutputReceived(canVerify: false)
+  }
+
+  func testVerify() {
+    changeCode()
+    output.reset()
+
+    interactor.verify()
+
+    assertOutputReceived(canVerify: nil)
+    assertOutputReceived(verificationDidBegin: true,
+                         verificationDidEnd: false,
+                         errors: nil)
+    assertServiceReceived(loginRequest: RetailIdentity(cardNumber: validCardNumber,
+                                                           pin: validPIN,
+                                                           verificationCode: validCode,
+                                                           authenticationToken: nil,
+                                                           membershipNumber: nil),
+                          codeRequest: nil)
+  }
+
+  func testHandleSuccess() {
+    verify()
+    output.reset()
+
+    interactor.loginDidSucceed(withSession: session, token: token)
+
+    assertOutputReceived(verificationDidBegin: false,
+                         verificationDidEnd: true,
+                         errors: nil)
+    assertStorageSaved(session: session,
+                       token: token)
+  }
+
+  func testHandleFailure() {
+    verify()
+    output.reset()
+
+    interactor.loginDidFail(dueTo: [LoginVerificationServiceError(error)])
+
+    assertOutputReceived(verificationDidBegin: false,
+                         verificationDidEnd: false,
+                         errors: [error])
+    assertStorageSaved(session: nil,
+                       token: nil)
   }
   
   func testResendCode() {
-    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
+    load()
+    output.reset()
     
-    interactor.resendCode()
+    interactor.resendCode(confirmed: false)
     
-    let requestSpy = service.requestSpy
-    XCTAssertEqual(requestSpy?.cardNumber, validCardNumber)
-    XCTAssertEqual(requestSpy?.pin, validPIN)
-    XCTAssertEqual(requestSpy?.verificationCode, nil)
-    XCTAssertEqual(requestSpy?.authenticationToken, nil)
+    XCTAssertEqual(output.showResendConfirmationSpy, true)
   }
   
-  func testVerifyWithNoRequest() {
-    interactor.verify()
+  func testResendCodeAfterConfirmation() {
+    load()
+    interactor.resendCode(confirmed: false)
+    output.reset()
     
-    XCTAssertNil(service.requestSpy)
-    XCTAssertEqual(output.verificationDidBeginSpy, false)
+    interactor.resendCode(confirmed: true)
+    
+    XCTAssertEqual(output.showResendConfirmationSpy, false)
+    XCTAssertEqual(service.codeIdentitySpy, validIdentity)
   }
   
-  func testVerifyWithNoCode() {
-    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
-    
-    interactor.verify()
-    
-    XCTAssertNil(service.requestSpy)
-    XCTAssertEqual(output.verificationDidBeginSpy, false)
+  // MARK: helpers
+  
+  private func load() {
+    interactor.load(withIdentity: validIdentity)
   }
   
-  func testVerify() {
-    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
+  private func changeCode() {
+    load()
     interactor.changeCode(to: validCode)
-    
-    interactor.verify()
-    
-    let requestSpy = service.requestSpy
-    XCTAssertEqual(requestSpy?.cardNumber, validCardNumber)
-    XCTAssertEqual(requestSpy?.pin, validPIN)
-    XCTAssertEqual(requestSpy?.verificationCode, validCode)
-    XCTAssertEqual(requestSpy?.authenticationToken, nil)
-    XCTAssertEqual(output.canVerifySpy, false)
-    XCTAssertEqual(output.verificationDidBeginSpy, true)
   }
   
-  func testHandleVerifySuccessAndRemember() {
-    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
-    interactor.changeCode(to: validCode)
+  private func verify() {
+    changeCode()
     interactor.verify()
-    
-    interactor.loginDidSucceed(withToken: validToken)
-    
-    XCTAssertEqual(output.canVerifySpy, false)
-    XCTAssertEqual(output.verificationDidEndSpy, true)
-    XCTAssertNil(output.errorsSpy)
-    XCTAssertEqual(storage.cardNumberSpy, validCardNumber)
   }
   
-  func testHandleVerifySuccessAndNotRemember() {
-    interactor.initialize(withRequest: request, shouldRememberCardNumber: false)
-    interactor.changeCode(to: validCode)
-    interactor.verify()
-    
-    interactor.loginDidSucceed(withToken: validToken)
-    
-    XCTAssertEqual(output.canVerifySpy, false)
-    XCTAssertEqual(output.verificationDidEndSpy, true)
-    XCTAssertNil(output.errorsSpy)
-    XCTAssertEqual(storage.cardNumberSpy, nil)
+  private func assertOutputReceived(canVerify: Bool?,
+                                    file: StaticString = #file,
+                                    line: UInt = #line) {
+    XCTAssertEqual(output.canVerifySpy, canVerify, "canVerify", file: file, line: line)
   }
   
-  func testHandleVerifyFailure() {
-    interactor.initialize(withRequest: request, shouldRememberCardNumber: true)
-    interactor.changeCode(to: validCode)
-    interactor.verify()
-    
-    interactor.loginDidFail(dueTo: [error])
-    
-    XCTAssertEqual(output.canVerifySpy, true)
-    XCTAssertEqual(output.verificationDidEndSpy, false)
-    XCTAssertEqual(output.errorsSpy!, [error])
-    XCTAssertEqual(storage.cardNumberSpy, nil)
+  private func assertOutputReceived(verificationDidBegin: Bool?,
+                                    verificationDidEnd: Bool?,
+                                    errors: [String]?,
+                                    file: StaticString = #file,
+                                    line: UInt = #line) {
+    XCTAssertEqual(output.verificationDidBeginSpy, verificationDidBegin, "verificationDidBegin", file: file, line: line)
+    XCTAssertEqual(output.verificationDidEndSpy, verificationDidEnd, "verificationDidEnd", file: file, line: line)
+    XCTAssertEqual(output.errorsSpy, errors, "errors", file: file, line: line)
+  }
+  
+  private func assertServiceReceived(loginRequest: RetailIdentity?,
+                                     codeRequest: RetailIdentity?,
+                                     file: StaticString = #file,
+                                     line: UInt = #line) {
+    XCTAssertEqual(service.loginIdentitySpy, loginRequest, "loginRequest", file: file, line: line)
+    XCTAssertEqual(service.codeIdentitySpy, codeRequest, "codeRequest", file: file, line: line)
+  }
+  
+  private func assertStorageSaved(session: String?,
+                                  token: String?,
+                                  file: StaticString = #file,
+                                  line: UInt = #line) {
+    XCTAssertEqual(storage.sessionSpy, session, "session", file: file, line: line)
+    XCTAssertEqual(storage.tokenSpy, token, "token", file: file, line: line)
   }
 }
 
@@ -142,7 +174,22 @@ class LoginVerificationInteractorOutputSpy: LoginVerificationInteractorOutput {
   var canVerifySpy: Bool?
   var verificationDidBeginSpy = false
   var verificationDidEndSpy = false
-  var errorsSpy: [LoginError]?
+  var errorsSpy: [String]?
+  var showResendConfirmationSpy = false
+  var identityCreationIdentitySpy: RetailIdentity?
+  
+  func reset() {
+    canVerifySpy = nil
+    verificationDidBeginSpy = false
+    verificationDidEndSpy = false
+    errorsSpy = nil
+    showResendConfirmationSpy = false
+    identityCreationIdentitySpy = nil
+  }
+  
+  func didLoad(canVerify: Bool) {
+    canVerifySpy = canVerify
+  }
   
   func canVerifyDidChange(to canVerify: Bool) {
     canVerifySpy = canVerify
@@ -156,7 +203,36 @@ class LoginVerificationInteractorOutputSpy: LoginVerificationInteractorOutput {
     verificationDidEndSpy = true
   }
   
-  func verificationDidFail(dueTo errors: [LoginError]) {
+  func verificationDidFail(dueTo errors: [String]) {
     errorsSpy = errors
+  }
+  
+  func showResendConfirmation() {
+    showResendConfirmationSpy = true
+  }
+  
+  func showIdentityCreation(withIdentity identity: RetailIdentity) {
+    identityCreationIdentitySpy = identity
+  }
+}
+
+class LoginVerificationServiceSpy: RetailLoginServiceInput, VerificationCodeServiceInput {
+  var loginIdentitySpy: RetailIdentity?
+  var codeIdentitySpy: RetailIdentity?
+  
+  func logIn(withRetailIdentity identity: RetailIdentity) {
+    loginIdentitySpy = identity
+  }
+  
+  func resendCode(withRetailIdentity identity: RetailIdentity) {
+    codeIdentitySpy = identity
+  }
+}
+
+struct LoginVerificationServiceError: LoginVerificationError {
+  var message: String
+  
+  init(_ message: String) {
+    self.message = message
   }
 }

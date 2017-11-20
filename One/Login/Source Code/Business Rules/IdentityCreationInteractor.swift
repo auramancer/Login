@@ -1,35 +1,28 @@
-struct IdentityCreationRequest {
-  let membershipNumber: String
-  let verificationCode: String
-  var username: String?
-  var password: String?
-}
-
 protocol IdentityCreationError {
   var message: String { get }
 }
 
 protocol IdentityCreationInteractorInput: class {
-  func load(withRequest: IdentityCreationRequest)
+  func load(withRetailIdentity: RetailIdentity)
   
-  func changeUsername(to: String)
-  func changePassword(to: String)
+  func changeIdentifier(to: String)
+  func changeCredential(to: String)
   
   func create()
 }
 
 protocol IdentityCreationInteractorOutput: class {
-  func didLoad()
+  func didLoad(canCreate: Bool)
   
   func canCreateDidChange(to: Bool)
   
   func creationDidBegin()
   func creationDidEnd()
-  func creationDidFail(withErrors: [IdentityCreationError])
+  func creationDidFail(withErrors: [String])
 }
 
 protocol IdentityCreationServiceInput: class {
-  func create(withRequest: IdentityCreationRequest)
+  func create(digitalIdentity: DigitalIdentity, withRetailIdentity: RetailIdentity)
 }
 
 protocol IdentityCreationServiceOutput: class {
@@ -41,42 +34,47 @@ class IdentityCreationInteractor {
   weak var output: IdentityCreationInteractorOutput?
   var service: IdentityCreationServiceInput?
   
-  private var request: IdentityCreationRequest!
+  var retailIdentity: RetailIdentity!
+  var digitalIdentity = DigitalIdentity(identifier: "", credential: "")
   
-  private var canCreate = false {
-    didSet {
-      if canCreate != oldValue {
-        output?.canCreateDidChange(to: canCreate)
-      }
-    }
+  private var canCreate: Bool {
+    return digitalIdentity.isValidForCreation
   }
   
-  private func updateCanCreate() {
-    canCreate = request?.isValid ?? false
+  private var canCreateOldValue = false
+  
+  private func outputCanCreateDidChange() {
+    let newValue = canCreate
+    
+    if newValue != canCreateOldValue {
+      output?.canCreateDidChange(to: newValue)
+      canCreateOldValue = newValue
+    }
   }
 }
 
 extension IdentityCreationInteractor: IdentityCreationInteractorInput {
-  func load(withRequest request: IdentityCreationRequest) {
-    self.request = request
+  func load(withRetailIdentity identity: RetailIdentity) {
+    retailIdentity = identity
+    canCreateOldValue = canCreate
     
-    output?.didLoad()
+    output?.didLoad(canCreate: canCreateOldValue)
   }
   
-  func changeUsername(to username: String) {
-    request?.username = username
+  func changeIdentifier(to identifier: String) {
+    digitalIdentity.identifier = identifier
     
-    updateCanCreate()
+    outputCanCreateDidChange()
   }
   
-  func changePassword(to password: String) {
-    request?.password = password
+  func changeCredential(to credential: String) {
+    digitalIdentity.credential = credential
     
-    updateCanCreate()
+    outputCanCreateDidChange()
   }
   
   func create() {
-    service?.create(withRequest: request!)
+    service?.create(digitalIdentity: digitalIdentity, withRetailIdentity: retailIdentity)
     
     output?.creationDidBegin()
   }
@@ -88,27 +86,21 @@ extension IdentityCreationInteractor: IdentityCreationServiceOutput {
   }
   
   func creationDidFail(dueTo errors: [IdentityCreationError]) {
-    output?.creationDidFail(withErrors: errors)
+    let messages = errors.map { $0.message }
+    output?.creationDidFail(withErrors: messages)
   }
 }
 
-extension IdentityCreationRequest {
-  init(membershipNumber: String, verificationCode: String) {
-    self.init(membershipNumber: membershipNumber,
-              verificationCode: verificationCode,
-              username: nil,
-              password: nil)
+extension DigitalIdentity {
+  var isValidForCreation: Bool {
+    return identifierIsValidForCreation && credentialIsValidForCreation
   }
   
-  var isValid: Bool {
-    return usernameIsValid && passwordIsValid
+  private var identifierIsValidForCreation: Bool {
+    return identifier.containsMatch(of: "^[a-zA-Z0-9]{5,16}?$")
   }
   
-  private var usernameIsValid: Bool {
-    return username?.containsMatch(of: "^[a-zA-Z0-9]{5,16}?$") ?? false
-  }
-  
-  private var passwordIsValid: Bool {
-    return password?.containsMatch(of: "^[a-zA-Z0-9]{5,32}?$") ?? false
+  private var credentialIsValidForCreation: Bool {
+    return credential.containsMatch(of: "^[a-zA-Z0-9]{5,32}?$")
   }
 }

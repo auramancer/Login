@@ -8,7 +8,7 @@ class RetailLoginController: ConsoleController {
   var shouldRemember = false
   var canLogin = false
 
-  var verificationCodePage: LoginVerificationController!
+//  var verificationCodePage: LoginVerificationController!
   
   override func start() {
     configurator = Configurator(for: self)
@@ -69,20 +69,21 @@ class RetailLoginController: ConsoleController {
   
   func changeRememberMe() {
     shouldRemember = !shouldRemember
+    interactor?.changeShouldRememberIdentity(to: shouldRemember)
     
     waitForCommand()
   }
   
   func login() {
-    interactor?.logIn(shouldRememberCardNumber: shouldRemember)
+    interactor?.logIn()
   }
   
   func forgottenCardNumber() {
-    interactor?.helpWithCardNumber()
+    interactor?.helpWithIdentifier()
   }
   
   func forgottenPIN() {
-    interactor?.helpWithPIN()
+    interactor?.helpWithCredential()
   }
 }
 
@@ -119,9 +120,9 @@ extension RetailLoginController: RetailLoginPresenterOutput {
     }
   }
   
-  func goToVerificationPage(withRequest request: RetailLoginRequest) {
-    verificationCodePage = LoginVerificationController(request: request)
-    verificationCodePage.start()
+  func goToVerificationPage(withRequest request: RetailIdentity) {
+//    verificationCodePage = LoginVerificationController(request: request)
+//    verificationCodePage.start()
     
     waitForCommand()
   }

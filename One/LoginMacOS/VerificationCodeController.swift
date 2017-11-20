@@ -90,7 +90,7 @@ extension LoginVerificationController {
       service = LoginVerificationServiceStub()
       
       interactor.output = presenter
-      interactor.service = service
+      interactor.loginService = service
       presenter.output = userInterface
       service.output = interactor
       userInterface.interactor = interactor

@@ -18,9 +18,10 @@ class IdentityCreationPresenterTests: XCTestCase {
   }
   
   func testDidLoad() {
-    presenter.didLoad()
+    presenter.didLoad(canCreate: true)
     
     XCTAssertEqual(output.messageSpy, LoginMessage(text: defaultMessage, style: .default))
+    XCTAssertEqual(output.canCreateSpy, true)
   }
   
   func testCanCreateDidChange() {
@@ -48,7 +49,7 @@ class IdentityCreationPresenterTests: XCTestCase {
   }
   
   func testCreationDidFail() {
-    presenter.creationDidFail(withErrors: [SimpleError(errorMessage)])
+    presenter.creationDidFail(withErrors: [errorMessage])
     
     assertOutputReceived(isCreating: false,
                          message: LoginMessage(text: errorMessage, style: .error),
@@ -96,13 +97,6 @@ class IdentityCreationPresenterOutputSpy: IdentityCreationPresenterOutput {
   
   func leave() {
     leaveSpy = true
-  }
-}
-
-extension LoginMessage: Equatable {
-  static func ==(lhs: LoginMessage, rhs: LoginMessage) -> Bool {
-    return lhs.text == rhs.text &&
-      lhs.style == rhs.style
   }
 }
 

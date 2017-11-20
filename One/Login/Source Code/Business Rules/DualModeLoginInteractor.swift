@@ -11,15 +11,16 @@ protocol DualModeLoginInteractorInput: class {
   
   func changeIdentifier(to: String)
   func changeCredential(to: String)
+  func changeShouldRememberIdentity(to: Bool)
   
-  func logIn(shouldRememberIdentifier: Bool)
+  func logIn()
   
   func helpWithIdentifier()
   func helpWithCredential()
 }
 
 protocol DualModeLoginInteractorOutput: class {
-  func didLoad(withIdentifier: String, credential: String, canLogin: Bool, mode: LoginMode)
+  func didLoad(identifier: String, credential: String, canLogin: Bool, mode: LoginMode)
   
   func canLoginDidChange(to: Bool)
   func loginModeDidChange(to: LoginMode)
@@ -29,7 +30,8 @@ protocol DualModeLoginInteractorOutput: class {
   func loginDidFail(withErrors: [String])
   
   func showHelp(_: LoginHelp)
-  func inquireVerificationCode(forRequest: RetailLoginRequest)
+  func showVerification(withIdentity: RetailIdentity)
+  func showIdentityCreation(withIdentity: RetailIdentity)
 }
 
 protocol DualModeLoginServiceInput: DigitalLoginServiceInput, RetailLoginServiceInput {
@@ -66,20 +68,8 @@ class DualModeLoginInteractor {
   private var currentServiceOutput: DualModeLoginServiceOutput!
   
   init() {
-    switchSubInteractor()
-  }
-  
-  private func switchSubInteractor() {
-    switch mode {
-    case .undetermined, .digital:
-      usernameInteractor.output = self
-      cardNumberInteractor.output = nil
-      currentInteractor = usernameInteractor
-    case .retail:
-      cardNumberInteractor.output = self
-      usernameInteractor.output = nil
-      currentInteractor = cardNumberInteractor
-    }
+    usernameInteractor.output = self
+    currentInteractor = usernameInteractor
   }
   
   private func switchMode(to mode: LoginMode) {
@@ -110,32 +100,59 @@ class DualModeLoginInteractor {
     // 0-5 digits
     return id.containsMatch(of: "^[0-9]{0,5}?$")
   }
+  
+  private func switchSubInteractor() {
+    if shouldUseUsernameInteractor {
+      usernameInteractor.output = self
+      cardNumberInteractor.output = nil
+      currentInteractor = usernameInteractor
+    }
+    else {
+      cardNumberInteractor.output = self
+      usernameInteractor.output = nil
+      currentInteractor = cardNumberInteractor
+    }
+  }
+  
+  private var shouldUseUsernameInteractor: Bool {
+    return mode == .undetermined || mode == .digital
+  }
+  
+  private var rememberedIdentifier: String {
+    return storage?.loadIdentifier() ?? ""
+  }
 }
 
 extension DualModeLoginInteractor: DualModeLoginInteractorInput {
+  
   func load() {
-    
+    switchMode(to: mode(for: rememberedIdentifier))
     
     usernameInteractor.load()
     cardNumberInteractor.load()
   }
   
-  func changeIdentifier(to id: String) {
-    switchMode(to: mode(for: id))
+  func changeIdentifier(to identifier: String) {
+    switchMode(to: mode(for: identifier))
     
-    usernameInteractor.changeUsername(to: id)
-    cardNumberInteractor.changeCardNumber(to: id)
+    usernameInteractor.changeIdentifier(to: identifier)
+    cardNumberInteractor.changeIdentifier(to: identifier)
   }
   
   func changeCredential(to credential: String) {
-    usernameInteractor.changePassword(to: credential)
-    cardNumberInteractor.changePIN(to: credential)
+    usernameInteractor.changeCredential(to: credential)
+    cardNumberInteractor.changeCredential(to: credential)
   }
   
-  func logIn(shouldRememberIdentifier: Bool) {
+  func changeShouldRememberIdentity(to shouldRemember: Bool) {
+    usernameInteractor.changeShouldRememberIdentity(to: shouldRemember)
+    cardNumberInteractor.changeShouldRememberIdentity(to: shouldRemember)
+  }
+  
+  func logIn() {
     currentServiceOutput = currentInteractor
     
-    currentInteractor.logIn(shouldRememberIdentifier: shouldRememberIdentifier)
+    currentInteractor.logIn()
   }
   
   func helpWithIdentifier() {
@@ -148,10 +165,22 @@ extension DualModeLoginInteractor: DualModeLoginInteractorInput {
 }
 
 extension DualModeLoginInteractor: DigitalLoginInteractorOutput, RetailLoginInteractorOutput {
-  func didLoad(username: String, password: String, canLogin: Bool) {
+  func didLoad(identity: DigitalIdentity, canLogin: Bool) {
+    if shouldUseUsernameInteractor {
+      output?.didLoad(identifier: identity.identifier,
+                      credential: identity.credential,
+                      canLogin: canLogin,
+                      mode: mode)
+    }
   }
   
-  func didLoad(cardNumber: String, pin: String, canLogin: Bool) {
+  func didLoad(identity: RetailIdentity, canLogin: Bool) {
+    if !shouldUseUsernameInteractor {
+      output?.didLoad(identifier: identity.cardNumber,
+                      credential: identity.pin,
+                      canLogin: canLogin,
+                      mode: mode)
+    }
   }
   
   func canLoginDidChange(to canLogin: Bool) {
@@ -174,14 +203,26 @@ extension DualModeLoginInteractor: DigitalLoginInteractorOutput, RetailLoginInte
     output?.showHelp(help)
   }
   
-  func inquireVerificationCode(forRequest request: RetailLoginRequest) {
-    output?.inquireVerificationCode(forRequest: request)
+  func showVerification(withIdentity identity: RetailIdentity) {
+    output?.showVerification(withIdentity: identity)
+  }
+  
+  func showIdentityCreation(withIdentity identity: RetailIdentity) {
+    output?.showIdentityCreation(withIdentity: identity)
   }
 }
 
 extension DualModeLoginInteractor: DualModeLoginServiceOutput {
-  func loginDidSucceed() {
-    currentInteractor.loginDidSucceed()
+  func changeMemebershipNumber(to membershipNumber: String) {
+    currentInteractor.changeMemebershipNumber(to: membershipNumber)
+  }
+  
+  func loginDidSucceed(withSession session: String) {
+    currentInteractor.loginDidSucceed(withSession: session)
+  }
+  
+  func loginDidSucceed(withSession session: String, token: String) {
+    currentInteractor.loginDidSucceed(withSession: session, token: token)
   }
   
   func loginDidFail(dueTo errors: [LoginError]) {
@@ -193,51 +234,39 @@ extension DualModeLoginInteractor: DualModeLoginServiceOutput {
   }
 }
 
+extension DualModeLoginInteractor: DigitalLoginStorage, RetailLoginStorage {
+  func saveIdentity(_ username: String) {
+    storage?.saveIdentifier(username)
+  }
+  
+  func loadIdentity() -> String? {
+    return shouldUseUsernameInteractor ? storage?.loadIdentifier() : ""
+  }
+  
+  func saveToken(_ token: String) {
+    storage?.saveToken(token)
+  }
+  
+  func loadToken() -> String? {
+    return storage?.loadToken()
+  }
+  
+  func saveSession(_: String) {
+    
+  }
+}
+
 extension DigitalLoginInteractor: DualModeLoginInteractorInput, DualModeLoginServiceOutput {
-  func changeIdentifier(to id: String) {
-    changeUsername(to: id)
-  }
-  
-  func changeCredential(to credential: String) {
-    changePassword(to: credential)
-  }
-  
-  func logIn(shouldRememberIdentifier should: Bool) {
-    logIn(shouldRememberUsername: should)
-  }
-  
-  func helpWithIdentifier() {
-    helpWithUsername()
-  }
-  
-  func helpWithCredential() {
-    helpWithPassword()
-  }
 }
 
 extension RetailLoginInteractor: DualModeLoginInteractorInput, DualModeLoginServiceOutput {
-  func changeIdentifier(to id: String) {
-    changeCardNumber(to: id)
-  }
-  
-  func changeCredential(to credential: String) {
-    changePIN(to: credential)
-  }
-  
-  func logIn(shouldRememberIdentifier should: Bool) {
-    logIn(shouldRememberCardNumber: should)
-  }
-  
-  func helpWithIdentifier() {
-    helpWithCardNumber()
-  }
-  
-  func helpWithCredential() {
-    helpWithPIN()
-  }
 }
 
 extension DualModeLoginServiceOutput {
+  // default
+  func changeMemebershipNumber(to: String) {
+  }
+  
   func loginDidFailDueToInvalidToken() {
   }
 }

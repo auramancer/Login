@@ -4,8 +4,8 @@ class DualModeLoginPresenterTests: XCTestCase {
   private var presenter: DualModeLoginPresenter!
   private var output: DualModeLoginPresenterOutputSpy!
   
-  private let validCardNumber = "12345678"
-  private let validPIN = "1234"
+  private let validCardNumber = "1234567890"
+  private let validPIN = "8888"
   private let error = "Cannot log in."
   
   override func setUp() {
@@ -57,13 +57,13 @@ class DualModeLoginPresenterTests: XCTestCase {
     XCTAssertEqual(output.helpSpy, help)
   }
   
-  func testInquireVerificationCode() {
-    let request = RetailLoginRequest(cardNumber: validCardNumber, pin: validPIN)
+  func testInquireLoginVerification() {
+    let request = RetailIdentity(cardNumber: validCardNumber, pin: validPIN)
     presenter.loginModeDidChange(to: .retail)
     
-    presenter.inquireVerificationCode(forRequest: request)
+    presenter.showVerificationForm(withRequest: request)
     
-    XCTAssertEqual(output.verificationRequestSpy, RetailLoginRequest(cardNumber: validCardNumber, pin: validPIN))
+    XCTAssertEqual(output.verificationRequestSpy, RetailIdentity(cardNumber: validCardNumber, pin: validPIN))
   }
   
   // MARK: helpers
@@ -99,7 +99,7 @@ class DualModeLoginPresenterOutputSpy: DualModeLoginPresenterOutput {
   var messageSpy: LoginMessage?
   var clearMessageSpy = false
   var helpSpy: LoginHelp?
-  var verificationRequestSpy: RetailLoginRequest?
+  var verificationRequestSpy: RetailIdentity?
   var leaveSpy = false
   
   func changeIdentifier(to identifier: String) {
@@ -134,7 +134,7 @@ class DualModeLoginPresenterOutputSpy: DualModeLoginPresenterOutput {
     helpSpy = help
   }
   
-  func goToVerificationPage(withRequest request: RetailLoginRequest) {
+  func goToVerificationPage(withRequest request: RetailIdentity) {
     verificationRequestSpy = request
   }
   

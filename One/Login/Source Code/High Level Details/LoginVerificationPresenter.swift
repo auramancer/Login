@@ -1,12 +1,17 @@
+struct ResendCodeConfirmaitonAlert {
+  let message: String?
+  let confirmActionTitle: String?
+}
+
 protocol LoginVerificationPresenterOutput: class {
-  func enableVerify()
-  func disableVerify()
+  func changeCanVerify(to: Bool)
+  func changeIsVerifying(to: Bool)
   
-  func showActivityMessage(_: String?)
-  func hideActivityMessage()
-  func showErrorMessage(_: String)
-  func hideErrorMessage()
+  func showMessage(_: LoginMessage)
+  func clearMessage()
   
+  func showResendCodeConfirmaitonAlert(_: ResendCodeConfirmaitonAlert)
+  func goToIdentityCreationPage(withIdentity: RetailIdentity)
   func leave()
 }
 
@@ -15,38 +20,37 @@ class LoginVerificationPresenter {
 }
 
 extension LoginVerificationPresenter: LoginVerificationInteractorOutput {
+  func didLoad(canVerify: Bool) {
+    output?.changeCanVerify(to: canVerify)
+  }
+  
   func canVerifyDidChange(to canVerify: Bool) {
-    if canVerify {
-      output?.enableVerify()
-    }
-    else {
-      output?.disableVerify()
-    }
+    output?.changeCanVerify(to: canVerify)
   }
   
   func verificationDidBegin() {
-    output?.hideErrorMessage()
-    output?.showActivityMessage(activityMessage)
-  }
-  
-  private var activityMessage: String? {
-    return nil // No text
+    output?.clearMessage()
+    output?.changeIsVerifying(to: true)
   }
   
   func verificationDidEnd() {
-    output?.hideActivityMessage()
-    
+    output?.changeIsVerifying(to: false)
     output?.leave()
   }
   
   func verificationDidFail(dueTo errors: [String]) {
-    output?.hideActivityMessage()
-    
-    let message = errorMessage(for: errors)
-    output?.showErrorMessage(message)
+    output?.changeIsVerifying(to: false)
+    output?.showMessage(LoginMessage(text: errors.joined(separator: "\n\n"), style: .error))
   }
   
-  private func errorMessage(for errors: [String]) -> String {
-    return errors.first ?? "Something went wrong."
+  func showResendConfirmation() {
+    let alert = ResendCodeConfirmaitonAlert(message: "Are you sure you want a new verification code?",
+                                            confirmActionTitle: "Confirm")
+    
+    output?.showResendCodeConfirmaitonAlert(alert)
+  }
+  
+  func showIdentityCreation(withIdentity identity: RetailIdentity) {
+    output?.goToIdentityCreationPage(withIdentity: identity)
   }
 }

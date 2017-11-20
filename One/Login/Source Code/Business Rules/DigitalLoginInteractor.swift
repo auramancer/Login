@@ -1,6 +1,6 @@
-struct DigitalLoginRequest {
-  var username: String
-  var password: String
+struct DigitalIdentity {
+  var identifier: String
+  var credential: String
 }
 
 extension LoginHelp {
@@ -11,17 +11,18 @@ extension LoginHelp {
 protocol DigitalLoginInteractorInput: class {
   func load()
   
-  func changeUsername(to: String)
-  func changePassword(to: String)
+  func changeIdentifier(to: String)
+  func changeCredential(to: String)
+  func changeShouldRememberIdentity(to: Bool)
   
-  func logIn(shouldRememberUsername: Bool)
+  func logIn()
   
-  func helpWithUsername()
-  func helpWithPassword()
+  func helpWithIdentifier()
+  func helpWithCredential()
 }
 
 protocol DigitalLoginInteractorOutput: class {
-  func didLoad(username: String, password: String, canLogin: Bool)
+  func didLoad(identity: DigitalIdentity, canLogin: Bool)
   
   func canLoginDidChange(to: Bool)
   
@@ -33,37 +34,35 @@ protocol DigitalLoginInteractorOutput: class {
 }
 
 protocol DigitalLoginServiceInput: class {
-  func logIn(withUsernameRequest: DigitalLoginRequest)
+  func logIn(withDigitalIdentity: DigitalIdentity)
 }
 
 protocol DigitalLoginServiceOutput: class {
-  func loginDidSucceed()
+  func loginDidSucceed(withSession: String)
   func loginDidFail(dueTo: [LoginError])
 }
 
 protocol DigitalLoginStorage: class {
-  func saveUsername(_: String)
-  func loadUsername() -> String?
+  func saveIdentity(_: DigitalIdentity)
+  func loadIdentity() -> DigitalIdentity?
+  func saveSession(_: String)
 }
 
 class DigitalLoginInteractor {
   weak var output: DigitalLoginInteractorOutput?
   var service: DigitalLoginServiceInput?
   var storage: DigitalLoginStorage?
+  var biometricsInteractor: BiometricsLoginInteractorInput?
   
-  private var request: DigitalLoginRequest!
-  private var shouldRememberUsername = false
+  private var identity: DigitalIdentity!
+  private var shouldRememberIdentity = false
   
-  private var rememberedUsername: String {
-    return storage?.loadUsername() ?? ""
-  }
-  
-  private var rememberedPassword: String {
-    return ""
+  private var rememberedIdentity: DigitalIdentity? {
+    return storage?.loadIdentity()
   }
   
   private var canLogin: Bool {
-    return request?.isValid ?? false
+    return identity.isValid
   }
   
   private var canLoginOldValue = false
@@ -80,50 +79,55 @@ class DigitalLoginInteractor {
 
 extension DigitalLoginInteractor: DigitalLoginInteractorInput {
   func load() {
-    request = DigitalLoginRequest(username: rememberedUsername, password: rememberedPassword)
+    identity = rememberedIdentity ?? DigitalIdentity(identifier: "", credential: "")
     canLoginOldValue = canLogin
     
-    output?.didLoad(username: request.username,
-                    password: request.password,
-                    canLogin: canLoginOldValue)
+    output?.didLoad(identity: identity, canLogin: canLoginOldValue)
   }
   
-  func changeUsername(to username: String) {
-    request.username = username
+  func changeIdentifier(to username: String) {
+    identity.identifier = username
     
     outputCanLoginDidChange()
   }
   
-  func changePassword(to password: String) {
-    request.password = password
+  func changeCredential(to password: String) {
+    identity.credential = password
     
     outputCanLoginDidChange()
   }
   
-  func logIn(shouldRememberUsername shouldRemember: Bool) {
-    shouldRememberUsername = shouldRemember
-    
-    service?.logIn(withUsernameRequest: request)
+  func changeShouldRememberIdentity(to shouldRemember: Bool) {
+    shouldRememberIdentity = shouldRemember
+  }
+  
+  func logIn() {
+    service?.logIn(withDigitalIdentity: identity)
     
     output?.loginDidBegin()
   }
   
-  func helpWithUsername() {
+  func helpWithIdentifier() {
     output?.showHelp(.username)
   }
   
-  func helpWithPassword() {
+  func helpWithCredential() {
     output?.showHelp(.password)
   }
 }
 
 extension DigitalLoginInteractor: DigitalLoginServiceOutput {
-  func loginDidSucceed() {
-    if shouldRememberUsername {
-      storage?.saveUsername(request.username)
-    }
+  func loginDidSucceed(withSession session: String) {
+    saveIdentity()
+    storage?.saveSession(session)
     
     output?.loginDidEnd()
+  }
+  
+  private func saveIdentity() {
+    if shouldRememberIdentity {
+      storage?.saveIdentity(DigitalIdentity(identifier: identity.identifier, credential: ""))
+    }
   }
   
   func loginDidFail(dueTo errors: [LoginError]) {
@@ -132,16 +136,16 @@ extension DigitalLoginInteractor: DigitalLoginServiceOutput {
   }
 }
 
-extension DigitalLoginRequest {
+extension DigitalIdentity {
   var isValid: Bool {
-    return usernameIsValid && passwordIsValid
+    return identifierIsValid && credentialIsValid
   }
   
-  var usernameIsValid: Bool {
-    return username != ""
+  var identifierIsValid: Bool {
+    return identifier != ""
   }
   
-  var passwordIsValid: Bool {
-    return password != ""
+  var credentialIsValid: Bool {
+    return credential != ""
   }
 }

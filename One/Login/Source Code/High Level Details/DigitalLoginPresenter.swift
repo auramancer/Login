@@ -1,11 +1,6 @@
-extension LoginDestination {
-  static let forgottenUsername = LoginDestination("forgottenUsername")
-  static let forgottenPassword = LoginDestination("forgottenPassword")
-}
-
 protocol DigitalLoginPresenterOutput: class {
-  func changeUsername(to: String)
-  func changePassword(to: String)
+  func changeIdentifier(to: String)
+  func changeCredential(to: String)
   func changeCanLogin(to: Bool)
   func changeIsLoggingIn(to: Bool)
   
@@ -21,9 +16,9 @@ class DigitalLoginPresenter {
 }
 
 extension DigitalLoginPresenter: DigitalLoginInteractorOutput {
-  func didLoad(username: String, password: String, canLogin: Bool) {
-    output?.changeUsername(to: username)
-    output?.changePassword(to: password)
+  func didLoad(identity: DigitalIdentity, canLogin: Bool) {
+    output?.changeIdentifier(to: identity.identifier)
+    output?.changeCredential(to: identity.credential)
     output?.changeCanLogin(to: canLogin)
   }
   
