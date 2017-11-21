@@ -1,5 +1,10 @@
 import Foundation
 
+protocol Identity {
+  var identifier: String { get }
+  var credential: String { get }
+}
+
 struct LoginHelp: Equatable {
   let rawValue: String
   

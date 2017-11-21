@@ -1,6 +1,6 @@
 protocol RetailLoginPresenterOutput: class {
-  func changeCardNumber(to: String)
-  func changePIN(to: String)
+  func changeIdentifier(to: String)
+  func changeCredential(to: String)
   func changeCanLogin(to: Bool)
   func changeIsLoggingIn(to: Bool)
   
@@ -19,8 +19,8 @@ class RetailLoginPresenter {
 
 extension RetailLoginPresenter: RetailLoginInteractorOutput {
   func didLoad(identity: RetailIdentity, canLogin: Bool) {
-    output?.changeCardNumber(to: identity.cardNumber)
-    output?.changePIN(to: identity.pin)
+    output?.changeIdentifier(to: identity.identifier)
+    output?.changeCredential(to: identity.credential)
     output?.changeCanLogin(to: canLogin)
   }
   

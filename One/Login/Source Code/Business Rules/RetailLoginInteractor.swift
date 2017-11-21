@@ -1,11 +1,3 @@
-struct RetailIdentity {
-  var cardNumber: String
-  var pin: String
-  var verificationCode: String?
-  var authenticationToken: String?
-  var membershipNumber: String?
-}
-
 extension LoginHelp {
   static let cardNumber = LoginHelp("cardNumber")
   static let pin = LoginHelp("pin")
@@ -35,7 +27,6 @@ protocol RetailLoginInteractorOutput: class {
   
   func showHelp(_: LoginHelp)
   func showVerification(withIdentity: RetailIdentity)
-  func showIdentityCreation(withIdentity: RetailIdentity)
 }
 
 protocol RetailLoginServiceInput: class {
@@ -45,7 +36,7 @@ protocol RetailLoginServiceInput: class {
 protocol RetailLoginServiceOutput: class {
   func changeMemebershipNumber(to: String)
   
-  func loginDidSucceed(withSession: String, needToCreateDigitalIdentity: Bool)
+  func loginDidSucceed(withSession: String)
   func loginDidFail(dueTo: [LoginError])
   func loginDidFailDueToInvalidToken()
 }
@@ -92,7 +83,7 @@ class RetailLoginInteractor {
 
 extension RetailLoginInteractor: RetailLoginInteractorInput {
   func load() {
-    identity = rememberedIdentity ?? RetailIdentity(cardNumber: "", pin: "")
+    identity = rememberedIdentity ?? RetailIdentity(identifier: "", credential: "")
     identity.authenticationToken = rememberedToken
     canLoginOldValue = canLogin
     
@@ -100,13 +91,13 @@ extension RetailLoginInteractor: RetailLoginInteractorInput {
   }
   
   func changeIdentifier(to identifier: String) {
-    identity.cardNumber = identifier
+    identity.identifier = identifier
     
     outputCanLoginDidChange()
   }
   
   func changeCredential(to credential: String) {
-    identity.pin = credential
+    identity.credential = credential
     
     outputCanLoginDidChange()
   }
@@ -135,21 +126,16 @@ extension RetailLoginInteractor: RetailLoginServiceOutput {
     identity.membershipNumber = membershipNumber
   }
   
-  func loginDidSucceed(withSession session: String, needToCreateDigitalIdentity: Bool) {
+  func loginDidSucceed(withSession session: String) {
     saveIdentity()
     storage?.saveSession(session)
     
-    if needToCreateDigitalIdentity {
-      output?.showIdentityCreation(withIdentity: identity)
-    }
-    else {
-      output?.loginDidEnd()
-    }
+    output?.loginDidEnd()
   }
   
   private func saveIdentity() {
     if shouldRememberIdentity {
-      storage?.saveIdentity(RetailIdentity(cardNumber: identity.cardNumber, pin: ""))
+      storage?.saveIdentity(RetailIdentity(identifier: identity.identifier, credential: ""))
     }
   }
   
@@ -162,35 +148,5 @@ extension RetailLoginInteractor: RetailLoginServiceOutput {
     saveIdentity()
     
     output?.showVerification(withIdentity: identity)
-  }
-}
-
-extension RetailIdentity {
-  init(cardNumber: String, pin: String) {
-    self.init(cardNumber: cardNumber,
-              pin: pin,
-              verificationCode: nil,
-              authenticationToken: nil,
-              membershipNumber: nil)
-  }
-  
-  init(cardNumber: String, pin: String, authenticationToken: String?) {
-    self.init(cardNumber: cardNumber,
-              pin: pin,
-              verificationCode: nil,
-              authenticationToken: authenticationToken,
-              membershipNumber: nil)
-  }
-  
-  var isValid: Bool {
-    return cardNumberIsValid && pinIsValid
-  }
-  
-  var cardNumberIsValid: Bool {
-    return cardNumber != ""
-  }
-  
-  var pinIsValid: Bool {
-    return pin != ""
   }
 }

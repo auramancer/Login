@@ -4,12 +4,10 @@ class DigitalLoginPresenterTests: XCTestCase {
   private var presenter: DigitalLoginPresenter!
   private var output: DigitalLoginPresenterOutputSpy!
   
-  private let validUsername = "username"
-  private let validPassword = "password"
-  private var validIdentity: DigitalIdentity {
-    return DigitalIdentity(identifier: validUsername, credential: validPassword)
-  }
-  private let error = "Cannot log in."
+  typealias Data = LoginTestData
+  private let username = Data.validUsername
+  private let identity = Data.validDigitalIdentity
+  private let error = Data.errorMessage
   
   override func setUp() {
     super.setUp()
@@ -21,10 +19,10 @@ class DigitalLoginPresenterTests: XCTestCase {
   }
   
   func testDidLoad() {
-    presenter.didLoad(identity: validIdentity, canLogin: true)
+    presenter.didLoad(identity: Data.digitalIdentityIdOnly, canLogin: true)
     
-    XCTAssertEqual(output.usernameSpy, validUsername)
-    XCTAssertEqual(output.passwordSpy, validPassword)
+    XCTAssertEqual(output.usernameSpy, username)
+    XCTAssertEqual(output.passwordSpy, "")
     XCTAssertEqual(output.canLoginSpy, true)
   }
   
@@ -132,12 +130,5 @@ class DigitalLoginPresenterOutputSpy: DigitalLoginPresenterOutput {
   
   func leave() {
     leaveSpy = true
-  }
-}
-
-extension LoginMessage: Equatable {
-  static func ==(lhs: LoginMessage, rhs: LoginMessage) -> Bool {
-    return lhs.text == rhs.text &&
-      lhs.style == rhs.style
   }
 }

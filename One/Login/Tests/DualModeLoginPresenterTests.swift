@@ -4,9 +4,9 @@ class DualModeLoginPresenterTests: XCTestCase {
   private var presenter: DualModeLoginPresenter!
   private var output: DualModeLoginPresenterOutputSpy!
   
-  private let validCardNumber = "1234567890"
-  private let validPIN = "8888"
-  private let error = "Cannot log in."
+  typealias Data = LoginTestData
+  private let errorMessage = Data.errorMessage
+  private let retailIdentity = Data.validRetailIdentity
   
   override func setUp() {
     super.setUp()
@@ -41,10 +41,10 @@ class DualModeLoginPresenterTests: XCTestCase {
   }
   
   func testLoginDidFail() {
-    presenter.loginDidFail(withErrors: [error])
+    presenter.loginDidFail(withErrors: [errorMessage])
     
     assertOutputReceived(isLoggingIn: false,
-                         message: LoginMessage(text: error, style: .error),
+                         message: LoginMessage(text: errorMessage, style: .error),
                          clearMessage: false,
                          leave: false)
   }
@@ -58,12 +58,11 @@ class DualModeLoginPresenterTests: XCTestCase {
   }
   
   func testInquireLoginVerification() {
-    let request = RetailIdentity(cardNumber: validCardNumber, pin: validPIN)
     presenter.loginModeDidChange(to: .retail)
     
-    presenter.showVerificationForm(withRequest: request)
+    presenter.showVerification(withIdentity: retailIdentity)
     
-    XCTAssertEqual(output.verificationRequestSpy, RetailIdentity(cardNumber: validCardNumber, pin: validPIN))
+    XCTAssertEqual(output.verificationIdentitySpy, retailIdentity)
   }
   
   // MARK: helpers
@@ -99,7 +98,8 @@ class DualModeLoginPresenterOutputSpy: DualModeLoginPresenterOutput {
   var messageSpy: LoginMessage?
   var clearMessageSpy = false
   var helpSpy: LoginHelp?
-  var verificationRequestSpy: RetailIdentity?
+  var verificationIdentitySpy: RetailIdentity?
+  var identityCreationIdentitySpy: RetailIdentity?
   var leaveSpy = false
   
   func changeIdentifier(to identifier: String) {
@@ -134,8 +134,12 @@ class DualModeLoginPresenterOutputSpy: DualModeLoginPresenterOutput {
     helpSpy = help
   }
   
-  func goToVerificationPage(withRequest request: RetailIdentity) {
-    verificationRequestSpy = request
+  func goToVerificationPage(withIdentity identity: RetailIdentity) {
+    verificationIdentitySpy = identity
+  }
+  
+  func goToIdentityCreationPage(withIdentity identity: RetailIdentity) {
+    identityCreationIdentitySpy = identity
   }
   
   func leave() {

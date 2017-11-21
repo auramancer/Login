@@ -32,7 +32,6 @@ protocol DualModeLoginPresenterOutput: class {
   
   func goToHelpPage(for: LoginHelp)
   func goToVerificationPage(withIdentity: RetailIdentity)
-  func goToIdentityCreationPage(withIdentity: RetailIdentity)
   func leave()
 }
 
@@ -113,28 +112,19 @@ extension DualModeLoginPresenter: DualModeLoginInteractorOutput {
   func showVerification(withIdentity identity: RetailIdentity) {
     currentPresenter.showVerification(withIdentity: identity)
   }
-  
-  func showIdentityCreation(withIdentity identity: RetailIdentity) {
-    currentPresenter.showIdentityCreation(withIdentity: identity)
-  }
-  
 }
 
 extension DualModeLoginPresenter: DigitalLoginPresenterOutput, RetailLoginPresenterOutput {
-  func changeIdentifier(to username: String) {
-    output?.changeIdentifier(to: username)
+  func goToIdentityCreationPage(withIdentity: RetailIdentity) {
+
   }
   
-  func changeCredential(to password: String) {
-    output?.changeCredential(to: password)
+  func changeIdentifier(to identifier: String) {
+    output?.changeIdentifier(to: identifier)
   }
   
-  func changeCardNumber(to cardNumber: String) {
-    output?.changeIdentifier(to: cardNumber)
-  }
-  
-  func changePIN(to pin: String) {
-    output?.changeCredential(to: pin)
+  func changeCredential(to credential: String) {
+    output?.changeCredential(to: credential)
   }
   
   func changeCanLogin(to canLogin: Bool) {
@@ -168,21 +158,19 @@ extension DualModeLoginPresenter: DigitalLoginPresenterOutput, RetailLoginPresen
 
 extension DigitalLoginPresenter: DualModeLoginInteractorOutput {
   func showVerification(withIdentity: RetailIdentity) {
-    <#code#>
+    
   }
   
   func showIdentityCreation(withIdentity: RetailIdentity) {
-    <#code#>
+    
   }
   
   func didLoad(identifier: String, credential: String, canLogin: Bool, mode: LoginMode) {
-    didLoad(identity: <#T##DigitalIdentity#>, canLogin: <#T##Bool#>)
   }
 }
 
 extension RetailLoginPresenter: DualModeLoginInteractorOutput {
   func didLoad(identifier: String, credential: String, canLogin: Bool, mode: LoginMode) {
-    didLoad(identifier: identifier, credential: credential, canLogin: canLogin)
   }
 }
 

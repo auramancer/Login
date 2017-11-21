@@ -35,9 +35,9 @@ class RetailLoginController: ConsoleController {
   override func excuteCommand(_ command: Command) {
     switch command.type {
     case "1":
-      changeCardNumber(command)
+      changeIdentifier(command)
     case "2":
-      changePIN(command)
+      changeCredential(command)
     case "3":
       forgottenCardNumber()
     case "4":
@@ -51,18 +51,18 @@ class RetailLoginController: ConsoleController {
     }
   }
   
-  func changeCardNumber(_ command: Command) {
+  func changeIdentifier(_ command: Command) {
     cardNumber = command.parameters ?? ""
     
-    interactor?.changeCardNumber(to: cardNumber)
+    interactor?.changeIdentifier(to: cardNumber)
     
     waitForCommand()
   }
   
-  func changePIN(_ command: Command) {
+  func changeCredential(_ command: Command) {
     pin = command.parameters ?? ""
     
-    interactor?.changePIN(to: pin)
+    interactor?.changeCredential(to: pin)
     
     waitForCommand()
   }
@@ -88,11 +88,11 @@ class RetailLoginController: ConsoleController {
 }
 
 extension RetailLoginController: RetailLoginPresenterOutput {
-  func changeCardNumber(to cardNumber: String) {
+  func changeIdentifier(to cardNumber: String) {
     self.cardNumber = cardNumber
   }
   
-  func changePIN(to pin: String) {
+  func changeCredential(to pin: String) {
     self.pin = pin
   }
   

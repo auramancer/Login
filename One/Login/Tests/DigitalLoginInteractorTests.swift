@@ -6,14 +6,15 @@ class DigitalLoginInteractorTests: XCTestCase {
   private var service: DigitalLoginServiceSpy!
   private var storage: DigitalLoginStorageSpy!
   
-  private let validUsername = "username"
-  private let validPassword = "password"
-  private let error = "Cannot log in."
-  private let session = "12345QWERT"
   private var shouldRemember = true
-  private var validIdentity: DigitalIdentity {
-    return DigitalIdentity(identifier: validUsername, credential: validPassword)
-  }
+  
+  typealias Data = LoginTestData
+  private let username = Data.validUsername
+  private let password = Data.validPassword
+  private let identity = Data.validDigitalIdentity
+  private let idOnlyIdentity = Data.digitalIdentityIdOnly
+  private let emptyIdentity = Data.emptyDigitalIdentity
+  private let session = Data.session
   
   override func setUp() {
     super.setUp()
@@ -33,34 +34,33 @@ class DigitalLoginInteractorTests: XCTestCase {
   func testLoadWithNoRememberedUsername() {
     interactor.load()
     
-    assertOutputReceived(identity: DigitalIdentity(identifier: "", credential: ""),
+    assertOutputReceived(identity: emptyIdentity,
                          canLogin: false)
   }
   
   func testLoadWithRememberedUsername() {
-    let identity = DigitalIdentity(identifier: validUsername, credential: "")
-    storage.identitySpy = identity
+    storage.identitySpy = idOnlyIdentity
     
     interactor.load()
     
-    assertOutputReceived(identity: identity,
+    assertOutputReceived(identity: idOnlyIdentity,
                          canLogin: false)
   }
   
   func testChangeUsername() {
-    assertOutputReceived(canLogin: nil, whenChangeUsername: "", to: validUsername, passwordRemains: "")
-    assertOutputReceived(canLogin: true, whenChangeUsername: "", to: validUsername, passwordRemains: validPassword)
-    assertOutputReceived(canLogin: false, whenChangeUsername: validUsername, to: "", passwordRemains: validPassword)
+    assertOutputReceived(canLogin: nil, whenChangeUsername: "", to: username, passwordRemains: "")
+    assertOutputReceived(canLogin: true, whenChangeUsername: "", to: username, passwordRemains: password)
+    assertOutputReceived(canLogin: false, whenChangeUsername: username, to: "", passwordRemains: password)
   }
   
   func testChangePassword() {
-    assertOutputReceived(canLogin: nil, whenChangePassword: "", to: validPassword, identityRemains: "")
-    assertOutputReceived(canLogin: true, whenChangePassword: "", to: validPassword, identityRemains: validUsername)
-    assertOutputReceived(canLogin: false, whenChangePassword: validPassword, to: "", identityRemains: validUsername)
+    assertOutputReceived(canLogin: nil, whenChangePassword: "", to: password, usernameRemains: "")
+    assertOutputReceived(canLogin: true, whenChangePassword: "", to: password, usernameRemains: username)
+    assertOutputReceived(canLogin: false, whenChangePassword: password, to: "", usernameRemains: username)
   }
   
   func testLogin() {
-    set(identity: validUsername, password: validPassword)
+    setIdentity(identity)
     output.reset()
     
     interactor.logIn()
@@ -70,7 +70,7 @@ class DigitalLoginInteractorTests: XCTestCase {
     assertOutputReceived(loginDidBegin: true,
                          loginDidEnd: false,
                          errors: nil)
-    assertServiceReceived(validIdentity)
+    assertServiceReceived(identity)
   }
   
   func testHandleLoginSuccessAndRemember() {
@@ -82,12 +82,13 @@ class DigitalLoginInteractorTests: XCTestCase {
     assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: true,
                          errors: nil)
-    assertStorageSaved(identity: DigitalIdentity(identifier: validUsername, credential: ""),
+    assertStorageSaved(identity: idOnlyIdentity,
                        session: session)
   }
   
   func testHandleLoginSuccessAndNotRemember() {
-    login(shouldRemember: false)
+    shouldRemember = false
+    login()
     output.reset()
     
     interactor.loginDidSucceed(withSession: session)
@@ -100,11 +101,11 @@ class DigitalLoginInteractorTests: XCTestCase {
     login()
     output.reset()
     
-    interactor.loginDidFail(dueTo: [SimpleError(error)])
+    interactor.loginDidFail(dueTo: [Data.error])
     
     assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: false,
-                         errors: [error])
+                         errors: [Data.errorMessage])
     assertStorageSaved(identity: nil,
                        session: nil)
   }
@@ -123,14 +124,14 @@ class DigitalLoginInteractorTests: XCTestCase {
   
   // MARK: helpers
   
-  private func set(identity: String, password: String) {
+  private func setIdentity(_ identity: DigitalIdentity) {
     interactor.load()
-    interactor.changeIdentifier(to: identity)
-    interactor.changeCredential(to: password)
+    interactor.changeIdentifier(to: identity.identifier)
+    interactor.changeCredential(to: identity.credential)
   }
   
-  private func login(shouldRemember: Bool = true) {
-    set(identity: validUsername, password: validPassword)
+  private func login() {
+    setIdentity(Data.validDigitalIdentity)
     interactor.changeShouldRememberIdentity(to: shouldRemember)
     interactor.logIn()
   }
@@ -141,7 +142,7 @@ class DigitalLoginInteractorTests: XCTestCase {
                                     passwordRemains password: String,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
-    set(identity: oldUsername, password: password)
+    setIdentity(DigitalIdentity(identifier: oldUsername, credential: password))
     output.reset()
     
     interactor.changeIdentifier(to: newUsername)
@@ -152,10 +153,10 @@ class DigitalLoginInteractorTests: XCTestCase {
   private func assertOutputReceived(canLogin: Bool?,
                                     whenChangePassword oldPassword: String,
                                     to newPassword: String,
-                                    identityRemains identity: String,
+                                    usernameRemains username: String,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
-    set(identity: identity, password: oldPassword)
+    setIdentity(DigitalIdentity(identifier: username, credential: oldPassword))
     output.reset()
     
     interactor.changeCredential(to: newPassword)
@@ -280,12 +281,5 @@ class DigitalLoginStorageSpy: DigitalLoginStorage {
   
   func saveSession(_ session: String) {
     sessionSpy = session
-  }
-}
-
-extension DigitalIdentity: Equatable {
-  static func ==(lhs: DigitalIdentity, rhs: DigitalIdentity) -> Bool {
-    return lhs.identifier == rhs.identifier &&
-           lhs.credential == rhs.credential
   }
 }

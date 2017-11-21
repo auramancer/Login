@@ -4,30 +4,25 @@ class IdentityCreationInteractorTests: XCTestCase {
   private var interactor: IdentityCreationInteractor!
   private var output: IdentityCreationInteractorOutputSpy!
   private var service: IdentityCreationServiceSpy!
+  private var storage: RetailLoginStorageSpy!
   
-  private let validUsername = "username"
-  private let validUsername2 = "username0"
-  private let shortUsername = "user"
-  private let nonAlphanumericUsername = "user_name"
-  private let validPassword = "password"
-  private let validPassword2 = "password0"
-  private let shortPassword = "pass"
-  private let nonAlphanumericPassword = "pass_word"
-  private let error = "Username taken"
-  private let retailIdentity = RetailIdentity(cardNumber: "", pin: "")
-  private var digitalIdentity: DigitalIdentity {
-    return DigitalIdentity(identifier: validUsername, credential: validPassword)
-  }
+  typealias Data = LoginTestData
+  private let username = Data.validUsername
+  private let password = Data.validPassword
+  private let digitalIdentity = Data.validDigitalIdentity
+  private let retailIdentity = Data.retailIdentityWithTokenAndCode
   
   override func setUp() {
     super.setUp()
     
     output = IdentityCreationInteractorOutputSpy()
     service = IdentityCreationServiceSpy()
+    storage = RetailLoginStorageSpy()
     
     interactor = IdentityCreationInteractor()
     interactor.output = output
     interactor.service = service
+    interactor.storage = storage
   }
   
   func testLoad() {
@@ -40,7 +35,7 @@ class IdentityCreationInteractorTests: XCTestCase {
     load()
     output.reset()
     
-    interactor.changeIdentifier(to: validUsername)
+    interactor.changeIdentifier(to: username)
     
     assertOutputReceived(canCreate: nil)
   }
@@ -49,29 +44,29 @@ class IdentityCreationInteractorTests: XCTestCase {
     load()
     output.reset()
     
-    interactor.changeCredential(to: validPassword)
+    interactor.changeCredential(to: password)
     
     assertOutputReceived(canCreate: nil)
   }
   
   func testChangeUsername() {
-    assertOutputReceived(canCreate: nil, whenChangeUsername: "", to: validUsername, passwordRemains: "")
-    assertOutputReceived(canCreate: true, whenChangeUsername: "", to: validUsername, passwordRemains: validPassword)
-    assertOutputReceived(canCreate: nil, whenChangeUsername: validUsername, to: validUsername2, passwordRemains: validPassword)
-    assertOutputReceived(canCreate: false, whenChangeUsername: validUsername, to: shortUsername, passwordRemains: validPassword)
-    assertOutputReceived(canCreate: false, whenChangeUsername: validUsername, to: nonAlphanumericUsername, passwordRemains: validPassword)
+    assertOutputReceived(canCreate: nil, whenChangeUsername: "", to: username, passwordRemains: "")
+    assertOutputReceived(canCreate: true, whenChangeUsername: "", to: username, passwordRemains: password)
+    assertOutputReceived(canCreate: nil, whenChangeUsername: username, to: Data.validUsername2, passwordRemains: password)
+    assertOutputReceived(canCreate: false, whenChangeUsername: username, to: Data.shortUsername, passwordRemains: password)
+    assertOutputReceived(canCreate: false, whenChangeUsername: username, to: Data.nonAlphanumericUsername, passwordRemains: password)
   }
   
   func testChangePassword() {
-    assertOutputReceived(canCreate: nil, whenChangePassword: "", to: validPassword, usernameRemains: "")
-    assertOutputReceived(canCreate: true, whenChangePassword: "", to: validPassword, usernameRemains: validUsername)
-    assertOutputReceived(canCreate: nil, whenChangePassword: validPassword, to: validPassword2, usernameRemains: validUsername)
-    assertOutputReceived(canCreate: false, whenChangePassword: validPassword, to: shortPassword, usernameRemains: validUsername)
-    assertOutputReceived(canCreate: false, whenChangePassword: validPassword, to: nonAlphanumericPassword, usernameRemains: validUsername)
+    assertOutputReceived(canCreate: nil, whenChangePassword: "", to: password, usernameRemains: "")
+    assertOutputReceived(canCreate: true, whenChangePassword: "", to: password, usernameRemains: username)
+    assertOutputReceived(canCreate: nil, whenChangePassword: password, to: Data.validPassword2, usernameRemains: username)
+    assertOutputReceived(canCreate: false, whenChangePassword: password, to: Data.shortPassword, usernameRemains: username)
+    assertOutputReceived(canCreate: false, whenChangePassword: password, to: Data.nonAlphanumericPassword, usernameRemains: username)
   }
   
   func testCreate() {
-    set(username: validUsername, password: validPassword)
+    setIdentity()
     output.reset()
     
     interactor.create()
@@ -92,17 +87,19 @@ class IdentityCreationInteractorTests: XCTestCase {
     assertOutputReceived(creationDidBegin: false,
                          creationDidEnd: true,
                          errors: nil)
+    assertStorageSaved(token: Data.validToken)
   }
   
   func testCreationDidFail() {
     create()
     output.reset()
     
-    interactor.creationDidFail(dueTo: [IdentityCreationServiceError(error)])
+    interactor.creationDidFail(dueTo: [Data.error])
     
     assertOutputReceived(creationDidBegin: false,
                          creationDidEnd: false,
-                         errors: [error])
+                         errors: [Data.errorMessage])
+    assertStorageSaved(token: nil)
   }
   
   // Mark: helpers
@@ -111,14 +108,14 @@ class IdentityCreationInteractorTests: XCTestCase {
     interactor.load(withRetailIdentity: retailIdentity)
   }
   
-  private func set(username: String, password: String) {
+  private func setIdentity(_ identity: DigitalIdentity = Data.validDigitalIdentity) {
     load()
-    interactor.changeIdentifier(to: username)
-    interactor.changeCredential(to: password)
+    interactor.changeIdentifier(to: identity.identifier)
+    interactor.changeCredential(to: identity.credential)
   }
   
   private func create() {
-    set(username: validUsername, password: validPassword)
+    setIdentity()
     interactor.create()
   }
   
@@ -128,7 +125,7 @@ class IdentityCreationInteractorTests: XCTestCase {
                                     passwordRemains password: String,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
-    set(username: oldUsername, password: password)
+    setIdentity(DigitalIdentity(identifier: oldUsername, credential: password))
     output.reset()
     
     interactor.changeIdentifier(to: newUsername)
@@ -142,7 +139,7 @@ class IdentityCreationInteractorTests: XCTestCase {
                                     usernameRemains username: String,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
-    set(username: username, password: oldPassword)
+    setIdentity(DigitalIdentity(identifier: username, credential: oldPassword))
     output.reset()
     
     interactor.changeCredential(to: newPassword)
@@ -172,6 +169,12 @@ class IdentityCreationInteractorTests: XCTestCase {
                                      line: UInt = #line) {
     XCTAssertEqual(service.digitalIdentitySpy, digitalIdentity, "digitalIdentity", file: file, line: line)
     XCTAssertEqual(service.retailIdentitySpy, retailIdentity, "retailIdentity", file: file, line: line)
+  }
+  
+  private func assertStorageSaved(token: String?,
+                                  file: StaticString = #file,
+                                  line: UInt = #line) {
+    XCTAssertEqual(storage.tokenSpy, token, "token", file: file, line: line)
   }
 }
 
@@ -216,13 +219,5 @@ class IdentityCreationServiceSpy: IdentityCreationServiceInput {
   func create(digitalIdentity: DigitalIdentity, withRetailIdentity retailIdentity: RetailIdentity) {
     digitalIdentitySpy = digitalIdentity
     retailIdentitySpy = retailIdentity
-  }
-}
-
-struct IdentityCreationServiceError: IdentityCreationError {
-  var message: String
-  
-  init(_ message: String) {
-    self.message = message
   }
 }

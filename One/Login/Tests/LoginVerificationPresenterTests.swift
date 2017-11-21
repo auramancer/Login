@@ -4,9 +4,9 @@ class LoginVerificationPresenterTests: XCTestCase {
   private var presenter: LoginVerificationPresenter!
   private var output: LoginVerificationPresenterOutputSpy!
   
-  private let validCardNumber = "1234567890"
-  private let validPIN = "8888"
-  private let error = "Cannot log in."
+  typealias Data = LoginTestData
+  private let error = Data.errorMessage
+  private let identity = Data.validRetailIdentity
   
   override func setUp() {
     super.setUp()
@@ -57,8 +57,6 @@ class LoginVerificationPresenterTests: XCTestCase {
   }
   
   func testShowIdentityCreation() {
-    let identity = RetailIdentity(cardNumber: "", pin: "")
-    
     presenter.showIdentityCreation(withIdentity: identity)
     
     XCTAssertEqual(output.identityCreationIdentitySpy, identity)

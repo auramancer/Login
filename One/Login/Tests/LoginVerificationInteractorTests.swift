@@ -6,16 +6,11 @@ class LoginVerificationInteractorTests: XCTestCase {
   private var service: LoginVerificationServiceSpy!
   private var storage: RetailLoginStorageSpy!
   
-  private let validCardNumber = "1234567890"
-  private let validPIN = "8888"
-  private let validCode = "123456"
-  private let session = "12345QWERT"
-  private let token = "1QAZ2WSX"
-  private let error = "Cannot log in."
-  private var validIdentity: RetailIdentity {
-    return RetailIdentity(cardNumber: validCardNumber, pin: validPIN)
-  }
-  private var shouldRemember = true
+  typealias Data = LoginTestData
+  private let identity = Data.validRetailIdentity
+  private let session = Data.session
+  private let code = Data.validCode
+  private let token = Data.validToken
   
   override func setUp() {
     super.setUp()
@@ -29,8 +24,6 @@ class LoginVerificationInteractorTests: XCTestCase {
     interactor.loginService = service
     interactor.codeService = service
     interactor.storage = storage
-    
-    shouldRemember = true
   }
   
   func testLoad() {
@@ -43,7 +36,7 @@ class LoginVerificationInteractorTests: XCTestCase {
     load()
     output.reset()
 
-    interactor.changeCode(to: validCode)
+    interactor.changeCode(to: code)
 
     assertOutputReceived(canVerify: true)
   }
@@ -67,11 +60,7 @@ class LoginVerificationInteractorTests: XCTestCase {
     assertOutputReceived(verificationDidBegin: true,
                          verificationDidEnd: false,
                          errors: nil)
-    assertServiceReceived(loginRequest: RetailIdentity(cardNumber: validCardNumber,
-                                                           pin: validPIN,
-                                                           verificationCode: validCode,
-                                                           authenticationToken: nil,
-                                                           membershipNumber: nil),
+    assertServiceReceived(loginRequest: Data.retailIdentityWithCode,
                           codeRequest: nil)
   }
 
@@ -79,7 +68,7 @@ class LoginVerificationInteractorTests: XCTestCase {
     verify()
     output.reset()
 
-    interactor.loginDidSucceed(withSession: session, token: token)
+    interactor.loginDidSucceed(withSession: session, token: token, needToCreateDigitalIdentity: false)
 
     assertOutputReceived(verificationDidBegin: false,
                          verificationDidEnd: true,
@@ -87,16 +76,30 @@ class LoginVerificationInteractorTests: XCTestCase {
     assertStorageSaved(session: session,
                        token: token)
   }
+  
+  func testHandleSuccessThenCreateIdentity() {
+    verify()
+    output.reset()
+    
+    interactor.loginDidSucceed(withSession: session, token: token, needToCreateDigitalIdentity: true)
+    
+    assertOutputReceived(verificationDidBegin: false,
+                         verificationDidEnd: false,
+                         errors: nil)
+    assertOutputGoesToIdentityCreation(with: Data.retailIdentityWithTokenAndCode)
+    assertStorageSaved(session: session,
+                       token: nil)
+  }
 
   func testHandleFailure() {
     verify()
     output.reset()
 
-    interactor.loginDidFail(dueTo: [LoginVerificationServiceError(error)])
+    interactor.loginDidFail(dueTo: [Data.error])
 
     assertOutputReceived(verificationDidBegin: false,
                          verificationDidEnd: false,
-                         errors: [error])
+                         errors: [Data.errorMessage])
     assertStorageSaved(session: nil,
                        token: nil)
   }
@@ -118,18 +121,18 @@ class LoginVerificationInteractorTests: XCTestCase {
     interactor.resendCode(confirmed: true)
     
     XCTAssertEqual(output.showResendConfirmationSpy, false)
-    XCTAssertEqual(service.codeIdentitySpy, validIdentity)
+    XCTAssertEqual(service.codeIdentitySpy, identity)
   }
   
   // MARK: helpers
   
   private func load() {
-    interactor.load(withIdentity: validIdentity)
+    interactor.load(withIdentity: identity)
   }
   
   private func changeCode() {
     load()
-    interactor.changeCode(to: validCode)
+    interactor.changeCode(to: code)
   }
   
   private func verify() {
@@ -151,6 +154,10 @@ class LoginVerificationInteractorTests: XCTestCase {
     XCTAssertEqual(output.verificationDidBeginSpy, verificationDidBegin, "verificationDidBegin", file: file, line: line)
     XCTAssertEqual(output.verificationDidEndSpy, verificationDidEnd, "verificationDidEnd", file: file, line: line)
     XCTAssertEqual(output.errorsSpy, errors, "errors", file: file, line: line)
+  }
+  
+  private func assertOutputGoesToIdentityCreation(with identity: RetailIdentity) {
+    XCTAssertEqual(output.identityCreationIdentitySpy, identity)
   }
   
   private func assertServiceReceived(loginRequest: RetailIdentity?,
@@ -226,13 +233,5 @@ class LoginVerificationServiceSpy: RetailLoginServiceInput, VerificationCodeServ
   
   func resendCode(withRetailIdentity identity: RetailIdentity) {
     codeIdentitySpy = identity
-  }
-}
-
-struct LoginVerificationServiceError: LoginVerificationError {
-  var message: String
-  
-  init(_ message: String) {
-    self.message = message
   }
 }

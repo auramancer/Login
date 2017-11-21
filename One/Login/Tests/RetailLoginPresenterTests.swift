@@ -4,9 +4,10 @@ class RetailLoginPresenterTests: XCTestCase {
   private var presenter: RetailLoginPresenter!
   private var output: RetailLoginPresenterOutputSpy!
   
-  private let validCardNumber = "1234567890"
-  private let validPIN = "8888"
-  private let error = "Cannot log in."
+  typealias Data = LoginTestData
+  private let error = Data.errorMessage
+  private let cardNumber = Data.validCardNumber
+  private let identity = Data.validRetailIdentity
   
   override func setUp() {
     super.setUp()
@@ -15,6 +16,14 @@ class RetailLoginPresenterTests: XCTestCase {
     
     presenter = RetailLoginPresenter()
     presenter.output = output
+  }
+  
+  func testDidLoad() {
+    presenter.didLoad(identity: Data.retailIdentityIdOnly, canLogin: true)
+    
+    XCTAssertEqual(output.cardNumberSpy, cardNumber)
+    XCTAssertEqual(output.pinSpy, "")
+    XCTAssertEqual(output.canLoginSpy, true)
   }
   
   func testChangeCanLogin() {
@@ -58,11 +67,9 @@ class RetailLoginPresenterTests: XCTestCase {
   }
   
   func testShowVerification() {
-    let identity = RetailIdentity(cardNumber: validCardNumber, pin: validPIN)
-    
     presenter.showVerification(withIdentity: identity)
     
-    XCTAssertEqual(output.verificationIdentitySpy, RetailIdentity(cardNumber: validCardNumber, pin: validPIN))
+    XCTAssertEqual(output.verificationIdentitySpy, identity)
   }
   
   // MARK: helpers
@@ -101,11 +108,11 @@ class RetailLoginPresenterOutputSpy: RetailLoginPresenterOutput {
   var identityCreationIdentitySpy: RetailIdentity?
   var leaveSpy = false
   
-  func changeCardNumber(to cardNumber: String) {
+  func changeIdentifier(to cardNumber: String) {
     cardNumberSpy = cardNumber
   }
   
-  func changePIN(to pin: String) {
+  func changeCredential(to pin: String) {
     pinSpy = pin
   }
   

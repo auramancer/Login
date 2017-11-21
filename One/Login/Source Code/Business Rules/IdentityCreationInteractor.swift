@@ -33,6 +33,7 @@ protocol IdentityCreationServiceOutput: class {
 class IdentityCreationInteractor {
   weak var output: IdentityCreationInteractorOutput?
   var service: IdentityCreationServiceInput?
+  var storage: RetailLoginStorage?
   
   var retailIdentity: RetailIdentity!
   var digitalIdentity = DigitalIdentity(identifier: "", credential: "")
@@ -82,6 +83,10 @@ extension IdentityCreationInteractor: IdentityCreationInteractorInput {
 
 extension IdentityCreationInteractor: IdentityCreationServiceOutput {
   func creationDidSucceed() {
+    if let token = retailIdentity.authenticationToken {
+      storage?.saveToken(token)
+    }
+    
     output?.creationDidEnd()
   }
   

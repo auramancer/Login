@@ -23,7 +23,7 @@ protocol LoginVerificationInteractorOutput: class {
 }
 
 protocol LoginVerificationServiceOutput: class {
-  func loginDidSucceed(withSession: String, token: String)
+  func loginDidSucceed(withSession: String, token: String, needToCreateDigitalIdentity: Bool)
   func loginDidFail(dueTo: [LoginVerificationError])
 }
 
@@ -86,7 +86,23 @@ extension LoginVerificationInteractor: LoginVerificationInteractorInput {
 }
 
 extension LoginVerificationInteractor: LoginVerificationServiceOutput {
-  func loginDidSucceed(withSession session: String, token: String) {
+  func loginDidSucceed(withSession session: String, token: String, needToCreateDigitalIdentity: Bool) {
+    if needToCreateDigitalIdentity {
+      createDigitalIdentity(session: session, token: token)
+    }
+    else {
+      endVerification(session: session, token: token)
+    }
+  }
+  
+  private func createDigitalIdentity(session: String, token: String) {
+    storage?.saveSession(session)
+    identity.authenticationToken = token
+    
+    output?.showIdentityCreation(withIdentity: identity)
+  }
+  
+  private func endVerification(session: String, token: String) {
     storage?.saveSession(session)
     storage?.saveToken(token)
     
@@ -96,15 +112,5 @@ extension LoginVerificationInteractor: LoginVerificationServiceOutput {
   func loginDidFail(dueTo errors: [LoginVerificationError]) {
     let messages = errors.map{ $0.message }
     output?.verificationDidFail(dueTo: messages)
-  }
-}
-
-extension RetailIdentity {
-  var isValidForLoginWithCode: Bool {
-    return isValid && verificationCodeIsValid
-  }
-  
-  var verificationCodeIsValid: Bool {
-    return verificationCode != nil && verificationCode! != ""
   }
 }

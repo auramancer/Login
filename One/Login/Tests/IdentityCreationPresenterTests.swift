@@ -99,6 +99,3 @@ class IdentityCreationPresenterOutputSpy: IdentityCreationPresenterOutput {
     leaveSpy = true
   }
 }
-
-extension SimpleError: IdentityCreationError {
-}

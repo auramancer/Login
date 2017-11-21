@@ -6,14 +6,21 @@ class DualModeLoginInteractorTests: XCTestCase {
   private var service: DualModeLoginServiceSpy!
   private var storage: DualModeLoginStorageSpy!
   
-  private let ambiguousIdentifier = "12345"
-  private let validUsername = "username"
-  private let validPassword = "password"
-  private let validCardNumber = "1234567890"
-  private let validPIN = "8888"
-  private let validToken = "1QAZ2WSX"
-  private let error = "Cannot log in."
-  private let session = "123456QWERT"
+  private var shouldRemember = true
+  
+  typealias Data = LoginTestData
+  private let username = Data.validUsername
+  private let password = Data.validPassword
+  private let cardNumber = Data.validCardNumber
+  private let pin = Data.validPIN
+  private let digitalIdentity = Data.validDigitalIdentity
+  private let digitalIdentityIdOnly = Data.digitalIdentityIdOnly
+  private let retailIdentity = Data.validRetailIdentity
+  private let retailIdentityIdOnly = Data.retailIdentityIdOnly
+  private let session = Data.session
+  private let ambiguousId = Data.ambiguousIdentifier
+  private let error = Data.error
+  private let errorMessage = Data.errorMessage
   
   override func setUp() {
     super.setUp()
@@ -26,6 +33,8 @@ class DualModeLoginInteractorTests: XCTestCase {
     interactor.output = output
     interactor.service = service
     interactor.storage = storage
+    
+    shouldRemember = true
   }
   
   func testLoad() {
@@ -38,44 +47,44 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testLoadWithRememberedUsername() {
-    storage.identifierSpy = validUsername
+    storage.identitySpy = digitalIdentityIdOnly
     
     interactor.load()
     
-    assertOutputReceived(identifier: validUsername,
+    assertOutputReceived(identifier: username,
                          credential: "",
                          canLogin: false,
                          mode: .digital)
   }
   
   func testLoadWithRememberedCardNumber() {
-    storage.identifierSpy = validCardNumber
+    storage.identitySpy = retailIdentityIdOnly
     
     interactor.load()
     
-    assertOutputReceived(identifier: validCardNumber,
+    assertOutputReceived(identifier: cardNumber,
                          credential: "",
                          canLogin: false,
                          mode: .retail)
   }
   
   func testSwitchMode() {
-    assertOutputReceived(mode: nil, whenChangeIdentifier: ambiguousIdentifier, to: ambiguousIdentifier)
-    assertOutputReceived(mode: .digital, whenChangeIdentifier: ambiguousIdentifier, to: validUsername)
-    assertOutputReceived(mode: .retail, whenChangeIdentifier: ambiguousIdentifier, to: validCardNumber)
-    assertOutputReceived(mode: .undetermined, whenChangeIdentifier: validUsername, to: ambiguousIdentifier)
-    assertOutputReceived(mode: nil, whenChangeIdentifier: validUsername, to: validUsername)
-    assertOutputReceived(mode: .retail, whenChangeIdentifier: validUsername, to: validCardNumber)
-    assertOutputReceived(mode: .undetermined, whenChangeIdentifier: validCardNumber, to: ambiguousIdentifier)
-    assertOutputReceived(mode: .digital, whenChangeIdentifier: validCardNumber, to: validUsername)
-    assertOutputReceived(mode: nil, whenChangeIdentifier: validCardNumber, to: validCardNumber)
+    assertOutputReceived(mode: nil, whenChangeIdentifier: ambiguousId, to: ambiguousId)
+    assertOutputReceived(mode: .digital, whenChangeIdentifier: ambiguousId, to: username)
+    assertOutputReceived(mode: .retail, whenChangeIdentifier: ambiguousId, to: cardNumber)
+    assertOutputReceived(mode: .undetermined, whenChangeIdentifier: username, to: ambiguousId)
+    assertOutputReceived(mode: nil, whenChangeIdentifier: username, to: username)
+    assertOutputReceived(mode: .retail, whenChangeIdentifier: username, to: cardNumber)
+    assertOutputReceived(mode: .undetermined, whenChangeIdentifier: cardNumber, to: ambiguousId)
+    assertOutputReceived(mode: .digital, whenChangeIdentifier: cardNumber, to: username)
+    assertOutputReceived(mode: nil, whenChangeIdentifier: cardNumber, to: cardNumber)
   }
   
   func testChangeIdentifier() {
     interactor.load()
     output.reset()
     
-    interactor.changeIdentifier(to: validUsername)
+    interactor.changeIdentifier(to: username)
     
     assertOutputReceived(identifier: nil,
                          credential: nil,
@@ -87,7 +96,7 @@ class DualModeLoginInteractorTests: XCTestCase {
     interactor.load()
     output.reset()
     
-    interactor.changeCredential(to: validPassword)
+    interactor.changeCredential(to: password)
     
     assertOutputReceived(identifier: nil,
                          credential: nil,
@@ -96,33 +105,33 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testLoginWithUsername() {
-    set(identifier: validUsername, credential: validPassword)
+    set(identifier: username, credential: password)
     output.reset()
     
-    interactor.logIn(shouldRememberIdentifier: true)
+    interactor.logIn()
     
     assertOutputReceived(loginDidBegin: true,
                          loginDidEnd: false,
                          errors: nil)
-    assertServiceReceived(digitalRequest: DigitalIdentity(identifier: validUsername, credential: validPassword),
+    assertServiceReceived(digitalRequest: digitalIdentity,
                           retailRequest: nil)
   }
   
   func testLoginWithCardNumber() {
-    set(identifier: validCardNumber, credential: validPIN)
+    set(identifier: cardNumber, credential: pin)
     output.reset()
     
-    interactor.logIn(shouldRememberIdentifier: true)
+    interactor.logIn()
     
     assertOutputReceived(loginDidBegin: true,
                          loginDidEnd: false,
                          errors: nil)
     assertServiceReceived(digitalRequest: nil,
-                          retailRequest: RetailIdentity(cardNumber: validCardNumber, pin: validPIN))
+                          retailRequest: retailIdentity)
   }
   
   func testHandleLoginSuccessInDigitalMode() {
-    login(identifier: validUsername, credential: validPassword)
+    login(identifier: username, credential: password)
     output.reset()
     
     interactor.loginDidSucceed(withSession: session)
@@ -130,11 +139,13 @@ class DualModeLoginInteractorTests: XCTestCase {
     assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: true,
                          errors: nil)
-    assertStorageSaved(identifier: validUsername)
+    assertStorageSaved(identity: digitalIdentityIdOnly,
+                       session: session,
+                       token: nil)
   }
   
   func testHandleLoginSuccessInRetailMode() {
-    login(identifier: validCardNumber, credential: validPIN)
+    login(identifier: cardNumber, credential: pin)
     output.reset()
     
     interactor.loginDidSucceed(withSession: session)
@@ -142,48 +153,57 @@ class DualModeLoginInteractorTests: XCTestCase {
     assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: true,
                          errors: nil)
-    assertStorageSaved(identifier: validCardNumber)
+    assertStorageSaved(identity: retailIdentityIdOnly,
+                       session: session,
+                       token: nil)
   }
-  
+
   func testHandleLoginFailureInDigitalMode() {
-    login(identifier: validUsername, credential: validPassword)
+    login(identifier: username, credential: password)
     output.reset()
     
-    interactor.loginDidFail(dueTo: [SimpleError(error)])
+    interactor.loginDidFail(dueTo: [error])
     
     assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: false,
-                         errors: [error])
-    assertStorageSaved(identifier: nil)
+                         errors: [errorMessage])
+    assertStorageSaved(identity: nil,
+                       session: nil,
+                       token: nil)
   }
   
   func testHandleLoginFailureInRetailMode() {
-    login(identifier: validCardNumber, credential: validPIN)
+    login(identifier: cardNumber, credential: pin)
     output.reset()
     
-    interactor.loginDidFail(dueTo: [SimpleError(error)])
+    interactor.loginDidFail(dueTo: [error])
     
     assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: false,
-                         errors: [error])
-    assertStorageSaved(identifier: nil)
+                         errors: [errorMessage])
+    assertStorageSaved(identity: nil,
+                       session: nil,
+                       token: nil)
   }
   
   func testHandleInvalidToken() {
-    login(identifier: validCardNumber, credential: validPIN)
+    login(identifier: cardNumber, credential: pin)
     output.reset()
     
+    interactor.changeMemebershipNumber(to: Data.membershipNumber)
     interactor.loginDidFailDueToInvalidToken()
     
     assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: false,
                          errors: nil)
-    XCTAssertEqual(output.verificationIdentitySpy, RetailIdentity(cardNumber: validCardNumber, pin: validPIN))
-    assertStorageSaved(identifier: nil)
+    assertOutputGoesToVerification(with: Data.retailIdentityWithMembershipNumber)
+    assertStorageSaved(identity: retailIdentityIdOnly,
+                       session: nil,
+                       token: nil)
   }
   
   func testHelpWithIdentifierInDigitalMode() {
-    set(identifier: validUsername, credential: "")
+    set(identifier: username, credential: "")
     
     interactor.helpWithIdentifier()
     
@@ -191,7 +211,7 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testHelpWithIdentifierInRetailMode() {
-    set(identifier: validCardNumber, credential: "")
+    set(identifier: cardNumber, credential: "")
     
     interactor.helpWithIdentifier()
     
@@ -199,7 +219,7 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testHelpWithCredentialInDigitalMode() {
-    set(identifier: validUsername, credential: "")
+    set(identifier: username, credential: "")
     
     interactor.helpWithCredential()
     
@@ -207,7 +227,7 @@ class DualModeLoginInteractorTests: XCTestCase {
   }
   
   func testHelpWithCredentialInRetailMode() {
-    set(identifier: validCardNumber, credential: "")
+    set(identifier: cardNumber, credential: "")
     
     interactor.helpWithCredential()
     
@@ -222,9 +242,10 @@ class DualModeLoginInteractorTests: XCTestCase {
     interactor.changeCredential(to: credential)
   }
   
-  private func login(identifier: String, credential: String, shouldRemember: Bool = true) {
+  private func login(identifier: String, credential: String) {
     set(identifier: identifier, credential: credential)
-    interactor.logIn(shouldRememberIdentifier: shouldRemember)
+    interactor.changeShouldRememberIdentity(to: shouldRemember)
+    interactor.logIn()
   }
   
   private func assertOutputReceived(identifier: String?,
@@ -270,10 +291,15 @@ class DualModeLoginInteractorTests: XCTestCase {
     XCTAssertEqual(service.retailIdentitySpy, retailRequest, "retailRequest", file: file, line: line)
   }
   
-  private func assertStorageSaved(identifier: String?,
+  private func assertStorageSaved(identity: Identity?,
+                                  session: String?,
+                                  token: String?,
                                   file: StaticString = #file,
                                   line: UInt = #line) {
-    XCTAssertEqual(storage.identifierSpy, identifier, "identifier", file: file, line: line)
+    XCTAssertEqual(storage.identitySpy?.identifier, identity?.identifier, "identifier", file: file, line: line)
+    XCTAssertEqual(storage.identitySpy?.credential, identity?.credential, "credential", file: file, line: line)
+    XCTAssertEqual(storage.sessionSpy, session, "session", file: file, line: line)
+    XCTAssertEqual(storage.tokenSpy, token, "token", file: file, line: line)
   }
   
   private func assertHelp(is help: LoginHelp,
@@ -281,9 +307,14 @@ class DualModeLoginInteractorTests: XCTestCase {
                           line: UInt = #line) {
     XCTAssertEqual(output.helpSpy, help, "", file: file, line: line)
   }
+  
+  private func assertOutputGoesToVerification(with identity: RetailIdentity) {
+    XCTAssertEqual(output.verificationIdentitySpy, identity)
+  }
 }
 
 class DualModeLoginInteractorOutputSpy: DualModeLoginInteractorOutput {
+  
   var identifierSpy: String?
   var credentialSpy: String?
   var canLoginSpy: Bool?
@@ -293,6 +324,7 @@ class DualModeLoginInteractorOutputSpy: DualModeLoginInteractorOutput {
   var errorsSpy: [String]?
   var helpSpy: LoginHelp?
   var verificationIdentitySpy: RetailIdentity?
+  var identityCreationIdentitySpy: RetailIdentity?
   
   func reset() {
     identifierSpy = nil
@@ -304,6 +336,7 @@ class DualModeLoginInteractorOutputSpy: DualModeLoginInteractorOutput {
     errorsSpy = nil
     helpSpy = nil
     verificationIdentitySpy = nil
+    identityCreationIdentitySpy = nil
   }
   
   func didLoad(identifier: String, credential: String, canLogin: Bool, mode: LoginMode) {
@@ -345,8 +378,12 @@ class DualModeLoginInteractorOutputSpy: DualModeLoginInteractorOutput {
     helpSpy = help
   }
   
-  func showVerificationForm(withRequest request: RetailIdentity) {
-    verificationIdentitySpy = request
+  func showVerification(withIdentity identity: RetailIdentity) {
+    verificationIdentitySpy = identity
+  }
+  
+  func showIdentityCreation(withIdentity identity: RetailIdentity) {
+    identityCreationIdentitySpy = identity
   }
 }
 
@@ -364,16 +401,16 @@ class DualModeLoginServiceSpy: DualModeLoginServiceInput {
 }
 
 class DualModeLoginStorageSpy: DualModeLoginStorage {
-  var identifierSpy: String?
+  var identitySpy: Identity?
   var tokenSpy: String?
   var sessionSpy: String?
   
-  func saveIdentifier(_ identifier: String) {
-    identifierSpy = identifier
+  func saveIdentity(_ identity: Identity) {
+    identitySpy = identity
   }
   
-  func loadIdentifier() -> String? {
-    return identifierSpy
+  func loadIdentity() -> Identity? {
+    return identitySpy
   }
   
   func saveToken(_ token: String) {

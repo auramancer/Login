@@ -1,4 +1,4 @@
-struct DigitalIdentity {
+struct DigitalIdentity: Identity {
   var identifier: String
   var credential: String
 }
