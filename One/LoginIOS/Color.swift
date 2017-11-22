@@ -36,6 +36,7 @@ enum Color {
   case primaryButtonTitleDisabled
   case secondaryButtonDisabled
   case secondaryButtonBorder
+  case salmon
   
   var value: UIColor {
     switch self {
@@ -73,6 +74,8 @@ enum Color {
       return UIColor(hexString: "737373")
     case .lightGray:
       return UIColor(hexString: "C8CACB")
+    case .salmon:
+      return UIColor(hexString: "F97979")
     }
   }
 }

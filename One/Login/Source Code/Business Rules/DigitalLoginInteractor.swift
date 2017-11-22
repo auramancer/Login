@@ -1,8 +1,3 @@
-struct DigitalIdentity: Identity {
-  var identifier: String
-  var credential: String
-}
-
 extension LoginHelp {
   static let username = LoginHelp("username")
   static let password = LoginHelp("password")
@@ -52,22 +47,21 @@ class DigitalLoginInteractor {
   weak var output: DigitalLoginInteractorOutput?
   var service: DigitalLoginServiceInput?
   var storage: DigitalLoginStorage?
-  var biometricsInteractor: BiometricsLoginInteractorInput?
   
-  private var identity: DigitalIdentity!
-  private var shouldRememberIdentity = false
+  fileprivate var identity: DigitalIdentity!
+  fileprivate var shouldRememberIdentity = false
   
-  private var rememberedIdentity: DigitalIdentity? {
+  fileprivate var rememberedIdentity: DigitalIdentity? {
     return storage?.loadIdentity()
   }
   
-  private var canLogin: Bool {
+  fileprivate var canLogin: Bool {
     return identity.isValid
   }
   
-  private var canLoginOldValue = false
+  fileprivate var canLoginOldValue = false
   
-  private func outputCanLoginDidChange() {
+  fileprivate func outputCanLoginDidChange() {
     let newValue = canLogin
     
     if newValue != canLoginOldValue {
@@ -124,7 +118,7 @@ extension DigitalLoginInteractor: DigitalLoginServiceOutput {
     output?.loginDidEnd()
   }
   
-  private func saveIdentity() {
+  fileprivate func saveIdentity() {
     if shouldRememberIdentity {
       storage?.saveIdentity(DigitalIdentity(identifier: identity.identifier, credential: ""))
     }

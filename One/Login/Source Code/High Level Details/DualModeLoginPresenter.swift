@@ -38,18 +38,18 @@ protocol DualModeLoginPresenterOutput: class {
 class DualModeLoginPresenter {
   weak var output: DualModeLoginPresenterOutput?
 
-  private var mode = LoginMode.undetermined
+  fileprivate var mode = LoginMode.undetermined
 
-  private var digitalPresenter = DigitalLoginPresenter()
-  private var retailPresenter = RetailLoginPresenter()
-  private var currentPresenter: DualModeLoginInteractorOutput!
+  fileprivate var digitalPresenter = DigitalLoginPresenter()
+  fileprivate var retailPresenter = RetailLoginPresenter()
+  fileprivate var currentPresenter: DualModeLoginInteractorOutput!
   
   init() {
     digitalPresenter.output = self
     currentPresenter = digitalPresenter
   }
   
-  private func switchSubPresenter() {
+  fileprivate func switchSubPresenter() {
     switch mode {
     case .undetermined, .digital:
       digitalPresenter.output = self
@@ -62,7 +62,7 @@ class DualModeLoginPresenter {
     }
   }
 
-  private var wording: DualModeLoginWording {
+  fileprivate var wording: DualModeLoginWording {
     switch mode {
     case .undetermined:
       return .undetermined
@@ -157,27 +157,25 @@ extension DualModeLoginPresenter: DigitalLoginPresenterOutput, RetailLoginPresen
 }
 
 extension DigitalLoginPresenter: DualModeLoginInteractorOutput {
-  func showVerification(withIdentity: RetailIdentity) {
-    
-  }
-  
-  func showIdentityCreation(withIdentity: RetailIdentity) {
-    
-  }
-  
   func didLoad(identifier: String, credential: String, canLogin: Bool, mode: LoginMode) {
+    // Do nothing
+  }
+  
+  func loginModeDidChange(to: LoginMode) {
+    // Do nothing
+  }
+  
+  func showVerification(withIdentity: RetailIdentity) {
+    // Do nothing
   }
 }
 
 extension RetailLoginPresenter: DualModeLoginInteractorOutput {
   func didLoad(identifier: String, credential: String, canLogin: Bool, mode: LoginMode) {
-  }
-}
-
-extension DualModeLoginInteractorOutput {
-  func showVerificationForm(withRequest: RetailIdentity) {
+    // Do nothing
   }
   
   func loginModeDidChange(to: LoginMode) {
+    // Do nothing
   }
 }

@@ -3,29 +3,30 @@ class LoginVerificationController: ConsoleController {
   
   var interactor: LoginVerificationInteractor?
   
-  var request: RetailLoginRequest
+  var identity: RetailIdentity
   var code = ""
-  var verifyIsEnabled = false
+  var canVerify = false
   
-  init(request: RetailLoginRequest) {
-    self.request = request
+  var identityCreationController: IdentityCreationController!
+  
+  init(identity: RetailIdentity) {
+    self.identity = identity
   }
   
-  override func start() {
+  override func load() {
     configurator = Configurator(for: self)
     
-    interactor?.load(withRequest: request, shouldRememberCardNumber: false)
+    output("📮 Verify Identity 📮\n")
     
-    output("📮 Verification Code 📮\n")
-    super.start()
+    interactor?.load(withIdentity: identity)
   }
   
   override func outputState() {
     output("")
     output("1 Verification Code [\(code)]")
     output("2 Resend Verification Code")
-    if verifyIsEnabled {
-      output("2 Verify")
+    if canVerify {
+      output("3 Verify")
     }
     output("")
   }
@@ -33,26 +34,30 @@ class LoginVerificationController: ConsoleController {
   override func excuteCommand(_ command: Command) {
     switch command.type {
     case "1":
-      changeCode()
+      changeCode(command)
     case "2":
-      interactor?.resendCode()
+      interactor?.resendCode(confirmed: false)
     case "3":
       interactor?.verify()
+    case "4":
+      resendCode()
     default:
-      waitForCommand()
+      outputAndWaitForCommand()
     }
   }
   
-  func changeCode() {
+  func changeCode(_ command: Command) {
+    code = command.parameters ?? ""
+    
     interactor?.changeCode(to: code)
     
-    waitForCommand()
+    outputAndWaitForCommand()
   }
   
   func resendCode() {
-    interactor?.resendCode()
+    interactor?.resendCode(confirmed: true)
     
-    waitForCommand()
+    outputAndWaitForCommand()
   }
   
   func verify() {
@@ -61,20 +66,32 @@ class LoginVerificationController: ConsoleController {
 }
 
 extension LoginVerificationController: LoginVerificationPresenterOutput {
-  func enableVerify() {
-    verifyIsEnabled = true
+  func changeCanVerify(to canVerify: Bool) {
+    self.canVerify = canVerify
   }
   
-  func disableVerify() {
-    verifyIsEnabled = false
+  func changeIsVerifying(to isVerifying: Bool) {
+    if isVerifying {
+      showProgress()
+    }
+    else {
+      hideProgress()
+    }
   }
-  func showActivityMessage(_: String?){}
-  func hideActivityMessage(){}
-  func showErrorMessage(_: String){}
-  func hideErrorMessage(){}
   
-  func goTo(_ destination: LoginDestination) {
+  func showResendCodeConfirmaiton(_ confirmation: ResendCodeConfirmaiton) {
+    output("")
+    output("\(confirmation.message)")
+    output("4 \(confirmation.confirmActionText)")
+    output("5 \(confirmation.cancelActionText)")
+    output("")
     
+    waitForCommand()
+  }
+  
+  func goToIdentityCreationPage(withIdentity identity: RetailIdentity) {
+    identityCreationController = IdentityCreationController(identity: identity)
+    identityCreationController.load()
   }
 }
 

@@ -8,15 +8,15 @@ class RetailLoginController: ConsoleController {
   var shouldRemember = false
   var canLogin = false
 
-//  var verificationCodePage: LoginVerificationController!
+  var loginVerificationController: LoginVerificationController!
   
-  override func start() {
+  override func load() {
     configurator = Configurator(for: self)
     
-    interactor?.load()
+    output("🗝 Retail Log In 🗝\n")
     
-    output("🗝 CardNumber Log In 🗝\n")
-    super.start()
+    interactor?.load()
+    super.load()
   }
   
   override func outputState() {
@@ -47,16 +47,16 @@ class RetailLoginController: ConsoleController {
     case "6":
       login()
     default:
-      waitForCommand()
+      outputAndWaitForCommand()
     }
   }
   
   func changeIdentifier(_ command: Command) {
     cardNumber = command.parameters ?? ""
-    
+
     interactor?.changeIdentifier(to: cardNumber)
     
-    waitForCommand()
+    outputAndWaitForCommand()
   }
   
   func changeCredential(_ command: Command) {
@@ -64,14 +64,15 @@ class RetailLoginController: ConsoleController {
     
     interactor?.changeCredential(to: pin)
     
-    waitForCommand()
+    outputAndWaitForCommand()
   }
   
   func changeRememberMe() {
     shouldRemember = !shouldRemember
+    
     interactor?.changeShouldRememberIdentity(to: shouldRemember)
     
-    waitForCommand()
+    outputAndWaitForCommand()
   }
   
   func login() {
@@ -120,11 +121,9 @@ extension RetailLoginController: RetailLoginPresenterOutput {
     }
   }
   
-  func goToVerificationPage(withRequest request: RetailIdentity) {
-//    verificationCodePage = LoginVerificationController(request: request)
-//    verificationCodePage.start()
-    
-    waitForCommand()
+  func goToVerificationPage(withIdentity identity: RetailIdentity) {
+    loginVerificationController = LoginVerificationController(identity: identity)
+    loginVerificationController.load()
   }
 }
 

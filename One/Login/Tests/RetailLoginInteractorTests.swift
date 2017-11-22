@@ -13,6 +13,7 @@ class RetailLoginInteractorTests: XCTestCase {
   private let pin = Data.validPIN
   private let idOnlyIdentity = Data.retailIdentityIdOnly
   private let session = Data.session
+  private let token = Data.validToken
   
   override func setUp() {
     super.setUp()
@@ -72,7 +73,7 @@ class RetailLoginInteractorTests: XCTestCase {
   }
   
   func testLoginWithToken() {
-    storage.tokenSpy = Data.validToken
+    storage.tokenSpy = token
     setIdentity()
     output.reset()
     
@@ -121,7 +122,8 @@ class RetailLoginInteractorTests: XCTestCase {
                        session: nil)
   }
   
-  func testHandleLoginFailureCausedByInvalidToken() {
+  func testHandleLoginFailureWhenTokenExpired() {
+    storage.tokenSpy = token
     login()
     output.reset()
     
@@ -131,7 +133,22 @@ class RetailLoginInteractorTests: XCTestCase {
     assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: false,
                          errors: nil)
-    assertOutputGoesToVerification(with: Data.retailIdentityWithMembershipNumber)
+    assertOutputGoesToVerification(with: Data.retailIdentityTokenExpired)
+    assertStorageSaved(identity: idOnlyIdentity,
+                       session: nil)
+  }
+  
+  func testHandleLoginFailureWhenTokenNotFound() {
+    login()
+    output.reset()
+    
+    interactor.changeMemebershipNumber(to: Data.membershipNumber)
+    interactor.loginDidFailDueToInvalidToken()
+    
+    assertOutputReceived(loginDidBegin: false,
+                         loginDidEnd: false,
+                         errors: nil)
+    assertOutputGoesToVerification(with: Data.retailIdentityTokenNotFound)
     assertStorageSaved(identity: idOnlyIdentity,
                        session: nil)
   }

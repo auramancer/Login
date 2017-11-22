@@ -10,7 +10,7 @@ class IdentityCreationInteractorTests: XCTestCase {
   private let username = Data.validUsername
   private let password = Data.validPassword
   private let digitalIdentity = Data.validDigitalIdentity
-  private let retailIdentity = Data.retailIdentityWithTokenAndCode
+  private let retailIdentity = Data.retailIdentityWithEverything 
   
   override func setUp() {
     super.setUp()

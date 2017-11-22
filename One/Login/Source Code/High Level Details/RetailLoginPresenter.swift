@@ -9,7 +9,6 @@ protocol RetailLoginPresenterOutput: class {
   
   func goToHelpPage(for: LoginHelp)
   func goToVerificationPage(withIdentity: RetailIdentity)
-  func goToIdentityCreationPage(withIdentity: RetailIdentity)
   func leave()
 }
 
@@ -40,7 +39,7 @@ extension RetailLoginPresenter: RetailLoginInteractorOutput {
   
   func loginDidFail(withErrors errors: [String]) {
     output?.changeIsLoggingIn(to: false)
-    output?.showMessage(errorMessage(with: errors))
+    output?.showMessage(LoginMessage(errors: errors))
   }
   
   func showHelp(_ help: LoginHelp) {
@@ -50,10 +49,5 @@ extension RetailLoginPresenter: RetailLoginInteractorOutput {
   func showVerification(withIdentity identity: RetailIdentity) {
     output?.changeIsLoggingIn(to: false)
     output?.goToVerificationPage(withIdentity: identity)
-  }
-  
-  func showIdentityCreation(withIdentity identity: RetailIdentity) {
-    output?.changeIsLoggingIn(to: false)
-    output?.goToIdentityCreationPage(withIdentity: identity)
   }
 }

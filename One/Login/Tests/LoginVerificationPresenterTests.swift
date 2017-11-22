@@ -8,6 +8,9 @@ class LoginVerificationPresenterTests: XCTestCase {
   private let error = Data.errorMessage
   private let identity = Data.validRetailIdentity
   
+  private let notFoundMessage = "As this is the first time you have logged in with your membership number, we need to validate your account. We have sent you an SMS and eMail with a new verification code, please enter it below. The code will expire after 30 minutes, after which time you will need to request a new code."
+  private let expiredMessage = "Login successful, it has been 1 month since we last verified your account. We have sent you an SMS and eMail with a new verification code, please enter it below."
+  
   override func setUp() {
     super.setUp()
     
@@ -17,9 +20,17 @@ class LoginVerificationPresenterTests: XCTestCase {
     presenter.output = output
   }
   
-  func testDidLoad() {
-    presenter.didLoad(canVerify: false)
+  func testDidLoadWhenTokenNotFound() {
+    presenter.didLoad(tokenDidExpire: false, canVerify: false)
     
+    XCTAssertEqual(output.messageSpy, LoginMessage(text: notFoundMessage, style: .default))
+    XCTAssertEqual(output.canVerifySpy, false)
+  }
+  
+  func testDidLoadWhenTokenExpired() {
+    presenter.didLoad(tokenDidExpire: true, canVerify: false)
+    
+    XCTAssertEqual(output.messageSpy, LoginMessage(text: expiredMessage, style: .default))
     XCTAssertEqual(output.canVerifySpy, false)
   }
   
@@ -65,8 +76,9 @@ class LoginVerificationPresenterTests: XCTestCase {
   func testShowAlert() {
     presenter.showResendConfirmation()
     
-    XCTAssertEqual(output.alertSpy?.message, "Are you sure you want a new verification code?")
-    XCTAssertEqual(output.alertSpy?.confirmActionTitle, "Confirm")
+    XCTAssertEqual(output.confirmationSpy?.message, "Are you sure you want a new verification code?")
+    XCTAssertEqual(output.confirmationSpy?.confirmActionText, "Confirm")
+    XCTAssertEqual(output.confirmationSpy?.cancelActionText, "Cancel")
   }
   
   // MARK: helpers
@@ -89,7 +101,7 @@ class LoginVerificationPresenterOutputSpy: LoginVerificationPresenterOutput {
   var isVerifyingSpy: Bool?
   var messageSpy: LoginMessage?
   var clearMessageSpy = false
-  var alertSpy: ResendCodeConfirmaitonAlert?
+  var confirmationSpy: ResendCodeConfirmaiton?
   var identityCreationIdentitySpy: RetailIdentity?
   var leaveSpy = false
   
@@ -109,8 +121,8 @@ class LoginVerificationPresenterOutputSpy: LoginVerificationPresenterOutput {
     clearMessageSpy = true
   }
   
-  func showResendCodeConfirmaitonAlert(_ alert: ResendCodeConfirmaitonAlert) {
-    alertSpy = alert
+  func showResendCodeConfirmaiton(_ confirmation: ResendCodeConfirmaiton) {
+    confirmationSpy = confirmation
   }
   
   func goToIdentityCreationPage(withIdentity identity: RetailIdentity) {

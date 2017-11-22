@@ -59,12 +59,12 @@ class DualModeLoginInteractor {
   
   var storage: DualModeLoginStorage?
   
-  private var mode = LoginMode.undetermined
+  fileprivate var mode = LoginMode.undetermined
   
-  private var digitalInteractor = DigitalLoginInteractor()
-  private var retailInteractor = RetailLoginInteractor()
-  private var currentInteractor: (DualModeLoginInteractorInput & DualModeLoginServiceOutput)!
-  private var currentServiceOutput: DualModeLoginServiceOutput!
+  fileprivate var digitalInteractor = DigitalLoginInteractor()
+  fileprivate var retailInteractor = RetailLoginInteractor()
+  fileprivate var currentInteractor: (DualModeLoginInteractorInput & DualModeLoginServiceOutput)!
+  fileprivate var currentServiceOutput: DualModeLoginServiceOutput!
   
   init() {
     digitalInteractor.output = self
@@ -74,7 +74,7 @@ class DualModeLoginInteractor {
     retailInteractor.storage = self
   }
   
-  private func switchMode(to mode: LoginMode) {
+  fileprivate func switchMode(to mode: LoginMode) {
     guard self.mode != mode else { return }
     
     self.mode = mode
@@ -83,7 +83,7 @@ class DualModeLoginInteractor {
     output?.loginModeDidChange(to: mode)
   }
   
-  private func mode(for id: String) -> LoginMode {
+  fileprivate func mode(for id: String) -> LoginMode {
     if isMembershipCardNumber(id) {
       return .retail
     }
@@ -93,17 +93,17 @@ class DualModeLoginInteractor {
     return .digital
   }
   
-  private func isMembershipCardNumber(_ id: String) -> Bool {
+  fileprivate func isMembershipCardNumber(_ id: String) -> Bool {
     // starts with 6 digits
     return id.containsMatch(of: "^[0-9]{6,}?")
   }
   
-  private func isPartialMembershipCardNumber(_ id: String) -> Bool {
+  fileprivate func isPartialMembershipCardNumber(_ id: String) -> Bool {
     // 0-5 digits
     return id.containsMatch(of: "^[0-9]{0,5}?$")
   }
   
-  private func switchSubInteractor() {
+  fileprivate func switchSubInteractor() {
     if shouldUseDigitalInteractor {
       digitalInteractor.output = self
       retailInteractor.output = nil
@@ -116,11 +116,11 @@ class DualModeLoginInteractor {
     }
   }
   
-  private var shouldUseDigitalInteractor: Bool {
+  fileprivate var shouldUseDigitalInteractor: Bool {
     return mode == .undetermined || mode == .digital
   }
   
-  private var rememberedIdentifier: String {
+  fileprivate var rememberedIdentifier: String {
     return storage?.loadIdentity()?.identifier ?? ""
   }
 }

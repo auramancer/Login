@@ -5,8 +5,8 @@ class DualModeLoginViewController: UIViewController {
   
   weak var interactor: DualModeLoginInteractorInput?
   
-  @IBOutlet weak var errorView: UIView!
-  @IBOutlet weak var errorLabel: UILabel!
+  @IBOutlet weak var messageView: UIView!
+  @IBOutlet weak var messageLabel: UILabel!
   
   @IBOutlet weak var identifierTitleLabel: UILabel!
   @IBOutlet weak var identifierField: UITextField!
@@ -27,24 +27,31 @@ class DualModeLoginViewController: UIViewController {
     setUpViews()
     
     configurator = Configurator(for: self)
-    interactor?.initialize()
+    interactor?.load()
   }
   
-  private func setUpViews() {
+  fileprivate func setUpViews() {
     identifierField.addTarget(self, action: #selector(identifierDidChange), for: .editingChanged)
     credentialField.addTarget(self, action: #selector(credentialDidChange), for: .editingChanged)
+    
+    messageView.isHidden = true
+    messageLabel.text = nil
   }
   
-  @objc private func identifierDidChange() {
+  @objc fileprivate func identifierDidChange() {
     interactor?.changeIdentifier(to: identifierField.text ?? "")
   }
   
-  @objc private func credentialDidChange() {
+  @objc fileprivate func credentialDidChange() {
     interactor?.changeCredential(to: credentialField.text ?? "")
   }
   
+  @IBAction func didPressRememberMeCheckbox(_ sender: Any) {
+    interactor?.changeShouldRememberIdentity(to: rememberMeCheckbox.isChecked)
+  }
+  
   @IBAction func didPressLogInButton(_ sender: Any) {
-    interactor?.logIn(shouldRememberIdentifier: rememberMeCheckbox.isChecked)
+    interactor?.logIn()
   }
   
   @IBAction func didPressForgottenIdButton(_ sender: Any) {
@@ -61,12 +68,12 @@ class DualModeLoginViewController: UIViewController {
     fieldsStackView.axis = size.width >= 480 ? .horizontal : .vertical
   }
   
-  private func updateLabelsAnimated(with wording: DualModeLoginWording) {
+  fileprivate func updateLabelsAnimated(with wording: DualModeLoginWording) {
     updateLabel(identifierTitleLabel, withText: wording.id)
     updateLabel(credentialTitleLabel, withText: wording.credential)
   }
   
-  private func updateLabel(_ label: UILabel,
+  fileprivate func updateLabel(_ label: UILabel,
                            withText text: String,
                            hideDuration: TimeInterval = 0.15,
                            showDuration: TimeInterval = 0.15) {
@@ -84,12 +91,12 @@ class DualModeLoginViewController: UIViewController {
     })
   }
   
-  private func updateLabels(with wording: DualModeLoginWording) {
+  fileprivate func updateLabels(with wording: DualModeLoginWording) {
     identifierTitleLabel.text = wording.id
     credentialTitleLabel.text = wording.credential
   }
   
-  private func changeAttributedTitle(of button: UIButton, to newTitle: String) {
+  fileprivate func changeAttributedTitle(of button: UIButton, to newTitle: String) {
     guard let attributedTitle = button.attributedTitle(for: .normal) else { return }
     
     let mutableAttributedTitle = NSMutableAttributedString(attributedString: attributedTitle)
@@ -121,39 +128,43 @@ extension DualModeLoginViewController: DualModeLoginPresenterOutput {
     logInButton.shouldShowActivityIndicator = isLoggingIn
   }
   
-  func changeErrorMessage(to message: String) {
-    errorLabel.text = message
+  func showMessage(_ message: LoginMessage) {
+    messageLabel.text = message.text
     
     UIView.animate(withDuration: 0.15) { [weak self] in
-      self?.errorView.alpha = 1
-      self?.errorView.isHidden = false
+      self?.messageView.backgroundColor = message.style == .error ? Color.salmon.value : Color.blueText.value
+      self?.messageView.alpha = 1
+      self?.messageView.isHidden = false
     }
   }
   
-  func clearErrorMessage() {
-    errorLabel.text = nil
+  func clearMessage() {
+    messageLabel.text = nil
     
     UIView.animate(withDuration: 0.15) { [weak self] in
-      self?.errorView.alpha = 0
-      self?.errorView.isHidden = true
+      self?.messageView.alpha = 0
+      self?.messageView.isHidden = true
     }
   }
   
-  func goToHelpPage(for: LoginHelp) {
+  func goToHelpPage(for help: LoginHelp) {
+    LoginRouter.goToHelpPage(from: self, for: help)
   }
   
-  func goToVerificationPage(withRequest: RetailIdentity) {
+  func goToVerificationPage(withIdentity identity: RetailIdentity) {
+    LoginRouter.goToVerificationPage(from: self, withIdentity: identity)
   }
   
   func leave() {
+    LoginRouter.leave(from: self)
   }
 }
 
 extension DualModeLoginViewController {
   class Configurator {
-    var presenter: DualModeLoginPresenter
     var interactor: DualModeLoginInteractor
     var service: DualModeLoginServiceStub
+    var presenter: DualModeLoginPresenter
     
     init(for userInterface: DualModeLoginViewController) {
       interactor = DualModeLoginInteractor()

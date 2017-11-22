@@ -54,24 +54,24 @@ class RetailLoginInteractor {
   var service: RetailLoginServiceInput?
   var storage: RetailLoginStorage?
   
-  private var identity: RetailIdentity!
-  private var shouldRememberIdentity = false
+  fileprivate var identity: RetailIdentity!
+  fileprivate var shouldRememberIdentity = false
   
-  private var rememberedIdentity: RetailIdentity? {
+  fileprivate var rememberedIdentity: RetailIdentity? {
     return storage?.loadIdentity()
   }
   
-  private var rememberedToken: String? {
+  fileprivate var rememberedToken: String? {
     return storage?.loadToken()
   }
   
-  private var canLogin: Bool {
+  fileprivate var canLogin: Bool {
     return identity.isValid 
   }
   
-  private var canLoginOldValue = false
+  fileprivate var canLoginOldValue = false
   
-  private func outputCanLoginDidChange() {
+  fileprivate func outputCanLoginDidChange() {
     let newValue = canLogin
     
     if newValue != canLoginOldValue {
@@ -133,7 +133,7 @@ extension RetailLoginInteractor: RetailLoginServiceOutput {
     output?.loginDidEnd()
   }
   
-  private func saveIdentity() {
+  fileprivate func saveIdentity() {
     if shouldRememberIdentity {
       storage?.saveIdentity(RetailIdentity(identifier: identity.identifier, credential: ""))
     }

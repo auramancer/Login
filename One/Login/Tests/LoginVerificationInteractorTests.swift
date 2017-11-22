@@ -7,7 +7,7 @@ class LoginVerificationInteractorTests: XCTestCase {
   private var storage: RetailLoginStorageSpy!
   
   typealias Data = LoginTestData
-  private let identity = Data.validRetailIdentity
+  private let identityTokenNotFound = Data.retailIdentityTokenNotFound
   private let session = Data.session
   private let code = Data.validCode
   private let token = Data.validToken
@@ -26,10 +26,16 @@ class LoginVerificationInteractorTests: XCTestCase {
     interactor.storage = storage
   }
   
-  func testLoad() {
+  func testLoadWhenTokenNotFound() {
+    load(identityTokenNotFound)
+    
+    assertOutputReceived(tokenDidExpire: false, canVerify: false)
+  }
+  
+  func testLoadWhenTokenExpired() {
     load()
     
-    assertOutputReceived(canVerify: false)
+    assertOutputReceived(tokenDidExpire: true, canVerify: false)
   }
   
   func testChangeCode() {
@@ -38,7 +44,7 @@ class LoginVerificationInteractorTests: XCTestCase {
 
     interactor.changeCode(to: code)
 
-    assertOutputReceived(canVerify: true)
+    assertOutputReceived(tokenDidExpire: nil, canVerify: true)
   }
   
   func testClearCode() {
@@ -47,7 +53,7 @@ class LoginVerificationInteractorTests: XCTestCase {
     
     interactor.changeCode(to: "")
     
-    assertOutputReceived(canVerify: false)
+    assertOutputReceived(tokenDidExpire: nil, canVerify: false)
   }
 
   func testVerify() {
@@ -56,7 +62,7 @@ class LoginVerificationInteractorTests: XCTestCase {
 
     interactor.verify()
 
-    assertOutputReceived(canVerify: nil)
+    assertOutputReceived(tokenDidExpire: nil, canVerify: nil)
     assertOutputReceived(verificationDidBegin: true,
                          verificationDidEnd: false,
                          errors: nil)
@@ -86,7 +92,7 @@ class LoginVerificationInteractorTests: XCTestCase {
     assertOutputReceived(verificationDidBegin: false,
                          verificationDidEnd: false,
                          errors: nil)
-    assertOutputGoesToIdentityCreation(with: Data.retailIdentityWithTokenAndCode)
+    assertOutputGoesToIdentityCreation(with: Data.retailIdentityWithEverything)
     assertStorageSaved(session: session,
                        token: nil)
   }
@@ -121,12 +127,12 @@ class LoginVerificationInteractorTests: XCTestCase {
     interactor.resendCode(confirmed: true)
     
     XCTAssertEqual(output.showResendConfirmationSpy, false)
-    XCTAssertEqual(service.codeIdentitySpy, identity)
+    XCTAssertEqual(service.codeIdentitySpy, identityTokenNotFound)
   }
   
   // MARK: helpers
   
-  private func load() {
+  private func load(_ identity: RetailIdentity = Data.retailIdentityTokenExpired) {
     interactor.load(withIdentity: identity)
   }
   
@@ -140,9 +146,11 @@ class LoginVerificationInteractorTests: XCTestCase {
     interactor.verify()
   }
   
-  private func assertOutputReceived(canVerify: Bool?,
+  private func assertOutputReceived(tokenDidExpire: Bool?,
+                                    canVerify: Bool?,
                                     file: StaticString = #file,
                                     line: UInt = #line) {
+    XCTAssertEqual(output.tokenDidExpireSpy, tokenDidExpire, "tokenDidExpire", file: file, line: line)
     XCTAssertEqual(output.canVerifySpy, canVerify, "canVerify", file: file, line: line)
   }
   
@@ -178,6 +186,7 @@ class LoginVerificationInteractorTests: XCTestCase {
 }
 
 class LoginVerificationInteractorOutputSpy: LoginVerificationInteractorOutput {
+  var tokenDidExpireSpy: Bool?
   var canVerifySpy: Bool?
   var verificationDidBeginSpy = false
   var verificationDidEndSpy = false
@@ -186,6 +195,7 @@ class LoginVerificationInteractorOutputSpy: LoginVerificationInteractorOutput {
   var identityCreationIdentitySpy: RetailIdentity?
   
   func reset() {
+    tokenDidExpireSpy = nil
     canVerifySpy = nil
     verificationDidBeginSpy = false
     verificationDidEndSpy = false
@@ -194,7 +204,8 @@ class LoginVerificationInteractorOutputSpy: LoginVerificationInteractorOutput {
     identityCreationIdentitySpy = nil
   }
   
-  func didLoad(canVerify: Bool) {
+  func didLoad(tokenDidExpire: Bool, canVerify: Bool) {
+    tokenDidExpireSpy = tokenDidExpire
     canVerifySpy = canVerify
   }
   

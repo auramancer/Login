@@ -196,7 +196,7 @@ class DualModeLoginInteractorTests: XCTestCase {
     assertOutputReceived(loginDidBegin: false,
                          loginDidEnd: false,
                          errors: nil)
-    assertOutputGoesToVerification(with: Data.retailIdentityWithMembershipNumber)
+    assertOutputGoesToVerification(with: Data.retailIdentityTokenNotFound)
     assertStorageSaved(identity: retailIdentityIdOnly,
                        session: nil,
                        token: nil)

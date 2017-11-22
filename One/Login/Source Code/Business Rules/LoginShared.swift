@@ -1,8 +1,6 @@
 import Foundation
 
-protocol Identity {
-  var identifier: String { get }
-  var credential: String { get }
+protocol LoginConfiguration {
 }
 
 struct LoginHelp: Equatable {
@@ -31,8 +29,11 @@ struct LoginMessage {
   }
 }
 
-func errorMessage(with errors: [String]) -> LoginMessage {
-  return LoginMessage(text: errors.joined(separator: "\n\n"), style: .error)
+extension LoginMessage {
+  init(errors: [String]) {
+    text = errors.joined(separator: "\n\n")
+    style = .error
+  }
 }
 
 extension String {
@@ -45,12 +46,3 @@ extension String {
     return NSRange(startIndex..<endIndex, in: self)
   }
 }
-
-struct SimpleError {
-  var message: String
-  
-  init(_ message: String) {
-    self.message = message
-  }
-}
-

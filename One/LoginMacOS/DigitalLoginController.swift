@@ -8,13 +8,12 @@ class DigitalLoginController: ConsoleController {
   var canLogin = false
   var shouldRemember = false
   
-  override func start() {
+  override func load() {
     configurator = Configurator(for: self)
     
-    interactor?.load()
+    output("🔑 Digital Log In 🔑")
     
-    output("🔑 Username Log In 🔑")
-    super.start()
+    interactor?.load()
   }
   
   override func outputState() {
@@ -45,27 +44,32 @@ class DigitalLoginController: ConsoleController {
     case "6":
       login()
     default:
-      waitForCommand()
+      outputAndWaitForCommand()
     }
   }
   
   func changeIdentifier(_ command: Command) {
-    interactor?.changeIdentifier(to: command.parameters ?? "")
+    username = command.parameters ?? ""
     
-    waitForCommand()
+    interactor?.changeIdentifier(to: username)
+    
+    outputAndWaitForCommand()
   }
   
   func changeCredential(_ command: Command) {
-    interactor?.changeCredential(to: command.parameters ?? "")
+    password = command.parameters ?? ""
     
-    waitForCommand()
+    interactor?.changeCredential(to: password)
+    
+    outputAndWaitForCommand()
   }
   
   func changeRememberMe() {
     shouldRemember = !shouldRemember
+    
     interactor?.changeShouldRememberIdentity(to: shouldRemember)
     
-    waitForCommand()
+    outputAndWaitForCommand()
   }
   
   func login() {

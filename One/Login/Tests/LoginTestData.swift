@@ -17,19 +17,31 @@ struct LoginTestData {
   static let emptyRetailIdentity = RetailIdentity(identifier: "", credential: "")
   static let validRetailIdentity = RetailIdentity(identifier: validCardNumber, credential: validPIN)
   static let retailIdentityIdOnly = RetailIdentity(identifier: validCardNumber, credential: "")
-  static let retailIdentityWithMembershipNumber = RetailIdentity(identifier: validCardNumber,
-                                                                 credential: validPIN,
-                                                                 membershipNumber: membershipNumber)
   static let retailIdentityWithToken = RetailIdentity(identifier: validCardNumber,
                                                       credential: validPIN,
-                                                      token: validToken)
+                                                      verificationCode: nil,
+                                                      authenticationToken: validToken,
+                                                      membershipNumber: nil)
+  static let retailIdentityTokenNotFound = RetailIdentity(identifier: validCardNumber,
+                                                               credential: validPIN,
+                                                               verificationCode: nil,
+                                                               authenticationToken: nil,
+                                                               membershipNumber: membershipNumber)
+  static let retailIdentityTokenExpired = RetailIdentity(identifier: validCardNumber,
+                                                       credential: validPIN,
+                                                       verificationCode: nil,
+                                                       authenticationToken: validToken,
+                                                       membershipNumber: membershipNumber)
   static let retailIdentityWithCode = RetailIdentity(identifier: validCardNumber,
                                                      credential: validPIN,
-                                                     code: validCode)
-  static let retailIdentityWithTokenAndCode = RetailIdentity(identifier: validCardNumber,
-                                                             credential: validPIN,
-                                                             token: validToken,
-                                                             code: validCode)
+                                                     verificationCode: validCode,
+                                                     authenticationToken: nil,
+                                                     membershipNumber: membershipNumber)
+  static let retailIdentityWithEverything = RetailIdentity(identifier: validCardNumber,
+                                                           credential: validPIN,
+                                                           verificationCode: validCode,
+                                                           authenticationToken: validToken,
+                                                           membershipNumber: membershipNumber)
   
   static let ambiguousIdentifier = "12345"
   static let validUsername2 = "username0"
@@ -38,14 +50,6 @@ struct LoginTestData {
   static let validPassword2 = "password0"
   static let shortPassword = "pass"
   static let nonAlphanumericPassword = "pass_word"
-}
-
-struct LoginSimpleError: LoginError, LoginVerificationError, IdentityCreationError {
-  var message: String
-  
-  init(_ message: String) {
-    self.message = message
-  }
 }
 
 extension DigitalIdentity: Equatable {

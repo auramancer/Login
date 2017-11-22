@@ -1,19 +1,22 @@
 import Foundation
 
 class ConsoleController {
-  func start() {
+  func load() {
+    outputAndWaitForCommand()
+  }
+  
+  func outputAndWaitForCommand() {
+    outputState()
     waitForCommand()
   }
   
   func waitForCommand() {
-    outputState()
-    
     let commandString = getInput()
     if let command = Command(commandString) {
       excuteCommand(command)
     }
     else {
-      waitForCommand()
+      outputAndWaitForCommand()
     }
   }
   
@@ -50,7 +53,7 @@ class ConsoleController {
   func showMessage(_ message: LoginMessage) {
     output("\(message.style == .error ? "❗️" : "💡") \(message.text)")
     
-    waitForCommand()
+    outputAndWaitForCommand()
   }
   
   func clearMessage() {

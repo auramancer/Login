@@ -1,7 +1,3 @@
-protocol LoginVerificationError {
-  var message: String { get }
-}
-
 protocol LoginVerificationInteractorInput {
   func load(withIdentity: RetailIdentity)
   func changeCode(to: String)
@@ -11,7 +7,7 @@ protocol LoginVerificationInteractorInput {
 }
 
 protocol LoginVerificationInteractorOutput: class {
-  func didLoad(canVerify: Bool)
+  func didLoad(tokenDidExpire: Bool, canVerify: Bool)
   func canVerifyDidChange(to: Bool)
   
   func verificationDidBegin()
@@ -24,7 +20,7 @@ protocol LoginVerificationInteractorOutput: class {
 
 protocol LoginVerificationServiceOutput: class {
   func loginDidSucceed(withSession: String, token: String, needToCreateDigitalIdentity: Bool)
-  func loginDidFail(dueTo: [LoginVerificationError])
+  func loginDidFail(dueTo: [LoginError])
 }
 
 protocol VerificationCodeServiceInput {
@@ -37,15 +33,15 @@ class LoginVerificationInteractor {
   var codeService: VerificationCodeServiceInput?
   var storage: RetailLoginStorage?
   
-  private var identity: RetailIdentity!
+  fileprivate var identity: RetailIdentity!
   
-  private var canVerify: Bool {
+  fileprivate var canVerify: Bool {
     return identity.isValidForLoginWithCode
   }
   
-  private var canVerifyOldValue = false
+  fileprivate var canVerifyOldValue = false
   
-  private func outputCanLoginDidChange() {
+  fileprivate func outputCanLoginDidChange() {
     let newValue = canVerify
     
     if newValue != canVerifyOldValue {
@@ -58,9 +54,11 @@ class LoginVerificationInteractor {
 extension LoginVerificationInteractor: LoginVerificationInteractorInput {
   func load(withIdentity identity: RetailIdentity) {
     self.identity = identity
+    self.identity.authenticationToken = nil
+    let expired = identity.authenticationToken != nil
     canVerifyOldValue = canVerify
     
-    output?.didLoad(canVerify: canVerifyOldValue)
+    output?.didLoad(tokenDidExpire: expired, canVerify: canVerifyOldValue)
   }
   
   func changeCode(to code: String) {
@@ -95,21 +93,21 @@ extension LoginVerificationInteractor: LoginVerificationServiceOutput {
     }
   }
   
-  private func createDigitalIdentity(session: String, token: String) {
+  fileprivate func createDigitalIdentity(session: String, token: String) {
     storage?.saveSession(session)
     identity.authenticationToken = token
     
     output?.showIdentityCreation(withIdentity: identity)
   }
   
-  private func endVerification(session: String, token: String) {
+  fileprivate func endVerification(session: String, token: String) {
     storage?.saveSession(session)
     storage?.saveToken(token)
     
     output?.verificationDidEnd()
   }
   
-  func loginDidFail(dueTo errors: [LoginVerificationError]) {
+  func loginDidFail(dueTo errors: [LoginError]) {
     let messages = errors.map{ $0.message }
     output?.verificationDidFail(dueTo: messages)
   }

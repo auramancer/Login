@@ -38,7 +38,7 @@ extension DigitalLoginPresenter: DigitalLoginInteractorOutput {
   
   func loginDidFail(withErrors errors: [String]) {
     output?.changeIsLoggingIn(to: false)
-    output?.showMessage(LoginMessage(text: errors.joined(separator: "\n\n"), style: .error))
+    output?.showMessage(LoginMessage(errors: errors))
   }
   
   func showHelp(_ help: LoginHelp) {

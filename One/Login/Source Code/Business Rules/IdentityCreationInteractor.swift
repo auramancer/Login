@@ -1,7 +1,3 @@
-protocol IdentityCreationError {
-  var message: String { get }
-}
-
 protocol IdentityCreationInteractorInput: class {
   func load(withRetailIdentity: RetailIdentity)
   
@@ -27,7 +23,7 @@ protocol IdentityCreationServiceInput: class {
 
 protocol IdentityCreationServiceOutput: class {
   func creationDidSucceed()
-  func creationDidFail(dueTo: [IdentityCreationError])
+  func creationDidFail(dueTo: [LoginError])
 }
 
 class IdentityCreationInteractor {
@@ -38,13 +34,13 @@ class IdentityCreationInteractor {
   var retailIdentity: RetailIdentity!
   var digitalIdentity = DigitalIdentity(identifier: "", credential: "")
   
-  private var canCreate: Bool {
+  fileprivate var canCreate: Bool {
     return digitalIdentity.isValidForCreation
   }
   
-  private var canCreateOldValue = false
+  fileprivate var canCreateOldValue = false
   
-  private func outputCanCreateDidChange() {
+  fileprivate func outputCanCreateDidChange() {
     let newValue = canCreate
     
     if newValue != canCreateOldValue {
@@ -90,7 +86,7 @@ extension IdentityCreationInteractor: IdentityCreationServiceOutput {
     output?.creationDidEnd()
   }
   
-  func creationDidFail(dueTo errors: [IdentityCreationError]) {
+  func creationDidFail(dueTo errors: [LoginError]) {
     let messages = errors.map { $0.message }
     output?.creationDidFail(withErrors: messages)
   }
@@ -101,11 +97,11 @@ extension DigitalIdentity {
     return identifierIsValidForCreation && credentialIsValidForCreation
   }
   
-  private var identifierIsValidForCreation: Bool {
+  fileprivate var identifierIsValidForCreation: Bool {
     return identifier.containsMatch(of: "^[a-zA-Z0-9]{5,16}?$")
   }
   
-  private var credentialIsValidForCreation: Bool {
+  fileprivate var credentialIsValidForCreation: Bool {
     return credential.containsMatch(of: "^[a-zA-Z0-9]{5,32}?$")
   }
 }
